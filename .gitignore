@@ -1,0 +1,9 @@
+# Private, never committed (repo is public). See internal/SPEC.md §2.2
+internal/
+
+# Env files (secrets). Only the empty example is committed.
+.env*
+!.env.example
+
+# OS / editor
+.DS_Store

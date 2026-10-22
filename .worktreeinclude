@@ -1,0 +1,3 @@
+# Conductor: copy these gitignored files into every new workspace
+.env*
+internal/**
