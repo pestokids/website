@@ -4,6 +4,7 @@ import { email as copy } from "@/content/apply";
 import { useFlow } from "../apply-flow";
 import { Headline, StepPlaceholder } from "../placeholder";
 import { PrimaryButton } from "../ui/button";
+import { LockIcon } from "../ui/icons";
 import { TextField } from "../ui/text-field";
 
 // Placeholder check only; the real validation (ghost suggestion, typo fix) comes with the email screen.
@@ -51,7 +52,14 @@ export function EmailStep() {
         value={draft.email}
         onChange={(e) => dispatch({ type: "setEmail", email: e.target.value })}
         valid={ready}
-        hint={ready ? copy.privacy : undefined}
+        hint={
+          ready ? (
+            <>
+              <LockIcon />
+              {copy.privacy}
+            </>
+          ) : undefined
+        }
       />
     </StepPlaceholder>
   );

@@ -25,7 +25,7 @@ import {
 } from "../../_components/ui/button";
 import { AgeTile, Chip, SuggestionChip } from "../../_components/ui/chip";
 import { FrostedCard } from "../../_components/ui/frosted-card";
-import { ArrowRightIcon } from "../../_components/ui/icons";
+import { ArrowRightIcon, LockIcon } from "../../_components/ui/icons";
 import { ProgressHeader } from "../../_components/ui/progress-header";
 import { TextField } from "../../_components/ui/text-field";
 
@@ -272,7 +272,7 @@ function FieldDemos() {
         value={FAKE_EMAIL}
         onChange={noop}
         valid
-        hint={email.privacy}
+        hint={<Privacy />}
       />
       <TextField
         label={`${email.label} · long address, valid`}
@@ -287,9 +287,18 @@ function FieldDemos() {
         value={FAKE_EMAIL}
         readOnly
         valid
-        hint={email.privacy}
+        hint={<Privacy />}
       />
     </div>
+  );
+}
+
+function Privacy() {
+  return (
+    <>
+      <LockIcon />
+      {email.privacy}
+    </>
   );
 }
 

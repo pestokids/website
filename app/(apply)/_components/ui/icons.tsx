@@ -54,3 +54,13 @@ export function CloseIcon(props: GlyphProps) {
     </Glyph>
   );
 }
+
+/** Line lock before the privacy helper. Inline, so it sits on the text's first line. */
+export function LockIcon({ className = "mr-1.5 inline-block align-[-2px]", ...props }: GlyphProps) {
+  return (
+    <Glyph size={14} strokeWidth={1.6} className={className} {...props}>
+      <rect x="3" y="7" width="10" height="7.5" rx="1.75" />
+      <path d="M5.25 7V5a2.75 2.75 0 0 1 5.5 0v2" />
+    </Glyph>
+  );
+}
