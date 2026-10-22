@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-md-dice</title>
+    <defs>
+        <path d="M32.6593709,11.2782769 L34.573001,24.8944628 C35.1014354,28.6544688 32.481729,32.1309365 28.7217231,32.6593709 L15.1055372,34.573001 C11.3455312,35.1014354 7.86906349,32.481729 7.34062912,28.7217231 L5.42699899,15.1055372 C4.89856461,11.3455312 7.51827097,7.86906349 11.2782769,7.34062912 L24.8944628,5.42699899 C28.6544688,4.89856461 32.1309365,7.51827097 32.6593709,11.2782769 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-md-dice" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(20, 20) rotate(-8) translate(-20, -20)translate(6.25, 6.25)">
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.1875" fill="color(display-p3 1.000 0.984 0.922)" stroke-linecap="round" stroke-linejoin="round" x="4.4408921e-16" y="1.77635684e-15" width="27.5" height="27.5" rx="6.875"></rect>
+            <path d="M1.25,21.25 L1.25,21.875 C1.84434066,24.4865018 4.19755284,26.316778 6.875,26.25 L20.625,26.25 C23.3024472,26.316778 25.6556593,24.4865018 26.25,21.875 L26.25,21.25 L1.25,21.25 Z" id="Path" fill="color(display-p3 0.882 0.922 0.745)"></path>
+            <circle id="Oval" fill="color(display-p3 1.000 0.392 0.125)" cx="7.5" cy="8.75" r="2.8125"></circle>
+            <circle id="Oval" fill="color(display-p3 0.000 0.247 0.180)" cx="13.75" cy="13.75" r="2.8125"></circle>
+            <circle id="Oval" fill="color(display-p3 1.000 0.392 0.125)" cx="20" cy="18.75" r="2.8125"></circle>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-bow</title>
+    <defs>
+        <path d="M8.75,25.375 L8.75,2.625 C21,7 21,21 8.75,25.375 Z M26.25,14 L21.875,17.0625 L21.875,10.9375 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-bow" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(2.625, 2.625)">
+            <path d="M6.125,0 C18.375,4.375 18.375,18.375 6.125,22.75" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="4.375" stroke-linecap="round"></path>
+            <path d="M6.125,0 C18.375,4.375 18.375,18.375 6.125,22.75" id="Path" stroke="color(display-p3 1.000 0.541 0.122)" stroke-width="2.1875" stroke-linecap="round"></path>
+            <line x1="6.125" y1="0" x2="6.125" y2="22.75" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="0.875" fill="color(display-p3 0.000 0.000 0.000)"></line>
+            <line x1="0" y1="11.375" x2="21" y2="11.375" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 0.000 0.000 0.000)" stroke-linecap="round" stroke-linejoin="round"></line>
+            <polygon id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 0.663 0.925 0.098)" stroke-linecap="round" stroke-linejoin="round" points="19.25 8.3125 23.625 11.375 19.25 14.4375"></polygon>
+        </g>
+    </g>
+</svg>

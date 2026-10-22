@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-telescope</title>
+    <defs>
+        <path d="M23.1875,12.25 L20.5625,13.5625 L20.535,13.5055 L6.5625,20.125 L3.5,13.5625 L20.125,5.6875 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-telescope" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-width="1">
+        <g id="Group" stroke="color(display-p3 0.000 0.247 0.180)" transform="translate(3.5, 5.6875)">
+            <path d="M9.625,10.9375 L5.6875,20.125 M9.625,10.9375 L13.5625,20.125" id="Shape" stroke-width="1.53125"></path>
+            <polygon id="Path" stroke-width="1.53125" fill="color(display-p3 1.000 0.541 0.122)" points="0 7.875 16.625 0 19.6875 6.5625 3.0625 14.4375"></polygon>
+            <polygon id="Path" stroke-width="1.09375" fill="color(display-p3 0.663 0.925 0.098)" points="14 1.3125 16.625 0 19.6875 6.5625 17.0625 7.875"></polygon>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-pencil</title>
+    <defs>
+        <path d="M48.5097107,29.8953735 L46.5813479,27.5972401 C47.6463532,28.8664641 47.4808014,30.7587309 46.2115774,31.8237363 L21.6981552,52.3929398 C21.2793368,52.7443701 20.7926773,52.9618091 20.2902868,53.0498158 C20.1170281,53.5290371 19.818521,53.9701401 19.4000219,54.3213026 L17.1018885,56.2496654 C15.8326645,57.3146708 13.9403977,57.1491189 12.8753924,55.8798949 L5.16194105,46.6873616 C4.09693567,45.4181376 4.26248756,43.5258709 5.53171155,42.4608655 L7.82984488,40.5325026 C8.24834404,40.1813402 8.7345809,39.9639648 9.2365645,39.8758281 C9.41051668,39.3970783 9.70915983,38.9555702 10.1279782,38.6041398 L34.6414004,18.0349363 C35.9106244,16.9699309 37.8028912,17.1354828 38.8678965,18.4047068 L36.9395337,16.1065735 L51.9171555,15.2875221 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-pencil" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(30.4679, 33.2856) rotate(-40) translate(-30.4679, -33.2856)translate(2.4679, 24.2856)">
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" fill="color(display-p3 1.000 0.761 0.290)" stroke-linecap="round" stroke-linejoin="round" x="6" y="0" width="38" height="18" rx="3"></rect>
+            <polygon id="Path" fill="color(display-p3 0.910 0.635 0.188)" points="8 12 42 12 42 16 8 16"></polygon>
+            <polygon id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" fill="color(display-p3 0.949 0.824 0.651)" stroke-linecap="round" stroke-linejoin="round" points="44 7.10542736e-15 56 9 44 18"></polygon>
+            <polygon id="Path" fill="color(display-p3 0.000 0.247 0.180)" points="51 5.5 56 9 51 12.5"></polygon>
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" fill="color(display-p3 1.000 0.541 0.122)" stroke-linecap="round" stroke-linejoin="round" x="3.55271368e-15" y="0" width="9" height="18" rx="3"></rect>
+            <line x1="12" y1="4" x2="34" y2="4" id="Path" stroke="color(display-p3 1.000 0.906 0.639)" stroke-width="3" opacity="0.9" stroke-linecap="round"></line>
+        </g>
+    </g>
+</svg>

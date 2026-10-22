@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-book</title>
+    <defs>
+        <path d="M25.375,7.875 L25.375,25.375 C21,23.1875 16.625,23.625 14,25.375 C11.375,23.625 7,23.1875 2.625,25.375 L2.625,7.875 C7,5.25 11.375,5.6875 14,7.875 L14.1775734,7.73177366 C16.8194444,5.6695679 21.0972222,5.30833333 25.375,7.875 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-book" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(2.625, 6.0666)">
+            <path d="M0,1.80840093 C4.375,-0.816599073 8.75,-0.379099073 11.375,1.80840093 L11.375,17.5584009 C8.75,15.3709009 4.375,14.9334009 0,17.5584009 L0,1.80840093 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 1.000 0.984 0.922)" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M22.75,1.80840093 C18.375,-0.816599073 14,-0.379099073 11.375,1.80840093 L11.375,17.5584009 C14,15.3709009 18.375,14.9334009 22.75,17.5584009 L22.75,1.80840093 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 1.000 0.984 0.922)" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M11.375,1.80840093 L11.375,17.5584009 C14,15.3709009 18.375,14.9334009 22.75,17.5584009 L22.75,14.9334009 C18.375,13.1834009 14,13.6209009 11.375,15.8084009 L11.375,1.80840093 Z" id="Path" fill="color(display-p3 0.882 0.922 0.745)"></path>
+            <path d="M2.625,5.30840093 C4.8125,4.43340093 7,4.43340093 8.75,5.30840093 M2.625,8.37090093 C4.8125,7.49590093 7,7.49590093 8.75,8.37090093 M14,5.30840093 C15.75,4.43340093 17.9375,4.43340093 20.125,5.30840093" id="Shape" stroke="color(display-p3 0.663 0.925 0.098)" stroke-width="1.3125" stroke-linecap="round"></path>
+            <path d="M0,17.5584009 C4.375,14.9334009 8.75,15.3709009 11.375,17.5584009 C14,15.3709009 18.375,14.9334009 22.75,17.5584009 L22.75,19.3084009 C18.375,17.1209009 14,17.5584009 11.375,19.3084009 C8.75,17.5584009 4.375,17.1209009 0,19.3084009 L0,17.5584009 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.09375" fill="color(display-p3 0.475 0.722 0.000)" stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+    </g>
+</svg>

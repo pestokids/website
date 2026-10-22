@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-phone</title>
+    <defs>
+        <path d="M20.5625,5.6875 L20.5625,22.3125 C20.5625,24.2454966 18.9954966,25.8125 17.0625,25.8125 L10.9375,25.8125 C9.00450338,25.8125 7.4375,24.2454966 7.4375,22.3125 L7.4375,5.6875 C7.4375,3.75450338 9.00450338,2.1875 10.9375,2.1875 L17.0625,2.1875 C18.9954966,2.1875 20.5625,3.75450338 20.5625,5.6875 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-phone" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(7.4375, 2.1875)">
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 0.663 0.925 0.098)" stroke-linecap="round" stroke-linejoin="round" x="0" y="0" width="13.125" height="23.625" rx="3.5"></rect>
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.09375" fill="color(display-p3 1.000 0.984 0.922)" stroke-linecap="round" stroke-linejoin="round" x="2.1875" y="3.0625" width="8.75" height="14.875" rx="1.75"></rect>
+            <circle id="Oval" fill="color(display-p3 0.000 0.247 0.180)" cx="6.5625" cy="20.5625" r="1.1375"></circle>
+        </g>
+    </g>
+</svg>

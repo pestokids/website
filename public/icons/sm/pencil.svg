@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-pencil</title>
+    <defs>
+        <path d="M21.2229984,13.0792259 L20.3793397,12.0737926 C20.8452795,12.629078 20.7728506,13.4569448 20.2175651,13.9228846 L9.49294289,22.9219112 C9.30945446,23.0758762 9.09620275,23.1710566 8.87608138,23.2094551 C8.80130492,23.4187984 8.67067665,23.6118745 8.48750956,23.7655699 L7.48207623,24.6092286 C6.92679073,25.0751685 6.09892401,25.0027395 5.63298416,24.447454 L2.25834921,20.4257207 C1.79240935,19.8704352 1.86483831,19.0425685 2.4201238,18.5766286 L3.42555713,17.7329699 C3.60872422,17.5792745 3.82155043,17.4841581 4.04126221,17.4456282 C4.11673693,17.2367603 4.24750203,17.0432762 4.43099047,16.8893112 L15.1556127,7.89028463 C15.7108982,7.42434478 16.5387649,7.49677373 17.0047047,8.05205923 L16.161046,7.0466259 L22.7137555,6.68829094 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-pencil" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(13.3297, 14.5624) rotate(-40) translate(-13.3297, -14.5624)translate(1.0797, 10.6249)">
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 1.000 0.761 0.290)" stroke-linecap="round" stroke-linejoin="round" x="2.625" y="0" width="16.625" height="7.875" rx="1.3125"></rect>
+            <polygon id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 0.949 0.824 0.651)" stroke-linecap="round" stroke-linejoin="round" points="19.25 0 24.5 3.9375 19.25 7.875"></polygon>
+            <polygon id="Path" fill="color(display-p3 0.000 0.247 0.180)" points="22.3125 2.40625 24.5 3.9375 22.3125 5.46875"></polygon>
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 1.000 0.541 0.122)" stroke-linecap="round" stroke-linejoin="round" x="0" y="1.77635684e-15" width="3.9375" height="7.875" rx="1.3125"></rect>
+        </g>
+    </g>
+</svg>

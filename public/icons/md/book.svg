@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-md-book</title>
+    <defs>
+        <path d="M36.25,11.25 L36.25,36.25 C30,33.125 23.75,33.75 20,36.25 C16.25,33.75 10,33.125 3.75,36.25 L3.75,11.25 C10,7.5 16.25,8.125 20,11.25 L20.2070098,11.0820361 C23.9772727,8.10371901 30.1136364,7.56818182 36.25,11.25 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-md-book" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(3.75, 8.6666)">
+            <path d="M0,2.5834299 C6.25,-1.1665701 12.5,-0.541570104 16.25,2.5834299 L16.25,25.0834299 C12.5,21.9584299 6.25,21.3334299 0,25.0834299 L0,2.5834299 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.1875" fill="color(display-p3 1.000 0.984 0.922)" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M32.5,2.5834299 C26.25,-1.1665701 20,-0.541570104 16.25,2.5834299 L16.25,25.0834299 C20,21.9584299 26.25,21.3334299 32.5,25.0834299 L32.5,2.5834299 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.1875" fill="color(display-p3 1.000 0.984 0.922)" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M16.25,2.5834299 L16.25,25.0834299 C20,21.9584299 26.25,21.3334299 32.5,25.0834299 L32.5,21.3334299 C26.25,18.8334299 20,19.4584299 16.25,22.5834299 L16.25,2.5834299 Z" id="Path" fill="color(display-p3 0.882 0.922 0.745)"></path>
+            <path d="M3.75,7.5834299 C6.875,6.3334299 10,6.3334299 12.5,7.5834299 M3.75,11.9584299 C6.875,10.7084299 10,10.7084299 12.5,11.9584299 M20,7.5834299 C22.5,6.3334299 25.625,6.3334299 28.75,7.5834299" id="Shape" stroke="color(display-p3 0.663 0.925 0.098)" stroke-width="1.875" stroke-linecap="round"></path>
+            <path d="M0,25.0834299 C6.25,21.3334299 12.5,21.9584299 16.25,25.0834299 C20,21.9584299 26.25,21.3334299 32.5,25.0834299 L32.5,27.5834299 C26.25,24.4584299 20,25.0834299 16.25,27.5834299 C12.5,25.0834299 6.25,24.4584299 0,27.5834299 L0,25.0834299 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.5625" fill="color(display-p3 0.475 0.722 0.000)" stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+    </g>
+</svg>

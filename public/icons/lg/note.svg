@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-note</title>
+    <defs>
+        <path d="M52.0010243,35.9303309 C53.5528134,37.26526 54.5,39.0453034 54.5,41 C54.5,45.1421356 50.2467051,48.5 45,48.5 C40.8290819,48.5 37.28596,46.377962 36.0083451,43.4268157 L26.311165,45.5046723 C26.4350022,45.9878886 26.5,46.4879518 26.5,47 C26.5,51.1421356 22.2467051,54.5 17,54.5 C11.7532949,54.5 7.5,51.1421356 7.5,47 C7.5,42.8578644 11.7532949,39.5 17,39.5 C19.7707561,39.5 22.2644663,40.436454 24.0010243,41.9303309 L24,14 L52,8 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-note" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(7.5, 8)">
+            <polyline id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" points="16.5 38 16.5 6 44.5 0 44.5 32"></polyline>
+            <polygon id="Path" fill="color(display-p3 0.000 0.247 0.180)" points="16.5 6 44.5 0 44.5 9 16.5 15"></polygon>
+            <ellipse id="Oval" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" fill="color(display-p3 0.663 0.925 0.098)" stroke-linecap="round" stroke-linejoin="round" cx="9.5" cy="39" rx="9.5" ry="7.5"></ellipse>
+            <path d="M1.5,41 C3.04356104,43.3294043 6.13068312,44.7931401 9.5,44.7931401 C12.8693169,44.7931401 15.956439,43.3294043 17.5,41 L1.5,41 Z" id="Path" fill="color(display-p3 0.475 0.722 0.000)"></path>
+            <ellipse id="Oval" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" fill="color(display-p3 1.000 0.541 0.122)" stroke-linecap="round" stroke-linejoin="round" cx="37.5" cy="33" rx="9.5" ry="7.5"></ellipse>
+            <path d="M29.5,35 C31.043561,37.3294043 34.1306831,38.7931401 37.5,38.7931401 C40.8693169,38.7931401 43.956439,37.3294043 45.5,35 L29.5,35 Z" id="Path" fill="color(display-p3 1.000 0.392 0.125)"></path>
+            <line x1="5.5" y1="36" x2="9.5" y2="34" id="Path" stroke="color(display-p3 1.000 1.000 1.000)" stroke-width="2.5" opacity="0.9" stroke-linecap="round"></line>
+            <line x1="33.5" y1="30" x2="37.5" y2="28" id="Path" stroke="color(display-p3 1.000 1.000 1.000)" stroke-width="2.5" opacity="0.9" stroke-linecap="round"></line>
+        </g>
+    </g>
+</svg>

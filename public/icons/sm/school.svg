@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-school</title>
+    <defs>
+        <path d="M25.375,13.125 L23.625,13.125 L23.625,25.375 L4.375,25.375 L4.375,13.125 L2.625,13.125 L14,6.125 Z M18.375,3.5 L14,4.8125 L14,2.1875 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-school" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(2.625, 1.75)">
+            <polygon id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 1.000 0.541 0.122)" stroke-linecap="round" stroke-linejoin="round" points="0 11.375 11.375 4.375 22.75 11.375"></polygon>
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 1.000 0.984 0.922)" stroke-linecap="round" stroke-linejoin="round" x="1.75" y="11.375" width="19.25" height="12.25"></rect>
+            <path d="M8.75,23.625 L8.75,17.5 C8.75,16.0502525 9.92525253,14.875 11.375,14.875 C12.8247475,14.875 14,16.0502525 14,17.5 L14,23.625 L8.75,23.625 Z" id="Path" fill="color(display-p3 0.000 0.247 0.180)"></path>
+            <line x1="11.375" y1="0" x2="11.375" y2="4.375" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.09375" fill="color(display-p3 0.000 0.000 0.000)" stroke-linecap="round" stroke-linejoin="round"></line>
+            <polygon id="Path" fill="color(display-p3 0.663 0.925 0.098)" points="11.375 0.4375 15.75 1.75 11.375 3.0625"></polygon>
+        </g>
+    </g>
+</svg>

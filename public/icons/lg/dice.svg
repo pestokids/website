@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-dice</title>
+    <defs>
+        <path d="M52.2549934,18.045243 L55.3168016,39.8311405 C56.1622966,45.84715 51.9707665,51.4094984 45.954757,52.2549934 L24.1688595,55.3168016 C18.15285,56.1622966 12.5905016,51.9707665 11.7450066,45.954757 L8.68319838,24.1688595 C7.83770338,18.15285 12.0292335,12.5905016 18.045243,11.7450066 L39.8311405,8.68319838 C45.84715,7.83770338 51.4094984,12.0292335 52.2549934,18.045243 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-dice" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(32, 32) rotate(-8) translate(-32, -32)translate(10, 10)">
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" fill="color(display-p3 1.000 0.984 0.922)" stroke-linecap="round" stroke-linejoin="round" x="0" y="0" width="44" height="44" rx="11"></rect>
+            <path d="M2,34 L2,35 C2.95094506,39.1784029 6.71608454,42.1068447 11,42 L33,42 C37.2839155,42.1068447 41.0490549,39.1784029 42,35 L42,34 L2,34 Z" id="Path" fill="color(display-p3 0.882 0.922 0.745)"></path>
+            <line x1="6" y1="7" x2="16" y2="7" id="Path" stroke="color(display-p3 0.882 0.922 0.745)" stroke-width="3" opacity="0.9" stroke-linecap="round"></line>
+            <circle id="Oval" fill="color(display-p3 1.000 0.392 0.125)" cx="12" cy="14" r="4"></circle>
+            <circle id="Oval" fill="color(display-p3 0.000 0.247 0.180)" cx="22" cy="22" r="4"></circle>
+            <circle id="Oval" fill="color(display-p3 1.000 0.392 0.125)" cx="32" cy="30" r="4"></circle>
+        </g>
+    </g>
+</svg>

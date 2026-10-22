@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-puzzle</title>
+    <defs>
+        <path d="M39,20 L52,20 L52,33 C49.4991408,33 47.1882516,34.3341924 45.937822,36.5 C44.6873924,38.6658075 44.6873924,41.3341925 45.937822,43.5 C47.1882516,45.6658076 49.4991408,47 52,47 L52,58 L12,58 L12,20 L25,20 C25,16.1340068 28.1340068,13 32,13 C35.8659932,13 39,16.1340068 39,20 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-puzzle" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(12, 13)">
+            <path d="M0,7 L13,7 C13,3.13400675 16.1340068,-3.55271368e-15 20,-3.55271368e-15 C23.8659932,-3.55271368e-15 27,3.13400675 27,7 L40,7 L40,20 C37.4991408,20 35.1882516,21.3341924 33.937822,23.5 C32.6873924,25.6658075 32.6873924,28.3341925 33.937822,30.5 C35.1882516,32.6658076 37.4991408,34 40,34 L40,45 L0,45 L0,7 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" fill="color(display-p3 0.663 0.925 0.098)" stroke-linecap="round" stroke-linejoin="round"></path>
+            <polygon id="Path" fill="color(display-p3 0.475 0.722 0.000)" points="2 37 38 37 38 43 2 43"></polygon>
+            <line x1="5" y1="13" x2="5" y2="25" id="Path" stroke="color(display-p3 0.902 1.000 0.667)" stroke-width="3" opacity="0.9" stroke-linecap="round"></line>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-question</title>
+    <defs>
+        <path d="M60,14 L60,40 C60,43.3137085 57.3137085,46 54,46 L28,46 L16,56 L16,46 L10,46 C6.6862915,46 4,43.3137085 4,40 L4,14 C4,10.6862915 6.6862915,8 10,8 L54,8 C57.3137085,8 60,10.6862915 60,14 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-question" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(4, 8)">
+            <path d="M6,-1.77635684e-15 L50,-1.77635684e-15 C53.3137085,-1.77635684e-15 56,2.6862915 56,6 L56,32 C56,35.3137085 53.3137085,38 50,38 L24,38 L12,48 L12,38 L6,38 C2.6862915,38 -8.8817842e-16,35.3137085 -8.8817842e-16,32 L-8.8817842e-16,6 C-8.8817842e-16,2.6862915 2.6862915,-1.77635684e-15 6,-1.77635684e-15 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" fill="color(display-p3 1.000 0.761 0.290)" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M3,28 L3,32 C3,33.6568542 4.34314575,35 6,35 L50,35 C51.6568542,35 53,33.6568542 53,32 L53,28 L3,28 Z" id="Path" fill="color(display-p3 0.910 0.635 0.188)"></path>
+            <path d="M21,13 C21,7 35,7 35,13 C35,18 28,18 28,23" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="4" stroke-linecap="round"></path>
+            <circle id="Oval" fill="color(display-p3 0.000 0.247 0.180)" cx="28" cy="29.5" r="2.6"></circle>
+        </g>
+    </g>
+</svg>
