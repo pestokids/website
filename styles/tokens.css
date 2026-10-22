@@ -25,6 +25,10 @@
   --color-hairline: rgb(0 63 46 / 0.1);
   --color-field-rest: rgb(0 63 46 / 0.15);
   --color-segment-todo: rgb(0 63 46 / 0.09);
+  /* Icon sticker tiles (welcome, desktop) */
+  --color-sticker-peach: #ffd9c4;
+  --color-sticker-butter: #ffe7a3;
+  --color-sticker-lime: #d7f38e;
 
   /* Radius */
   --radius-field: 16px;

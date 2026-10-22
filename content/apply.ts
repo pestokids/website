@@ -247,5 +247,6 @@ export const desktop = {
   copied: "Copied!",
   qrCaption: "Point your phone camera here",
   qrSub: "Opens in your phone’s browser",
+  qrLabel: "QR code for this page",
   stickers: ["diya", "moon", "bow", "deer"] satisfies IconName[],
 } as const;

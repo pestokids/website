@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { meta } from "@/content/apply";
 import { ApplyFlow } from "../_components/apply-flow";
+import { DesktopGate } from "../_components/desktop-gate";
+import { FlowColumn } from "../_components/flow-column";
 
 export const metadata: Metadata = {
   title: meta.title,
@@ -18,10 +20,15 @@ export const metadata: Metadata = {
 };
 
 export default function ApplyPage() {
-  // The flow renders client-side only (it depends on localStorage and the URL).
+  // Client-side only: computers get the desktop screen, everything else the
+  // flow (which depends on localStorage and the URL).
   return (
     <Suspense fallback={null}>
-      <ApplyFlow />
+      <DesktopGate>
+        <FlowColumn>
+          <ApplyFlow />
+        </FlowColumn>
+      </DesktopGate>
     </Suspense>
   );
 }

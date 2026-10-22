@@ -9,16 +9,9 @@ export const viewport: Viewport = {
 };
 
 /**
- * Flow-only shell: soft-wash page background (full-bleed) and the flow column.
- * Phones (< 600px) use the full width; wider touch devices get a centred
- * column (§10). No site nav.
+ * Flow-only shell: soft-wash page background (full-bleed). Pages put the flow
+ * in a <FlowColumn>; the desktop screen uses the full width. No site nav.
  */
 export default function ApplyLayout({ children }: LayoutProps<"/">) {
-  return (
-    <div className="bg-soft-wash min-h-dvh">
-      <div className="mx-auto flex min-h-dvh w-full flex-col pb-[env(safe-area-inset-bottom)] min-[600px]:max-w-[440px]">
-        {children}
-      </div>
-    </div>
-  );
+  return <div className="bg-soft-wash min-h-dvh">{children}</div>;
 }
