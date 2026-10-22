@@ -8,11 +8,11 @@ import {
   goalOptions,
   MAX_GOALS,
   MAX_KIDS,
-  NAME_MAX_LENGTH,
   type AfterSchoolSlug,
   type Age,
   type GoalSlug,
 } from "@/content/apply";
+import { validateName } from "@/lib/application";
 import {
   classifyAttribution,
   readAttribution,
@@ -82,29 +82,8 @@ export function captureAttribution(draft: Draft, landingUrl: string, referrer: s
 
 // ── Names ────────────────────────────────────────────────────────────────────
 
-export type NameResult =
-  | { ok: true; name: string }
-  | { ok: false; error: "empty" | "invalid" | "tooLong" | "duplicate" };
-
-// Letters in any script (plus combining marks, for scripts like Devanagari),
-// spaces, hyphens and apostrophes.
-const NAME_PATTERN = /^[\p{L}\p{M}' -]+$/u;
-
-/**
- * Trims, normalises curly apostrophes to straight ones, capitalises the first
- * letter and validates. `others` are names already added (case-insensitive
- * duplicates are rejected).
- */
-export function validateName(raw: string, others: readonly string[] = []): NameResult {
-  const trimmed = raw.replace(/[‘’]/g, "'").trim().replace(/\s+/g, " ");
-  if (!trimmed) return { ok: false, error: "empty" };
-  if ([...trimmed].length > NAME_MAX_LENGTH) return { ok: false, error: "tooLong" };
-  if (!NAME_PATTERN.test(trimmed)) return { ok: false, error: "invalid" };
-  const name = trimmed.charAt(0).toLocaleUpperCase() + trimmed.slice(1);
-  const lower = name.toLocaleLowerCase();
-  if (others.some((o) => o.toLocaleLowerCase() === lower)) return { ok: false, error: "duplicate" };
-  return { ok: true, name };
-}
+// Shared with the Convex submit mutation, so client and server validate alike.
+export { validateName, type NameResult } from "@/lib/application";
 
 // ── Reducer ──────────────────────────────────────────────────────────────────
 

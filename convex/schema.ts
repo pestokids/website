@@ -2,7 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 // Raw first-touch attribution, as captured by lib/attribution.ts.
-const attribution = v.object({
+export const attribution = v.object({
   utm_source: v.optional(v.string()),
   utm_medium: v.optional(v.string()),
   utm_campaign: v.optional(v.string()),
