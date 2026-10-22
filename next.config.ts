@@ -1,0 +1,25 @@
+import type { NextConfig } from "next";
+
+// Validates the public env vars; throws (and fails dev/build) if any are missing.
+import "./lib/config";
+
+const nextConfig: NextConfig = {
+  cacheComponents: true,
+  partialPrefetching: true,
+  turbopack: {
+    rules: {
+      "*.css": {
+        loaders: ["@tailwindcss/turbopack"],
+        as: "*.css",
+      },
+    },
+  },
+  async redirects() {
+    return [
+      // Temporary until the landing page ships at /. Query strings (UTMs) carry over.
+      { source: "/", destination: "/apply", permanent: false },
+    ];
+  },
+};
+
+export default nextConfig;

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-tv</title>
+    <defs>
+        <path d="M25.375,11.375 L25.375,19.25 C25.375,21.9078704 23.2203704,24.0625 20.5625,24.0625 L7.4375,24.0625 C4.77962964,24.0625 2.625,21.9078704 2.625,19.25 L2.625,11.375 C2.625,8.71712964 4.77962964,6.5625 7.4375,6.5625 L20.5625,6.5625 C23.2203704,6.5625 25.375,8.71712964 25.375,11.375 Z M14,6.5625 L9.625,2.625 L18.375,2.625 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-tv" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(2.625, 2.625)">
+            <polyline id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" stroke-linecap="round" stroke-linejoin="round" points="7 0 11.375 3.9375 15.75 0"></polyline>
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 1.000 0.541 0.122)" stroke-linecap="round" stroke-linejoin="round" x="0" y="3.9375" width="22.75" height="17.5" rx="4.8125"></rect>
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.09375" fill="color(display-p3 0.882 0.922 0.745)" stroke-linecap="round" stroke-linejoin="round" x="2.625" y="6.5625" width="14" height="11.375" rx="3.0625"></rect>
+            <circle id="Oval" fill="color(display-p3 0.000 0.247 0.180)" cx="19.6875" cy="9.1875" r="1.3125"></circle>
+            <circle id="Oval" fill="color(display-p3 0.000 0.247 0.180)" cx="19.6875" cy="13.5625" r="1.3125"></circle>
+        </g>
+    </g>
+</svg>

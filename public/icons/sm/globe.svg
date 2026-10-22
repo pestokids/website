@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-globe</title>
+    <defs>
+        <path d="M24.9375,14 C24.9375,20.0406145 20.0406145,24.9375 14,24.9375 C7.95938555,24.9375 3.0625,20.0406145 3.0625,14 C3.0625,7.95938555 7.95938555,3.0625 14,3.0625 C20.0406145,3.0625 24.9375,7.95938555 24.9375,14 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-globe" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-width="1">
+        <g id="Group" stroke="color(display-p3 0.000 0.247 0.180)" transform="translate(3.0625, 3.0625)">
+            <circle id="Oval" stroke-width="1.53125" fill="color(display-p3 0.749 0.890 0.933)" cx="10.9375" cy="10.9375" r="10.9375"></circle>
+            <path d="M4.8125,4.8125 C7.4375,3.0625 10.0625,4.8125 9.1875,7.4375 C8.3125,10.0625 4.8125,9.1875 3.9375,11.8125 C3.0625,10.0625 3.0625,6.5625 4.8125,4.8125 Z M12.6875,10.0625 C15.3125,9.1875 18.8125,10.9375 17.9375,14.4375 C17.0625,17.9375 13.5625,18.8125 12.6875,16.1875 C11.8125,14.4375 10.9375,11.8125 12.6875,10.0625 Z" id="Shape" stroke-width="1.09375" fill="color(display-p3 0.663 0.925 0.098)" fill-rule="nonzero"></path>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-md-grandma</title>
+    <defs>
+        <path d="M32.5,21.25 C32.5,31.25 27.5,36.25 20,36.25 C12.5,36.25 7.5,31.25 7.5,21.25 C7.5,11.25 32.5,11.25 32.5,21.25 Z M24.375,7.5 C24.375,9.91624578 22.4162458,11.875 20,11.875 C17.5837542,11.875 15.625,9.91624578 15.625,7.5 C15.625,5.08375422 17.5837542,3.125 20,3.125 C22.4162458,3.125 24.375,5.08375422 24.375,7.5 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-md-grandma" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(7.5, 3.125)">
+            <circle id="Oval" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.1875" fill="color(display-p3 0.882 0.922 0.745)" stroke-linecap="round" stroke-linejoin="round" cx="12.5" cy="4.375" r="4.375"></circle>
+            <path d="M0,18.125 C0,8.125 25,8.125 25,18.125 C25,28.125 20,33.125 12.5,33.125 C5,33.125 0,28.125 0,18.125 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.1875" fill="color(display-p3 0.882 0.922 0.745)" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M3.125,19.375 C3.125,13.125 21.875,13.125 21.875,19.375 C21.875,26.875 18.125,30.625 12.5,30.625 C6.875,30.625 3.125,26.875 3.125,19.375 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.5625" fill="color(display-p3 0.910 0.659 0.416)" stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle id="Oval" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.5625" stroke-linecap="round" stroke-linejoin="round" cx="8.125" cy="21.25" r="3.125"></circle>
+            <circle id="Oval" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.5625" stroke-linecap="round" stroke-linejoin="round" cx="16.875" cy="21.25" r="3.125"></circle>
+            <circle id="Oval" fill="color(display-p3 1.000 0.392 0.125)" cx="12.5" cy="16.25" r="1.25"></circle>
+            <path d="M9.375,26.875 C11.4583333,28.125 13.5416667,28.125 15.625,26.875" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.5625" stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+    </g>
+</svg>

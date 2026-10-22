@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-note</title>
+    <defs>
+        <path d="M22.7502582,15.7193564 C23.4292785,16.303406 23.84375,17.0822405 23.84375,17.9375 C23.84375,19.7496843 21.9829335,21.21875 19.6875,21.21875 C17.86245,21.21875 16.3121431,20.2900802 15.7533999,18.9986516 L11.511129,19.9082718 C11.5653115,20.1196859 11.59375,20.338471 11.59375,20.5625 C11.59375,22.3746843 9.73293349,23.84375 7.4375,23.84375 C5.14206651,23.84375 3.28125,22.3746843 3.28125,20.5625 C3.28125,18.7503157 5.14206651,17.28125 7.4375,17.28125 C8.64960478,17.28125 9.74052213,17.6908803 10.5002582,18.3443564 L10.5,6.125 L22.75,3.5 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-note" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(3.2812, 3.5)">
+            <polyline id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" points="7.21875 16.625 7.21875 2.625 19.46875 0 19.46875 14"></polyline>
+            <polygon id="Path" fill="color(display-p3 0.000 0.247 0.180)" points="7.21875 2.625 19.46875 0 19.46875 3.9375 7.21875 6.5625"></polygon>
+            <ellipse id="Oval" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 0.663 0.925 0.098)" stroke-linecap="round" stroke-linejoin="round" cx="4.15625" cy="17.0625" rx="4.15625" ry="3.28125"></ellipse>
+            <ellipse id="Oval" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 1.000 0.541 0.122)" stroke-linecap="round" stroke-linejoin="round" cx="16.40625" cy="14.4375" rx="4.15625" ry="3.28125"></ellipse>
+        </g>
+    </g>
+</svg>

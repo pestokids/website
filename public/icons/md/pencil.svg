@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-md-pencil</title>
+    <defs>
+        <path d="M30.3185692,18.6846084 L29.1133424,17.2482751 C29.7789708,18.0415401 29.6755008,19.2242068 28.8822359,19.8898352 L13.561347,32.7455874 C13.299712,32.9651252 12.9957172,33.1009994 12.6818844,33.1560551 C12.5732467,33.4554942 12.3866487,33.7312763 12.1250137,33.9508141 L10.6886803,35.1560409 C9.89541533,35.8216693 8.71274859,35.7181993 8.04712023,34.9249343 L3.22621316,29.179601 C2.56058479,28.386336 2.66405472,27.2036693 3.45731972,26.5380409 L4.89365305,25.3328142 C5.15528807,25.1132763 5.45928281,24.9774021 5.77311566,24.9223464 C5.8817533,24.6229073 6.06835136,24.3471252 6.32998638,24.1275874 L21.6508752,11.2718352 C22.4441402,10.6062068 23.626807,10.7096768 24.2924353,11.5029418 L23.0872086,10.0666084 L32.4482222,9.55470134 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-md-pencil" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(19.0424, 20.8035) rotate(-40) translate(-19.0424, -20.8035)translate(1.5424, 15.1785)">
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.1875" fill="color(display-p3 1.000 0.761 0.290)" stroke-linecap="round" stroke-linejoin="round" x="3.75" y="3.55271368e-15" width="23.75" height="11.25" rx="1.875"></rect>
+            <polygon id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.1875" fill="color(display-p3 0.949 0.824 0.651)" stroke-linecap="round" stroke-linejoin="round" points="27.5 3.55271368e-15 35 5.625 27.5 11.25"></polygon>
+            <polygon id="Path" fill="color(display-p3 0.000 0.247 0.180)" points="31.875 3.4375 35 5.625 31.875 7.8125"></polygon>
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.1875" fill="color(display-p3 1.000 0.541 0.122)" stroke-linecap="round" stroke-linejoin="round" x="3.55271368e-15" y="3.55271368e-15" width="5.625" height="11.25" rx="1.875"></rect>
+        </g>
+    </g>
+</svg>

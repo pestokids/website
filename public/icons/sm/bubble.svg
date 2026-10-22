@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-bubble</title>
+    <defs>
+        <path d="M26.25,7 L26.25,17.5 C26.25,18.9497475 25.0747475,20.125 23.625,20.125 L12.25,20.125 L7,24.5 L7,20.125 L4.375,20.125 C2.92525253,20.125 1.75,18.9497475 1.75,17.5 L1.75,7 C1.75,5.55025253 2.92525253,4.375 4.375,4.375 L23.625,4.375 C25.0747475,4.375 26.25,5.55025253 26.25,7 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-bubble" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(1.75, 4.375)">
+            <path d="M2.625,0 L21.875,0 C23.3247475,0 24.5,1.17525253 24.5,2.625 L24.5,13.125 C24.5,14.5747475 23.3247475,15.75 21.875,15.75 L10.5,15.75 L5.25,20.125 L5.25,15.75 L2.625,15.75 C1.17525253,15.75 -4.4408921e-16,14.5747475 -4.4408921e-16,13.125 L-4.4408921e-16,2.625 C-4.4408921e-16,1.17525253 1.17525253,0 2.625,0 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 0.663 0.925 0.098)" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M1.3125,11.375 L1.3125,13.125 C1.3125,13.8498737 1.90012627,14.4375 2.625,14.4375 L21.875,14.4375 C22.5998737,14.4375 23.1875,13.8498737 23.1875,13.125 L23.1875,11.375 L1.3125,11.375 Z" id="Path" fill="color(display-p3 0.475 0.722 0.000)"></path>
+            <circle id="Oval" fill="color(display-p3 0.000 0.247 0.180)" cx="7" cy="7.4375" r="1.53125"></circle>
+            <circle id="Oval" fill="color(display-p3 0.000 0.247 0.180)" cx="12.25" cy="7.4375" r="1.53125"></circle>
+            <circle id="Oval" fill="color(display-p3 0.000 0.247 0.180)" cx="17.5" cy="7.4375" r="1.53125"></circle>
+        </g>
+    </g>
+</svg>

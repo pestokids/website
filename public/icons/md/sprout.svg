@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-md-sprout</title>
+    <defs>
+        <path d="M20,20 C11.25,21.25 5,16.25 5,8.75 C11.25,7.5 18.75,11.25 20,20 Z M35,6.25 C35,13.75 28.75,18.75 20,17.5 C21.25,8.75 27.5,5 35,6.25 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-md-sprout" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-linecap="round" stroke-width="1">
+        <g id="Group" transform="translate(5, 6.0156)">
+            <line x1="15" y1="30.234375" x2="15" y2="12.734375" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.5" fill="color(display-p3 0.000 0.000 0.000)"></line>
+            <path d="M15,13.984375 C13.75,5.234375 6.25,1.484375 0,2.734375 C0,10.234375 6.25,15.234375 15,13.984375 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.1875" fill="color(display-p3 0.663 0.925 0.098)" stroke-linejoin="round"></path>
+            <path d="M15,11.484375 C16.25,2.734375 22.5,-1.015625 30,0.234375 C30,7.734375 23.75,12.734375 15,11.484375 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.1875" fill="color(display-p3 0.663 0.925 0.098)" stroke-linejoin="round"></path>
+            <line x1="5" y1="30.234375" x2="25" y2="30.234375" id="Path" stroke="color(display-p3 0.541 0.353 0.169)" stroke-width="2.5" fill="color(display-p3 0.000 0.000 0.000)"></line>
+        </g>
+    </g>
+</svg>

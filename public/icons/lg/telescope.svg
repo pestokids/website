@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-telescope</title>
+    <defs>
+        <path d="M53,28 L47,31 L46.939,30.87 L33.8553259,37.0698453 C33.3874651,38.7595224 31.8385971,40 30,40 C29.4253685,40 28.8790377,39.8788301 28.3851643,39.6606471 L15,46 L12,40 L12.163,39.922 L8,31 L46,13 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-telescope" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(8, 13)">
+            <path d="M22,25 L13,46 M22,25 L31,46 M22,25 L22,45" id="Shape" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <polygon id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" fill="color(display-p3 1.000 0.541 0.122)" stroke-linecap="round" stroke-linejoin="round" points="0 18 38 0 45 15 7 33"></polygon>
+            <polygon id="Path" fill="color(display-p3 1.000 0.392 0.125)" points="4 27 42 9 45 15 7 33"></polygon>
+            <polygon id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.5" fill="color(display-p3 0.663 0.925 0.098)" stroke-linecap="round" stroke-linejoin="round" points="32 3 38 0 45 15 39 18"></polygon>
+            <line x1="6" y1="20" x2="28" y2="9" id="Path" stroke="color(display-p3 1.000 0.788 0.659)" stroke-width="3" opacity="0.9" stroke-linecap="round"></line>
+            <circle id="Oval" fill="color(display-p3 0.000 0.247 0.180)" cx="22" cy="23" r="4"></circle>
+        </g>
+    </g>
+</svg>

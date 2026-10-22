@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-school</title>
+    <defs>
+        <path d="M58,30 L54,30 L54,58 L10,58 L10,30 L6,30 L32,14 Z M42,8 L32,11 L32,5 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-school" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(6, 4)">
+            <line x1="26" y1="0" x2="26" y2="10" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.5" fill="color(display-p3 0.000 0.000 0.000)" stroke-linecap="round" stroke-linejoin="round"></line>
+            <polygon id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2" fill="color(display-p3 0.663 0.925 0.098)" stroke-linecap="round" stroke-linejoin="round" points="26 1 36 4 26 7"></polygon>
+            <polygon id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" fill="color(display-p3 1.000 0.541 0.122)" stroke-linecap="round" stroke-linejoin="round" points="0 26 26 10 52 26"></polygon>
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="3.5" fill="color(display-p3 1.000 0.984 0.922)" stroke-linecap="round" stroke-linejoin="round" x="4" y="26" width="44" height="28"></rect>
+            <polygon id="Path" fill="color(display-p3 0.882 0.922 0.745)" points="6 48 46 48 46 52 6 52"></polygon>
+            <path d="M20,54 L20,40 C20,36.6862915 22.6862915,34 26,34 C29.3137085,34 32,36.6862915 32,40 L32,54 L20,54 Z" id="Path" fill="color(display-p3 0.000 0.247 0.180)"></path>
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2" fill="color(display-p3 0.749 0.890 0.933)" stroke-linecap="round" stroke-linejoin="round" x="9" y="32" width="7" height="7" rx="1.5"></rect>
+            <rect id="Rectangle" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2" fill="color(display-p3 0.749 0.890 0.933)" stroke-linecap="round" stroke-linejoin="round" x="36" y="32" width="7" height="7" rx="1.5"></rect>
+            <line x1="8" y1="23" x2="22" y2="14" id="Path" stroke="color(display-p3 1.000 0.788 0.659)" stroke-width="3" opacity="0.9" stroke-linecap="round"></line>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,85 @@
+/*
+ * Pesto design tokens. Exposed both as Tailwind theme values (bg-forest,
+ * text-muted, shadow-primary, rounded-field, font-display, …) and as CSS
+ * variables (var(--color-forest)) for hand-written CSS.
+ */
+@theme {
+  /* Colour */
+  --color-forest: #003f2e;
+  --color-forest-grad-from: #0d6a4f;
+  --color-lime: #a9ec19;
+  --color-lime-grad-from: #bdf53f;
+  --color-lime-grad-to: #9fe010;
+  --color-lime-deep: #79b800;
+  --color-orange: #ff6420;
+  --color-error-border: #e2531a;
+  --color-error-text: #c2410c;
+  --color-cream: #fffbeb;
+  --color-pale: #e1ebbe;
+  --color-muted: #5b776d;
+  --color-disabled: #e7edcf;
+  --color-whatsapp: #25d366;
+  --color-whatsapp-grad-from: #3be07a;
+  --color-whatsapp-grad-to: #1ebe5a;
+  --color-wash-top: #f2f7df;
+  --color-hairline: rgb(0 63 46 / 0.1);
+  --color-field-rest: rgb(0 63 46 / 0.15);
+  --color-segment-todo: rgb(0 63 46 / 0.09);
+
+  /* Radius */
+  --radius-field: 16px;
+  --radius-card: 24px;
+  --radius-card-lg: 28px;
+  --radius-segment: 3px;
+
+  /* Depth */
+  --shadow-primary: inset 0 1.5px 0 rgb(255 255 255 / 0.2), 0 10px 22px -6px rgb(0 63 46 / 0.25),
+    0 2px 4px rgb(0 63 46 / 0.12);
+  --shadow-selected: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 8px 16px -4px rgb(121 184 0 / 0.3);
+  --shadow-unselected: 0 2px 4px rgb(0 63 46 / 0.05);
+  --shadow-focus-ring: 0 0 0 4px rgb(169 236 25 / 0.4);
+
+  /* Motion */
+  --ease-step: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Fonts come from next/font (lib/fonts.ts), which sets --font-baloo and --font-nunito. */
+@theme inline {
+  --font-display: var(--font-baloo), ui-rounded, system-ui, sans-serif;
+  --font-body: ui-rounded, "SF Pro Rounded", var(--font-nunito), system-ui, sans-serif;
+}
+
+:root {
+  --gradient-forest: linear-gradient(180deg, var(--color-forest-grad-from), var(--color-forest));
+  --gradient-lime: linear-gradient(180deg, var(--color-lime-grad-from), var(--color-lime-grad-to));
+  --gradient-whatsapp: linear-gradient(
+    180deg,
+    var(--color-whatsapp-grad-from),
+    var(--color-whatsapp-grad-to)
+  );
+  /* Page background ("soft wash"). Full-bleed, no glows. */
+  --gradient-soft-wash: linear-gradient(
+    180deg,
+    var(--color-wash-top) 0%,
+    var(--color-cream) 55%,
+    var(--color-cream) 100%
+  );
+  --margin-page: 20px;
+}
+
+@utility bg-soft-wash {
+  background-color: var(--color-cream);
+  background-image: var(--gradient-soft-wash);
+}
+
+@utility bg-forest-grad {
+  background-image: var(--gradient-forest);
+}
+
+@utility bg-lime-grad {
+  background-image: var(--gradient-lime);
+}
+
+@utility bg-whatsapp-grad {
+  background-image: var(--gradient-whatsapp);
+}

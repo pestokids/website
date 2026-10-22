@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-sprout</title>
+    <defs>
+        <path d="M14,14 C7.875,14.875 3.5,11.375 3.5,6.125 C7.875,5.25 13.125,7.875 14,14 Z M24.5,4.375 C24.5,9.625 20.125,13.125 14,12.25 C14.875,6.125 19.25,3.5 24.5,4.375 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-sprout" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-linecap="round" stroke-width="1">
+        <g id="Group" transform="translate(3.5, 4.2109)">
+            <line x1="10.5" y1="21.1640625" x2="10.5" y2="8.9140625" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.75" fill="color(display-p3 0.000 0.000 0.000)"></line>
+            <path d="M10.5,9.7890625 C9.625,3.6640625 4.375,1.0390625 0,1.9140625 C0,7.1640625 4.375,10.6640625 10.5,9.7890625 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 0.663 0.925 0.098)" stroke-linejoin="round"></path>
+            <path d="M10.5,8.0390625 C11.375,1.9140625 15.75,-0.7109375 21,0.1640625 C21,5.4140625 16.625,8.9140625 10.5,8.0390625 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 0.663 0.925 0.098)" stroke-linejoin="round"></path>
+            <line x1="3.5" y1="21.1640625" x2="17.5" y2="21.1640625" id="Path" stroke="color(display-p3 0.541 0.353 0.169)" stroke-width="1.75" fill="color(display-p3 0.000 0.000 0.000)"></line>
+        </g>
+    </g>
+</svg>

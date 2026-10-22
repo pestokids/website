@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-md-heart</title>
+    <defs>
+        <path d="M35,13.125 C36.25,20.625 31.25,26.875 20,34.375 C8.75,26.875 3.75,20.625 5,13.125 C6.25,6.875 15,5 20,11.25 C25,5 33.75,6.875 35,13.125 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-md-heart" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(4.8125, 7.3961)">
+            <path d="M15.1875,26.9789378 C3.9375,19.4789378 -1.0625,13.2289378 0.1875,5.72893783 C1.4375,-0.521062171 10.1875,-2.39606217 15.1875,3.85393783 C20.1875,-2.39606217 28.9375,-0.521062171 30.1875,5.72893783 C31.4375,13.2289378 26.4375,19.4789378 15.1875,26.9789378 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="2.1875" fill="color(display-p3 1.000 0.541 0.122)" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M2.6875,13.2289378 C5.8125,18.8539378 10.1875,22.6039378 15.1875,25.7289378 C21.4375,21.9789378 26.4375,17.6039378 28.9375,12.6039378 C24.5625,18.2289378 19.5625,21.3539378 15.1875,23.2289378 C10.8125,21.3539378 5.8125,17.6039378 2.6875,13.2289378 Z" id="Path" fill="color(display-p3 1.000 0.392 0.125)"></path>
+            <path d="M5.1875,5.72893783 C6.4375,2.60393783 8.9375,1.97893783 11.4375,3.22893783" id="Path" stroke="color(display-p3 1.000 0.788 0.659)" stroke-width="1.875" opacity="0.9" stroke-linecap="round"></path>
+        </g>
+    </g>
+</svg>

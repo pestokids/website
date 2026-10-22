@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-sm-question</title>
+    <defs>
+        <path d="M26.25,6.125 L26.25,17.5 C26.25,18.9497475 25.0747475,20.125 23.625,20.125 L12.25,20.125 L7,24.5 L7,20.125 L4.375,20.125 C2.92525253,20.125 1.75,18.9497475 1.75,17.5 L1.75,6.125 C1.75,4.67525253 2.92525253,3.5 4.375,3.5 L23.625,3.5 C25.0747475,3.5 26.25,4.67525253 26.25,6.125 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-sm-question" stroke="none" fill="none" xlink:href="#path-1" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" transform="translate(1.75, 3.5)">
+            <path d="M2.625,-8.8817842e-16 L21.875,-8.8817842e-16 C23.3247475,-8.8817842e-16 24.5,1.17525253 24.5,2.625 L24.5,14 C24.5,15.4497475 23.3247475,16.625 21.875,16.625 L10.5,16.625 L5.25,21 L5.25,16.625 L2.625,16.625 C1.17525253,16.625 -4.4408921e-16,15.4497475 -4.4408921e-16,14 L-4.4408921e-16,2.625 C-4.4408921e-16,1.17525253 1.17525253,-8.8817842e-16 2.625,-8.8817842e-16 Z" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.53125" fill="color(display-p3 1.000 0.761 0.290)" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M9.1875,5.6875 C9.1875,3.0625 15.3125,3.0625 15.3125,5.6875 C15.3125,7.875 12.25,7.875 12.25,10.0625" id="Path" stroke="color(display-p3 0.000 0.247 0.180)" stroke-width="1.96875" stroke-linecap="round"></path>
+            <circle id="Oval" fill="color(display-p3 0.000 0.247 0.180)" cx="12.25" cy="13.125" r="1.3125"></circle>
+        </g>
+    </g>
+</svg>
