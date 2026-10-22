@@ -2,7 +2,8 @@
 
 import { why } from "@/content/apply";
 import { useFlow } from "../apply-flow";
-import { Headline, PrimaryButton, StepPlaceholder } from "../placeholder";
+import { Headline, StepPlaceholder } from "../placeholder";
+import { PrimaryButton } from "../ui/button";
 
 export function WhyStep() {
   const { advance } = useFlow();

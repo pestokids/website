@@ -38,6 +38,9 @@
   --shadow-selected: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 8px 16px -4px rgb(121 184 0 / 0.3);
   --shadow-unselected: 0 2px 4px rgb(0 63 46 / 0.05);
   --shadow-focus-ring: 0 0 0 4px rgb(169 236 25 / 0.4);
+  --shadow-error-ring: 0 0 0 4px rgb(255 100 32 / 0.15);
+  --shadow-segment-glow: 0 0 8px rgb(169 236 25 / 0.8);
+  --shadow-frosted: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 18px 40px -16px rgb(0 63 46 / 0.12);
 
   /* Motion */
   --ease-step: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -82,4 +85,29 @@
 
 @utility bg-whatsapp-grad {
   background-image: var(--gradient-whatsapp);
+}
+
+/*
+ * Frosted card surface (screens 3 and 9). Solid white/90% by default; the
+ * translucent, blurred version only where backdrop-filter is supported.
+ */
+@utility frosted {
+  background-color: rgb(255 255 255 / 0.9);
+  border: 1px solid rgb(255 255 255 / 0.9);
+  box-shadow: var(--shadow-frosted);
+
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background-color: rgb(255 255 255 / 0.5);
+    -webkit-backdrop-filter: blur(36px);
+    backdrop-filter: blur(36px);
+  }
+}
+
+/* The frosted card's fallback, forced (for previews and tests). */
+@utility frosted-solid {
+  background-color: rgb(255 255 255 / 0.9);
+  border: 1px solid rgb(255 255 255 / 0.9);
+  box-shadow: var(--shadow-frosted);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }

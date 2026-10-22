@@ -209,7 +209,8 @@ export const email = {
     submitting: "Sealing your application",
   },
   suggestion: (suggested: string) => `${suggested} →`,
-  privacy: "🔒 Only used for your application. Never shared.",
+  /** Shown after a lock icon (not an emoji). */
+  privacy: "Only used for your application. Never shared.",
   submitLabel: "Submit application",
 } as const;
 

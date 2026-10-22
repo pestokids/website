@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { StickyFooter } from "./ui/sticky-footer";
 
 /**
  * Temporary scaffolding: each step renders through this until its real
@@ -24,7 +25,7 @@ export function StepPlaceholder({
         {state ? ` · ${state}` : ""}
       </p>
       {children}
-      <div className="mt-auto flex flex-col gap-3 pt-6 pb-6">{footer}</div>
+      {footer && <StickyFooter>{footer}</StickyFooter>}
     </section>
   );
 }
@@ -38,85 +39,5 @@ export function Headline({ lines }: { lines: readonly string[] }) {
         </span>
       ))}
     </h1>
-  );
-}
-
-export function PrimaryButton({
-  children,
-  disabled,
-  onClick,
-}: {
-  children: ReactNode;
-  disabled?: boolean;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className="h-[52px] w-full rounded-full bg-forest-grad font-display text-[17px] font-extrabold text-cream shadow-primary disabled:bg-disabled disabled:bg-none disabled:text-muted disabled:shadow-none"
-    >
-      {children}
-    </button>
-  );
-}
-
-export function SecondaryButton({
-  children,
-  disabled,
-  onClick,
-}: {
-  children: ReactNode;
-  disabled?: boolean;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className="h-[52px] w-full rounded-full border border-hairline bg-white font-display text-[17px] font-extrabold shadow-unselected disabled:opacity-50"
-    >
-      {children}
-    </button>
-  );
-}
-
-export function Chip({
-  children,
-  pressed,
-  disabled,
-  onClick,
-  icon,
-}: {
-  children: ReactNode;
-  pressed: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-  icon?: string;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={pressed}
-      disabled={disabled}
-      onClick={onClick}
-      className={`flex h-11 items-center gap-2 rounded-full pr-4 pl-1.5 font-display text-[17px] font-bold transition-transform active:scale-[0.97] disabled:opacity-50 ${
-        pressed ? "bg-lime-grad shadow-selected" : "border border-hairline bg-white shadow-unselected"
-      }`}
-    >
-      {icon && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={`/icons/sm/${icon}.svg`}
-          alt=""
-          width={28}
-          height={28}
-          className="rounded-full bg-cream p-0.5"
-        />
-      )}
-      {children}
-    </button>
   );
 }

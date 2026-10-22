@@ -2,7 +2,9 @@
 
 import { afterSchool as copy, afterSchoolOptions } from "@/content/apply";
 import { useFlow } from "../apply-flow";
-import { Chip, PrimaryButton, StepPlaceholder } from "../placeholder";
+import { StepPlaceholder } from "../placeholder";
+import { PrimaryButton } from "../ui/button";
+import { Chip } from "../ui/chip";
 
 export function AfterSchoolStep() {
   const { draft, dispatch, advance, family } = useFlow();

@@ -2,7 +2,9 @@
 
 import { ageOptions, ages as copy } from "@/content/apply";
 import { useFlow } from "../apply-flow";
-import { Chip, PrimaryButton, StepPlaceholder } from "../placeholder";
+import { StepPlaceholder } from "../placeholder";
+import { PrimaryButton } from "../ui/button";
+import { AgeTile } from "../ui/chip";
 
 export function AgeStep({ kidIndex }: { kidIndex: 0 | 1 }) {
   const { draft, dispatch, advance } = useFlow();
@@ -26,15 +28,16 @@ export function AgeStep({ kidIndex }: { kidIndex: 0 | 1 }) {
     >
       <p className="text-xs font-bold tracking-[0.8px]">{eyebrow}</p>
       <h1 className="font-display text-[26px] leading-8 font-extrabold">{question}</h1>
-      <div role="group" aria-label={question} className="flex flex-wrap gap-2">
+      <div role="group" aria-label={question} className="grid grid-cols-3 gap-3">
         {ageOptions.map((age) => (
-          <Chip
+          <AgeTile
             key={age}
+            unit={copy.unit}
             pressed={kid.age === age}
             onClick={() => dispatch({ type: "setAge", kidIndex, age })}
           >
-            {age} {copy.unit}
-          </Chip>
+            {age}
+          </AgeTile>
         ))}
       </div>
       <p className="text-[13px] text-muted">{copy.hint}</p>

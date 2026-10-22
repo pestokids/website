@@ -27,7 +27,7 @@ import {
 import { familyOf } from "../_lib/personalise";
 import { loadDraft, loadSubmitted, saveDraft, saveSubmitted } from "../_lib/storage";
 import { DevPanel } from "./dev-panel";
-import { ProgressHeader } from "./progress-header";
+import { FlowProgressHeader } from "./progress-header";
 import { AfterSchoolStep } from "./steps/after-school";
 import { AgeStep } from "./steps/age";
 import { EmailStep } from "./steps/email";
@@ -231,7 +231,7 @@ export function ApplyFlow() {
 
   return (
     <FlowContext value={value}>
-      <ProgressHeader />
+      <FlowProgressHeader />
       <main className="flex flex-1 flex-col px-[var(--margin-page)]">
         <StepView step={step} />
       </main>

@@ -4,7 +4,9 @@ import { useState } from "react";
 import { errors, MAX_KIDS, names as copy } from "@/content/apply";
 import { validateName } from "../../_lib/flow";
 import { useFlow } from "../apply-flow";
-import { Headline, PrimaryButton, SecondaryButton, StepPlaceholder } from "../placeholder";
+import { Headline, StepPlaceholder } from "../placeholder";
+import { PrimaryButton, SecondaryButton } from "../ui/button";
+import { TextField } from "../ui/text-field";
 
 const errorCopy = {
   invalid: errors.nameInvalid,
@@ -78,25 +80,19 @@ export function NamesStep() {
       )}
 
       {!capReached && (
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-semibold">
-            {draft.kids.length === 0 ? copy.labelFirst : copy.labelSecond}
-          </span>
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && next()}
-            placeholder={copy.placeholder}
-            autoCapitalize="words"
-            autoComplete="off"
-            autoFocus
-            aria-invalid={error ? true : undefined}
-            className="h-14 rounded-field border-[1.5px] border-field-rest bg-white px-4 text-lg font-medium"
-          />
-          <span aria-live="polite" className="min-h-[18px] text-[13px] text-error-text">
-            {error}
-          </span>
-        </label>
+        <TextField
+          label={draft.kids.length === 0 ? copy.labelFirst : copy.labelSecond}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && next()}
+          onClear={() => setInput("")}
+          clearLabel={copy.clear}
+          error={error}
+          placeholder={copy.placeholder}
+          autoCapitalize="words"
+          autoComplete="off"
+          autoFocus
+        />
       )}
     </StepPlaceholder>
   );

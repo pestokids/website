@@ -3,7 +3,8 @@
 import { welcome } from "@/content/apply";
 import { config } from "@/lib/config";
 import { useFlow } from "../apply-flow";
-import { Headline, PrimaryButton, StepPlaceholder } from "../placeholder";
+import { Headline, StepPlaceholder } from "../placeholder";
+import { PrimaryButton } from "../ui/button";
 
 export function WelcomeStep() {
   const { advance } = useFlow();
