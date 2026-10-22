@@ -332,6 +332,15 @@ describe("resume from draft", () => {
     expect(storage.data.has(SUBMITTED_KEY)).toBe(true);
     expect(loadSubmitted(storage)).toEqual(submitted);
   });
+
+  it("keeps the submit time, and drops a bad one", () => {
+    const storage = memoryStorage();
+    const base = { applicationId: "app_1", refCode: "PF-TEST", email: "x@example.com", kidNames: [A] };
+    saveSubmitted({ ...base, submittedAt: 1_790_000_000_000 }, storage);
+    expect(loadSubmitted(storage)?.submittedAt).toBe(1_790_000_000_000);
+    storage.setItem(SUBMITTED_KEY, JSON.stringify({ ...base, submittedAt: "yesterday" }));
+    expect(loadSubmitted(storage)).toEqual(base);
+  });
 });
 
 describe("attribution capture", () => {

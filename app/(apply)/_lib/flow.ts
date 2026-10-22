@@ -56,6 +56,8 @@ export type Submitted = {
   refCode: string;
   email: string;
   kidNames: string[];
+  /** ms since epoch. Missing on records stored before it was added. */
+  submittedAt?: number;
 };
 
 export function isStep(value: unknown): value is Step {
@@ -370,10 +372,14 @@ export function sanitizeDraft(value: unknown): Draft | null {
 
 export function sanitizeSubmitted(value: unknown): Submitted | null {
   if (!isRecord(value)) return null;
-  const { applicationId, refCode, email, kidNames } = value;
+  const { applicationId, refCode, email, kidNames, submittedAt } = value;
   if (typeof applicationId !== "string" || typeof refCode !== "string") return null;
   if (typeof email !== "string" || !Array.isArray(kidNames)) return null;
   const names = kidNames.filter((n): n is string => typeof n === "string").slice(0, MAX_KIDS);
   if (names.length === 0) return null;
-  return { applicationId, refCode, email, kidNames: names };
+  const submitted: Submitted = { applicationId, refCode, email, kidNames: names };
+  if (typeof submittedAt === "number" && Number.isFinite(submittedAt)) {
+    submitted.submittedAt = submittedAt;
+  }
+  return submitted;
 }
