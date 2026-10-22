@@ -2,7 +2,9 @@
 
 import { goalOptions, goals as copy, MAX_GOALS } from "@/content/apply";
 import { useFlow } from "../apply-flow";
-import { Chip, Headline, PrimaryButton, StepPlaceholder } from "../placeholder";
+import { Headline, StepPlaceholder } from "../placeholder";
+import { PrimaryButton } from "../ui/button";
+import { Chip } from "../ui/chip";
 
 export function GoalsStep() {
   const { draft, dispatch, advance, family } = useFlow();

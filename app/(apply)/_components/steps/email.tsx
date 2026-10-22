@@ -2,7 +2,9 @@
 
 import { email as copy } from "@/content/apply";
 import { useFlow } from "../apply-flow";
-import { Headline, PrimaryButton, StepPlaceholder } from "../placeholder";
+import { Headline, StepPlaceholder } from "../placeholder";
+import { PrimaryButton } from "../ui/button";
+import { TextField } from "../ui/text-field";
 
 // Placeholder check only; the real validation (ghost suggestion, typo fix) comes with the email screen.
 const looksLikeEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
@@ -38,20 +40,19 @@ export function EmailStep() {
       }
     >
       <Headline lines={copy.headline} />
-      <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-semibold">{copy.label}</span>
-        <input
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          autoCapitalize="none"
-          spellCheck={false}
-          placeholder={copy.placeholder}
-          value={draft.email}
-          onChange={(e) => dispatch({ type: "setEmail", email: e.target.value })}
-          className="h-14 rounded-field border-[1.5px] border-field-rest bg-white px-4 text-lg font-medium"
-        />
-      </label>
+      <TextField
+        label={copy.label}
+        type="email"
+        inputMode="email"
+        autoComplete="email"
+        autoCapitalize="none"
+        spellCheck={false}
+        placeholder={copy.placeholder}
+        value={draft.email}
+        onChange={(e) => dispatch({ type: "setEmail", email: e.target.value })}
+        valid={ready}
+        hint={ready ? copy.privacy : undefined}
+      />
     </StepPlaceholder>
   );
 }
