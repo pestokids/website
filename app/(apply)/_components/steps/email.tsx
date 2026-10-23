@@ -1,66 +1,246 @@
 "use client";
 
-import { email as copy } from "@/content/apply";
+import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { email as copy, emailDomains, errors } from "@/content/apply";
+import {
+  completeWith,
+  emailSuggestion,
+  ghostDomain,
+  ghostText,
+  isEmailFormatValid,
+  normaliseEmail,
+} from "../../_lib/email";
+import { submitApplication } from "../../_lib/submit";
 import { useFlow } from "../apply-flow";
-import { Headline, StepPlaceholder } from "../placeholder";
-import { PrimaryButton } from "../ui/button";
+import { StepScreen } from "../step-screen";
+import { RoundSubmitButton } from "../ui/button";
+import { SuggestionChip } from "../ui/chip";
 import { LockIcon } from "../ui/icons";
+import { StickyFooter } from "../ui/sticky-footer";
 import { TextField } from "../ui/text-field";
 
-// Placeholder check only; the real validation (ghost suggestion, typo fix) comes with the email screen.
-const looksLikeEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
+type Status = "idle" | "submitting" | "failed";
+/** The "Did you mean" state (B), set on blur or a submit attempt. */
+type Invalid = { suggestion: string | null };
 
+/**
+ * Screen 8. States: A empty, E ghost completion (submit disabled until it's
+ * accepted), B invalid or likely typo with a fix chip, C ready, D submitting,
+ * plus the network error line.
+ */
 export function EmailStep() {
   const { draft, dispatch, completeSubmit } = useFlow();
-  const ready = looksLikeEmail(draft.email);
+  const value = draft.email;
 
-  // TODO(PST-64, PST-67): development-only fake submit so the flow can reach
-  // "received" before the real Convex submit exists. Remove with the real one.
-  const fakeSubmit = () =>
-    completeSubmit({
-      applicationId: `dev_${Date.now()}`,
-      refCode: "PF-DEV0",
-      email: draft.email.trim().toLowerCase(),
-      kidNames: draft.kids.map((k) => k.name),
-    });
+  const [focused, setFocused] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
+  const [invalid, setInvalid] = useState<Invalid | null>(null);
+  // A chip tapped before anything is typed becomes the ghost's domain.
+  const [preferredDomain, setPreferredDomain] = useState<string | undefined>();
+  // Each likely-typo warning is shown once per address, so an unusual but
+  // real domain can still go through after a second look.
+  const warnedTypos = useRef(new Set<string>());
+  const inFlight = useRef(false);
+
+  const submitting = status === "submitting";
+  // No ghost over state B: the fix chip is the suggestion there.
+  const ghost = focused && !submitting && !invalid ? ghostText(value, preferredDomain) : null;
+  const ghostTarget = ghost ? ghostDomain(value, preferredDomain) : null;
+  const formatValid = isEmailFormatValid(value);
+  const ready = formatValid && !ghost && !invalid;
+  const showDomainChips = !submitting && !invalid && (!value.includes("@") || ghost !== null);
+
+  const setEmail = (next: string) => {
+    dispatch({ type: "setEmail", email: next });
+    setInvalid(null);
+    if (status === "failed") setStatus("idle");
+  };
+
+  const pickDomain = (domain: string) => {
+    if (!value.trim()) setPreferredDomain(domain);
+    else setEmail(completeWith(value, domain));
+  };
+
+  const acceptGhost = () => {
+    if (ghost) setEmail(value + ghost);
+  };
+
+  /** Shows state B if the address is wrong or looks like a typo. True when it can be sent. */
+  const check = (): boolean => {
+    if (!value.trim()) return false;
+    const suggestion = emailSuggestion(value, preferredDomain);
+    if (!formatValid) {
+      setInvalid({ suggestion });
+      return false;
+    }
+    const email = normaliseEmail(value);
+    if (suggestion && !warnedTypos.current.has(email)) {
+      warnedTypos.current.add(email);
+      setInvalid({ suggestion });
+      return false;
+    }
+    return true;
+  };
+
+  const submit = async () => {
+    if (inFlight.current) return;
+    if (ghost) return acceptGhost();
+    if (invalid || !check()) return;
+
+    inFlight.current = true;
+    setStatus("submitting");
+    const result = await submitApplication(draft, normaliseEmail(value));
+    inFlight.current = false;
+
+    if (result.ok) {
+      completeSubmit(result.submitted);
+    } else if (result.reason === "invalid_email") {
+      setStatus("idle");
+      setInvalid({ suggestion: null });
+    } else {
+      setStatus("failed");
+    }
+  };
+
+  const onSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    void submit();
+  };
+
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    // Handled here, not by implicit form submission: that does nothing while
+    // the submit button is disabled, and Enter must accept the ghost.
+    if (event.key === "Enter") {
+      event.preventDefault();
+      void submit();
+      return;
+    }
+    if (!ghost) return;
+    const input = event.currentTarget;
+    // type="email" inputs don't expose the caret in every browser (null).
+    const caretAtEnd = input.selectionStart === null || input.selectionStart === value.length;
+    if ((event.key === "ArrowRight" && caretAtEnd) || (event.key === "Tab" && !event.shiftKey)) {
+      event.preventDefault();
+      acceptGhost();
+    }
+  };
+
+  const fix = invalid?.suggestion;
+  const sub = submitting
+    ? copy.sub.submitting
+    : invalid
+      ? copy.sub.invalid
+      : ready
+        ? copy.sub.ready
+        : value.trim()
+          ? copy.sub.typing
+          : copy.sub.empty;
 
   return (
-    <StepPlaceholder
-      name="email"
-      state={ready ? "ready" : draft.email ? "typing" : "empty"}
-      footer={
-        <>
-          <p className="font-display font-bold">{copy.lastStep}</p>
-          <p className="text-[13px] text-muted">{ready ? copy.sub.ready : copy.sub.empty}</p>
-          {process.env.NODE_ENV === "development" && (
-            <PrimaryButton disabled={!ready} onClick={fakeSubmit}>
-              Fake submit (dev only)
-            </PrimaryButton>
+    <StepScreen name="email">
+      {/* The design's two lines need ~362px; narrower phones wrap it as one balanced sentence. */}
+      <h1 className="font-display text-[28px] leading-8 font-extrabold text-balance">
+        {copy.headline.map((line, i) => (
+          <span key={i} className="min-[402px]:block">
+            {i > 0 && " "}
+            {line}
+          </span>
+        ))}
+      </h1>
+
+      <form noValidate onSubmit={onSubmit} className="mt-4 flex flex-col">
+        <div className="flex min-h-[126px] flex-col">
+          <TextField
+            label={copy.label}
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint="go"
+            autoFocus
+            placeholder={copy.placeholder}
+            value={value}
+            ghost={ghost ?? undefined}
+            readOnly={submitting}
+            valid={ready || submitting}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={onKeyDown}
+            onFocus={() => setFocused(true)}
+            onBlur={() => {
+              setFocused(false);
+              if (!submitting) check();
+            }}
+            error={
+              invalid &&
+              (fix ? (
+                <>
+                  {errors.emailInvalid}
+                  <span className="mt-2 mb-3 flex">
+                    <SuggestionChip
+                      highlighted
+                      // Keep the keyboard up: don't move focus off the field.
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => setEmail(fix)}
+                    >
+                      {copy.suggestion(fix)}
+                    </SuggestionChip>
+                  </span>
+                </>
+              ) : (
+                errors.emailInvalidPlain
+              ))
+            }
+            hint={
+              status === "failed" ? (
+                <span className="text-error-text">{errors.network}</span>
+              ) : ready || submitting ? (
+                <>
+                  <LockIcon />
+                  {copy.privacy}
+                </>
+              ) : undefined
+            }
+          />
+
+          {showDomainChips && (
+            <div
+              role="group"
+              aria-label={copy.domainChipsLabel}
+              className="-mx-[var(--margin-page)] mt-2.5 flex gap-2.5 overflow-x-auto px-[var(--margin-page)] py-0.5 [scrollbar-width:none] [mask-image:linear-gradient(90deg,#000_calc(100%-var(--margin-page)-16px),transparent)] [&::-webkit-scrollbar]:hidden"
+            >
+              {emailDomains.map((domain) => (
+                <SuggestionChip
+                  key={domain}
+                  highlighted={domain === (ghostTarget ?? (!value.trim() && preferredDomain))}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => pickDomain(domain)}
+                >
+                  {copy.domainChip(domain)}
+                </SuggestionChip>
+              ))}
+            </div>
           )}
-        </>
-      }
-    >
-      <Headline lines={copy.headline} />
-      <TextField
-        label={copy.label}
-        type="email"
-        inputMode="email"
-        autoComplete="email"
-        autoCapitalize="none"
-        spellCheck={false}
-        placeholder={copy.placeholder}
-        value={draft.email}
-        onChange={(e) => dispatch({ type: "setEmail", email: e.target.value })}
-        valid={ready}
-        hint={
-          ready ? (
-            <>
-              <LockIcon />
-              {copy.privacy}
-            </>
-          ) : undefined
-        }
-      />
-    </StepPlaceholder>
+        </div>
+
+        <StickyFooter placement="inline">
+          <div className="flex items-center justify-between gap-4">
+            <div aria-live="polite" className="min-w-0">
+              <p className="font-display text-xl leading-6 font-extrabold">
+                {submitting ? copy.sending : copy.lastStep}
+              </p>
+              <p className="text-[15px] leading-5 text-muted">{sub}</p>
+            </div>
+            <RoundSubmitButton
+              type="submit"
+              aria-label={copy.submitLabel}
+              disabled={!ready}
+              busy={submitting}
+            />
+          </div>
+        </StickyFooter>
+      </form>
+    </StepScreen>
   );
 }

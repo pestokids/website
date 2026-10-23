@@ -23,7 +23,12 @@
   --color-whatsapp: #25d366;
   --color-whatsapp-grad-from: #3be07a;
   --color-whatsapp-grad-to: #1ebe5a;
+  /* Small coloured text (eyebrows, chat names): the WhatsApp green darkened to pass AA. */
+  --color-whatsapp-text: #167a3a;
   --color-wash-top: #f2f7df;
+  /* Screen 9 only: soft glows behind the frosted card. */
+  --color-glow-lime: #b8f03a;
+  --color-glow-peach: #ffb27a;
   --color-hairline: rgb(0 63 46 / 0.1);
   --color-field-rest: rgb(0 63 46 / 0.15);
   --color-segment-todo: rgb(0 63 46 / 0.09);

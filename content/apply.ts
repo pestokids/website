@@ -89,6 +89,16 @@ export const emailTypoDomains = [
   "outlook.com",
   "hotmail.com",
 ] as const;
+/** Real domains that look like typos of the ones above. Never flagged. */
+export const emailKnownDomains = [
+  "ymail.com",
+  "mail.com",
+  "email.com",
+  "gmx.com",
+  "cloud.com",
+  "googlemail.com",
+  "rocketmail.com",
+] as const;
 
 /** WhatsApp prefill. `{ref}` is the application's ref code. */
 export const whatsappPrefill = "Hi Pesto! 👋 ({ref})";
@@ -99,6 +109,8 @@ export const errors = {
   nameTooLong: `That’s a long one! ${NAME_MAX_LENGTH} letters max.`,
   nameDuplicate: "You’ve already added that name.",
   emailInvalid: "Hmm, that doesn’t look right. Did you mean",
+  /** Same, when there's nothing to suggest. */
+  emailInvalidPlain: "Hmm, that doesn’t look right.",
   network: "Couldn’t send that. Check your connection and try again.",
 } as const;
 
@@ -210,6 +222,8 @@ export const email = {
     submitting: "Sealing your application",
   },
   suggestion: (suggested: string) => `${suggested} →`,
+  domainChip: (domain: string) => `@${domain}`,
+  domainChipsLabel: "Email domains",
   /** Shown after a lock icon (not an emoji). */
   privacy: "Only used for your application. Never shared.",
   submitLabel: "Submit application",
