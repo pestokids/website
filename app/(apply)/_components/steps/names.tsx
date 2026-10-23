@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { errors, MAX_KIDS, names as copy } from "@/content/apply";
-import { validateName } from "../../_lib/flow";
+import { useRef, useState, type MouseEvent } from "react";
+import { errors, names as copy } from "@/content/apply";
+import { validateName, type Kid } from "../../_lib/flow";
 import { useFlow } from "../apply-flow";
-import { Headline, StepPlaceholder } from "../placeholder";
+import { Headline } from "../placeholder";
 import { PrimaryButton, SecondaryButton } from "../ui/button";
+import { CheckIcon, CloseIcon } from "../ui/icons";
+import { StepScreen } from "../step-screen";
+import { StickyFooter } from "../ui/sticky-footer";
 import { TextField } from "../ui/text-field";
 
 const errorCopy = {
@@ -14,86 +17,161 @@ const errorCopy = {
   duplicate: errors.nameDuplicate,
 } as const;
 
+/**
+ * - first:  the field edits kid 1 (states A, B). Prefilled when kid 1 exists.
+ * - second: kid 1 is a chip, the field is for kid 2 (state C).
+ * - review: both kids listed (state D). Only when the screen opens with 2 kids
+ *   saved; closing the keyboard in C keeps the field.
+ */
+type Mode = "first" | "second" | "review";
+
+/** Keeps focus (and the keyboard) in the field when an action button is tapped. */
+const keepFocus = (event: MouseEvent) => event.preventDefault();
+
 export function NamesStep() {
   const { draft, dispatch, advance } = useFlow();
-  const [input, setInput] = useState("");
-  const kidNames = draft.kids.map((k) => k.name);
-  const capReached = draft.kids.length >= MAX_KIDS;
-  const result = validateName(input, kidNames);
-  const error = !result.ok && result.error !== "empty" ? errorCopy[result.error] : null;
-  const canNext = result.ok || (input.trim() === "" && draft.kids.length > 0);
-  const canAddAnother = draft.kids.length === 0 && result.ok;
+  const { kids } = draft;
+  const [mode, setMode] = useState<Mode>(kids.length >= 2 ? "review" : "first");
+  const [input, setInput] = useState(() => (kids.length === 1 ? kids[0].name : ""));
 
-  const addAnother = () => {
-    if (!result.ok) return;
-    dispatch({ type: "addKid", name: result.name });
-    setInput("");
-  };
+  const others = mode === "second" ? [kids[0].name] : [];
+  const result = validateName(input, others);
+  const error = !result.ok && result.error !== "empty" ? errorCopy[result.error] : null;
+  const secondEmpty = mode === "second" && input.trim() === "";
+  const canNext = mode === "review" || result.ok || secondEmpty;
+
+  /** Saves the field as kid 1 (adding or renaming). */
+  const firstKidAction = (name: string) =>
+    kids.length === 0
+      ? ({ type: "addKid", name } as const)
+      : ({ type: "renameKid", index: 0, name } as const);
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const next = () => {
-    if (result.ok) advance({ type: "addKid", name: result.name });
-    else if (canNext) advance();
+    if (!canNext) return;
+    if (mode === "review" || secondEmpty) advance();
+    else if (result.ok) advance(mode === "first" ? firstKidAction(result.name) : { type: "addKid", name: result.name });
+  };
+
+  const addAnother = () => {
+    if (!result.ok) {
+      inputRef.current?.focus();
+      return;
+    }
+    dispatch(firstKidAction(result.name));
+    setInput("");
+    setMode("second");
+  };
+
+  const remove = (index: number) => {
+    const remaining = kids.filter((_, i) => i !== index);
+    dispatch({ type: "removeKid", index });
+    setInput(remaining[0]?.name ?? "");
+    setMode("first");
   };
 
   return (
-    <StepPlaceholder
+    <StepScreen
       name="names"
-      state={`${draft.kids.length} kid(s) committed${capReached ? " · cap reached" : ""}`}
-      footer={
-        <>
-          {draft.kids.length === 0 && (
-            <SecondaryButton disabled={!canAddAnother} onClick={addAnother}>
-              {copy.addAnother}
-            </SecondaryButton>
-          )}
-          <PrimaryButton disabled={!canNext} onClick={next}>
-            {copy.next}
-          </PrimaryButton>
-        </>
-      }
+      footer={mode === "review" && <PrimaryButton onClick={next}>{copy.next}</PrimaryButton>}
     >
       <Headline lines={copy.headline} />
 
-      {draft.kids.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold">{copy.reviewLabel}</p>
-          <ul className="flex flex-col gap-2">
-            {draft.kids.map((kid, i) => (
-              <li
-                key={kid.name}
-                className="flex items-center justify-between rounded-field border border-hairline bg-white px-4 py-2"
+      {mode === "review" ? (
+        <ReviewList kids={kids} onRemove={remove} />
+      ) : (
+        <>
+          {mode === "second" && (
+            <p className="mt-5 flex">
+              <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-lime-deep bg-lime/20 pr-3.5 pl-2.5 text-[16px] font-medium">
+                <CheckIcon size={15} />
+                {kids[0].name}
+              </span>
+            </p>
+          )}
+          <TextField
+            ref={inputRef}
+            className={mode === "second" ? "mt-3.5" : "mt-6"}
+            label={mode === "first" ? copy.labelFirst : copy.labelSecond}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") next();
+            }}
+            onClear={() => setInput("")}
+            clearLabel={copy.clear}
+            error={error}
+            placeholder={copy.placeholder}
+            autoCapitalize="words"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint="next"
+            autoFocus
+          />
+          <StickyFooter placement="inline" className="mt-2.5">
+            <div className="flex justify-between gap-3">
+              {mode === "first" && (
+                <SecondaryButton className="w-auto" onMouseDown={keepFocus} onClick={addAnother}>
+                  {copy.addAnother}
+                </SecondaryButton>
+              )}
+              <PrimaryButton
+                className={mode === "first" ? "w-[120px]" : "w-full"}
+                disabled={!canNext}
+                onMouseDown={keepFocus}
+                onClick={next}
               >
-                <span>{copy.chip(kid.name)}</span>
-                <button
-                  type="button"
-                  aria-label={copy.remove(kid.name)}
-                  onClick={() => dispatch({ type: "removeKid", index: i })}
-                  className="size-11"
-                >
-                  ×
-                </button>
-              </li>
-            ))}
-          </ul>
-          {capReached && <p className="text-[13px] text-muted">{copy.capNote}</p>}
-        </div>
+                {copy.next}
+              </PrimaryButton>
+            </div>
+          </StickyFooter>
+        </>
       )}
+    </StepScreen>
+  );
+}
 
-      {!capReached && (
-        <TextField
-          label={draft.kids.length === 0 ? copy.labelFirst : copy.labelSecond}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && next()}
-          onClear={() => setInput("")}
-          clearLabel={copy.clear}
-          error={error}
-          placeholder={copy.placeholder}
-          autoCapitalize="words"
-          autoComplete="off"
-          autoFocus
-        />
-      )}
-    </StepPlaceholder>
+const avatarTints = ["bg-lime/20", "bg-orange/15"] as const;
+
+/** First letter as the user sees it (one grapheme, so accents and matras stay whole). */
+function initial(name: string): string {
+  const [first] = new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(name);
+  return (first?.segment ?? "").toLocaleUpperCase();
+}
+
+function ReviewList({ kids, onRemove }: { kids: Kid[]; onRemove: (index: number) => void }) {
+  return (
+    <div className="mt-6 flex flex-col gap-1.5">
+      <h2 className="text-sm leading-[18px] font-semibold">{copy.reviewLabel}</h2>
+      <ul className="flex flex-col gap-3">
+        {kids.map((kid, i) => (
+          <li
+            key={kid.name}
+            className="flex h-14 items-center gap-3 rounded-field border-[1.5px] border-field-rest bg-white pl-3.5"
+          >
+            <span
+              aria-hidden="true"
+              className={`grid size-8 shrink-0 place-items-center rounded-full font-display text-[15px] leading-none font-extrabold ${avatarTints[i % avatarTints.length]}`}
+            >
+              {initial(kid.name)}
+            </span>
+            <span className="min-w-0 flex-1 truncate text-lg leading-6 font-medium">{kid.name}</span>
+            <button
+              type="button"
+              aria-label={copy.remove(kid.name)}
+              onClick={() => onRemove(i)}
+              className="mr-1.5 grid size-11 shrink-0 place-items-center rounded-full"
+            >
+              <span className="grid size-6 place-items-center rounded-full bg-forest/8">
+                <CloseIcon size={12} strokeWidth={2.4} />
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-5 text-[13px] leading-[18px] text-muted">{copy.capNote}</p>
+    </div>
   );
 }

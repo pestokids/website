@@ -77,6 +77,17 @@ describe("kids", () => {
   it("ignores an invalid name", () => {
     expect(run(empty, { type: "addKid", name: "R2-D2" }).kids).toEqual([]);
   });
+
+  it("renames a kid and keeps their age", () => {
+    const renamed = run(oneKid, { type: "renameKid", index: 0, name: "  test kid z " });
+    expect(renamed.kids).toEqual([{ name: "Test kid z", age: "5" }]);
+  });
+
+  it("rejects a rename that is invalid or clashes with the other kid", () => {
+    expect(run(oneKid, { type: "renameKid", index: 0, name: "R2-D2" })).toBe(oneKid);
+    expect(run(twoKids, { type: "renameKid", index: 1, name: A.toLowerCase() })).toBe(twoKids);
+    expect(run(oneKid, { type: "renameKid", index: 1, name: B })).toBe(oneKid);
+  });
 });
 
 describe("validateName", () => {

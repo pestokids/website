@@ -131,7 +131,6 @@ export const names = {
   clear: "Clear name",
   addAnother: "+ Add another kid",
   next: "Next ›",
-  chip: (name: string) => `✓ ${name}`,
   reviewLabel: "Your kids",
   remove: (name: string) => `Remove ${name}`,
   capNote: `Founding Families is for up to ${MAX_KIDS} kids per family.`,

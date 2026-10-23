@@ -45,12 +45,14 @@ export function IconSticker({
 /**
  * The Pesto mascot as a tilted app-icon sticker: lime frame, white border.
  * Proportions scale with `size` (136 is the welcome/desktop size). `zoom`
- * crops in on the face, as on the how-it-works screen. Decorative.
+ * crops in on the face, as on the how-it-works screen. `glow` adds the soft
+ * lime haze behind it (welcome). Decorative.
  */
 export function PestoSticker({
   tilt = -4,
   size = 136,
   zoom = 1,
+  glow = false,
   className = "",
 }: {
   /** Degrees, clockwise. */
@@ -58,12 +60,13 @@ export function PestoSticker({
   size?: number;
   /** Scale of the mascot inside its frame; 1 shows the whole artwork. */
   zoom?: number;
+  glow?: boolean;
   className?: string;
 }) {
   return (
     <span
       aria-hidden="true"
-      className={`block shrink-0 rounded-[25%] bg-white shadow-sticker ${className}`}
+      className={`block shrink-0 rounded-[25%] bg-white ${glow ? "shadow-sticker-glow" : "shadow-sticker"} ${className}`}
       // Border and frame are 5px and 9px at the 136px base size.
       style={{ width: size, height: size, padding: size * (5 / 136), rotate: `${tilt}deg` }}
     >
@@ -80,5 +83,28 @@ export function PestoSticker({
         </span>
       </span>
     </span>
+  );
+}
+
+/** Four-point sparkle beside stickers. Colour comes from `className` (text-*). Decorative. */
+export function Sparkle({
+  size = 16,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+      className={className}
+    >
+      <path d="M8 0c.5 4.6 2.9 7 8 8-5.1 1-7.5 3.4-8 8-.5-4.6-2.9-7-8-8 5.1-1 7.5-3.4 8-8Z" />
+    </svg>
   );
 }
