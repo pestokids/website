@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FlowColumn } from "../../../_components/flow-column";
 import { assertKitEnabled, kitMetadata } from "../gate";
 import { FooterDemo } from "./footer-demo";
 
@@ -7,5 +8,9 @@ export const metadata: Metadata = { ...kitMetadata, title: "Component kit · sti
 /** /apply/_kit/footer: a names-like screen for checking the footer above the keyboard. */
 export default function KitFooterPage() {
   assertKitEnabled();
-  return <FooterDemo />;
+  return (
+    <FlowColumn>
+      <FooterDemo />
+    </FlowColumn>
+  );
 }
