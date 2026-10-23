@@ -143,7 +143,7 @@ export const ages = {
   question: (kid: string) => `How old is ${kid}?`,
   questionSecond: (kid: string) => `And how old is ${kid}?`,
   unit: "years",
-  hint: "Tap one. Pesto will say something nice back.",
+  hint: "Tap the age that fits.",
   pick: "Pick an age",
   confirm: (kid: string) => `That’s ${kid}!`,
 } as const;

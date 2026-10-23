@@ -83,7 +83,7 @@ export function DesktopScreen() {
         >
           <div className="flex flex-col items-start">
             <PestoSticker className="-ml-2" />
-            <p className="mt-[27px] text-xs leading-4 font-bold tracking-[0.8px] text-lime-deep uppercase">
+            <p className="mt-[27px] text-xs leading-4 font-bold tracking-[0.8px] text-lime-text uppercase">
               {desktop.eyebrow}
             </p>
             <h1 className="mt-1 font-display text-[44px] leading-[48px] font-extrabold">

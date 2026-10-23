@@ -11,6 +11,8 @@
   --color-lime-grad-from: #bdf53f;
   --color-lime-grad-to: #9fe010;
   --color-lime-deep: #79b800;
+  /* Small coloured text (eyebrows, tags, counters): lime-deep darkened to pass AA. */
+  --color-lime-text: #4e7a00;
   --color-orange: #ff6420;
   --color-error-border: #e2531a;
   --color-error-text: #c2410c;
@@ -50,6 +52,15 @@
 
   /* Motion */
   --ease-step: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* A chip dropping into the goals sentence. */
+  --animate-drop-in: drop-in 180ms var(--ease-step) backwards;
+
+  @keyframes drop-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.92);
+    }
+  }
 }
 
 /* Fonts come from next/font (lib/fonts.ts), which sets --font-baloo and --font-nunito. */
