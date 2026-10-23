@@ -186,12 +186,14 @@ export const afterSchool = {
 export const why = {
   headline: ["Kids learn most when", "they play along."],
   sub: "Harvard-led research shows active learning, where kids play along and talk back, beats passive watching.",
+  /** Rank 1 shows the Pesto badge; the others show `icon` on a white tile. */
   podium: [
-    { rank: 1, label: "Played along", tag: "ACTIVE" },
-    { rank: 2, label: "Answered sometimes", tag: null },
-    { rank: 3, label: "Just watched", tag: "PASSIVE" },
-  ],
-  seal: "3× BETTER OUTCOMES",
+    { rank: 1, label: "Played along", tag: "ACTIVE", icon: null },
+    { rank: 2, label: "Answered sometimes", tag: null, icon: "bubble" },
+    { rank: 3, label: "Just watched", tag: "PASSIVE", icon: "tv" },
+  ] satisfies { rank: number; label: string; tag: string | null; icon: IconName | null }[],
+  /** Starburst seal: a big figure over a two-line caption ("3× BETTER OUTCOMES"). */
+  seal: { figure: "3×", caption: ["BETTER", "OUTCOMES"] },
   cta: "Continue",
 } as const;
 

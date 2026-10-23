@@ -8,13 +8,14 @@ const tints: Partial<Record<IconName, string>> = {
   moon: "bg-pale",
   bow: "bg-sticker-butter",
   deer: "bg-sticker-lime",
+  book: "bg-sticker-butter",
+  bubble: "bg-sticker-lime",
+  dice: "bg-sticker-peach",
 };
-
-const stickerShadow = "shadow-[0_10px_22px_-8px_rgb(0_63_46/0.22),0_2px_4px_rgb(0_63_46/0.06)]";
 
 /**
  * Tilted icon sticker: an md icon on a tinted tile with a white border
- * (welcome, desktop corners). Decorative.
+ * (welcome, desktop corners, how it works). Decorative.
  */
 export function IconSticker({
   icon,
@@ -33,7 +34,7 @@ export function IconSticker({
   return (
     <span
       aria-hidden="true"
-      className={`grid place-items-center rounded-[22px] border-[5px] border-white ${tints[icon] ?? "bg-pale"} ${stickerShadow} ${className}`}
+      className={`grid shrink-0 place-items-center rounded-[22px] border-[5px] border-white shadow-sticker ${tints[icon] ?? "bg-pale"} ${className}`}
       style={{ width: size, height: size, rotate: `${tilt}deg`, ...style }}
     >
       <img src={`/icons/md/${icon}.svg`} alt="" width={size * 0.56} height={size * 0.56} />
@@ -41,30 +42,42 @@ export function IconSticker({
   );
 }
 
-/** The Pesto mascot as a tilted app-icon sticker: lime frame, white border. Decorative. */
+/**
+ * The Pesto mascot as a tilted app-icon sticker: lime frame, white border.
+ * Proportions scale with `size` (136 is the welcome/desktop size). `zoom`
+ * crops in on the face, as on the how-it-works screen. Decorative.
+ */
 export function PestoSticker({
   tilt = -4,
   size = 136,
+  zoom = 1,
   className = "",
 }: {
+  /** Degrees, clockwise. */
   tilt?: number;
   size?: number;
+  /** Scale of the mascot inside its frame; 1 shows the whole artwork. */
+  zoom?: number;
   className?: string;
 }) {
   return (
     <span
       aria-hidden="true"
-      className={`block rounded-[34px] bg-white p-[5px] ${stickerShadow} ${className}`}
-      style={{ width: size, height: size, rotate: `${tilt}deg` }}
+      className={`block shrink-0 rounded-[25%] bg-white shadow-sticker ${className}`}
+      // Border and frame are 5px and 9px at the 136px base size.
+      style={{ width: size, height: size, padding: size * (5 / 136), rotate: `${tilt}deg` }}
     >
-      <span className="block size-full rounded-[29px] bg-lime p-[9px]">
-        <img
-          src="/mascots/mascot-primary.svg"
-          alt=""
-          width={size}
-          height={size}
-          className="size-full rounded-[21px]"
-        />
+      <span className="block size-full rounded-[23%] bg-lime" style={{ padding: size * (9 / 136) }}>
+        <span className="block size-full overflow-hidden rounded-[19.5%] bg-forest">
+          <img
+            src="/mascots/mascot-primary.svg"
+            alt=""
+            width={size}
+            height={size}
+            className="size-full origin-[55%_40%]"
+            style={zoom === 1 ? undefined : { scale: zoom }}
+          />
+        </span>
       </span>
     </span>
   );
