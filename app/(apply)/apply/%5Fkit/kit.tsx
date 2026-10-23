@@ -305,7 +305,7 @@ function Privacy() {
 function CardBody({ note }: { note: string }) {
   return (
     <>
-      <p className="text-xs font-bold tracking-[0.8px] text-lime-deep">{ages.eyebrow}</p>
+      <p className="text-xs font-bold tracking-[0.8px] text-lime-text">{ages.eyebrow}</p>
       <p className="font-display text-[26px] leading-8 font-extrabold">{ages.question("Meera")}</p>
       <p className="mt-1 text-[13px] text-muted">{note}</p>
     </>
