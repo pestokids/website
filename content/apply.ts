@@ -76,6 +76,8 @@ export const afterSchoolOptions = [
   { slug: "mostly_school", label: "Mostly just school", icon: "sprout" },
 ] as const satisfies readonly Option<string>[];
 export type AfterSchoolSlug = (typeof afterSchoolOptions)[number]["slug"];
+/** Can't be picked together with any other after-school option. */
+export const EXCLUSIVE_AFTER_SCHOOL = "mostly_school" satisfies AfterSchoolSlug;
 
 /** Domain chips on the email screen, in display order. */
 export const emailDomains = ["gmail.com", "icloud.com", "yahoo.com", "outlook.com"] as const;
@@ -192,6 +194,8 @@ export const afterSchool = {
   sub: "Tap everything that fits.",
   pick: "Pick at least one",
   confirm: "That’s their week",
+  /** Shown under the chips when "Mostly just school" clears the others. */
+  cleared: "Got it, just school. We cleared the others.",
 } as const;
 
 export const why = {

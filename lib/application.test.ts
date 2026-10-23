@@ -88,8 +88,17 @@ describe("validateApplication", () => {
       field: "afterSchool",
     });
     expect(withInput({ afterSchool: ["chess"] })).toMatchObject({ ok: false, field: "afterSchool" });
-    // "Mostly just school" isn't exclusive.
-    expect(withInput({ afterSchool: ["mostly_school", "tutors"] })).toMatchObject({ ok: true });
+    expect(withInput({ afterSchool: ["mostly_school"] })).toMatchObject({ ok: true });
+  });
+
+  it("rejects 'mostly just school' combined with other options", () => {
+    for (const afterSchool of [["mostly_school", "tutors"], ["tutors", "mostly_school"]]) {
+      expect(withInput({ afterSchool })).toEqual({
+        ok: false,
+        field: "afterSchool",
+        reason: "mostly_school can't be combined with other options",
+      });
+    }
   });
 
   it("rejects a malformed email", () => {
