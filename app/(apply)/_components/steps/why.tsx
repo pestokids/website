@@ -86,7 +86,7 @@ export function WhyStep() {
               {p.tag && (
                 <span
                   className={`mt-1 text-xs leading-4 font-bold tracking-[0.15em] ${
-                    p.rank === 1 ? "text-lime-deep" : "text-muted/80"
+                    p.rank === 1 ? "text-lime-text" : "text-muted/80"
                   }`}
                 >
                   {p.tag}
