@@ -3,9 +3,9 @@
 import { useId, useRef, type MouseEvent } from "react";
 import { goalOptions, goals as copy, MAX_GOALS, type GoalSlug } from "@/content/apply";
 import { useFlow } from "../apply-flow";
+import { StepScreen } from "../step-screen";
 import { PrimaryButton } from "../ui/button";
 import { Chip } from "../ui/chip";
-import { StickyFooter } from "../ui/sticky-footer";
 
 /**
  * Fill in the blank: each option lives in exactly one place, either dropped
@@ -14,7 +14,7 @@ import { StickyFooter } from "../ui/sticky-footer";
 export function GoalsStep() {
   const { draft, dispatch, advance, family } = useFlow();
   const headlineId = useId();
-  const rootRef = useRef<HTMLElement>(null);
+  const groupRef = useRef<HTMLDivElement>(null);
 
   const picked = draft.goals;
   const full = picked.length >= MAX_GOALS;
@@ -29,13 +29,20 @@ export function GoalsStep() {
     dispatch({ type: "toggleGoal", slug });
     if (hadFocus) {
       requestAnimationFrame(() =>
-        rootRef.current?.querySelector<HTMLButtonElement>(`[data-goal="${slug}"]`)?.focus(),
+        groupRef.current?.querySelector<HTMLButtonElement>(`[data-goal="${slug}"]`)?.focus(),
       );
     }
   };
 
   return (
-    <section ref={rootRef} className="flex flex-1 flex-col pt-3" data-step="goals">
+    <StepScreen
+      name="goals"
+      footer={
+        <PrimaryButton disabled={picked.length === 0} onClick={() => advance()}>
+          {picked.length === 0 ? copy.pick : copy.confirm}
+        </PrimaryButton>
+      }
+    >
       <h1 id={headlineId} className="font-display text-[28px] leading-8 font-extrabold">
         {sentence.map((line, i) => (
           <span key={i} className="block">
@@ -44,7 +51,7 @@ export function GoalsStep() {
         ))}
       </h1>
 
-      <div role="group" aria-labelledby={headlineId} className="mt-6 flex flex-col">
+      <div ref={groupRef} role="group" aria-labelledby={headlineId} className="mt-6 flex flex-col">
         {/* The sentence. Two rows tall at rest, so the list doesn't jump as it fills. */}
         <div className="flex min-h-[98px] flex-wrap content-start items-center gap-2.5">
           {pickedOptions.map((o, i) => (
@@ -104,12 +111,6 @@ export function GoalsStep() {
           ))}
         </div>
       </div>
-
-      <StickyFooter>
-        <PrimaryButton disabled={picked.length === 0} onClick={() => advance()}>
-          {picked.length === 0 ? copy.pick : copy.confirm}
-        </PrimaryButton>
-      </StickyFooter>
-    </section>
+    </StepScreen>
   );
 }

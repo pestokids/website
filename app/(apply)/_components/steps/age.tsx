@@ -3,6 +3,7 @@
 import { useId } from "react";
 import { ageOptions, ages as copy } from "@/content/apply";
 import { useFlow } from "../apply-flow";
+import { StepScreen } from "../step-screen";
 import { PrimaryButton } from "../ui/button";
 import { AgeTile } from "../ui/chip";
 import { FrostedCard } from "../ui/frosted-card";
@@ -26,7 +27,8 @@ export function AgeStep({ kidIndex }: { kidIndex: 0 | 1 }) {
   const question = kidIndex === 1 ? copy.questionSecond(kid.name) : copy.question(kid.name);
 
   return (
-    <section className="flex flex-1 flex-col pt-3" data-step={`age-${kidIndex + 1}`}>
+    // No sticky footer: the button sits inside the card.
+    <StepScreen name={`age-${kidIndex + 1}`}>
       <FrostedCard className="relative z-10 px-6 pt-7 pb-6">
         <p className="text-xs leading-4 font-bold tracking-[0.8px] text-lime-text uppercase">
           {eyebrow}
@@ -79,6 +81,6 @@ export function AgeStep({ kidIndex }: { kidIndex: 0 | 1 }) {
           draggable={false}
         />
       </div>
-    </section>
+    </StepScreen>
   );
 }
