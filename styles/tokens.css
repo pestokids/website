@@ -46,6 +46,7 @@
   --shadow-segment-glow: 0 0 8px rgb(169 236 25 / 0.8);
   --shadow-frosted: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 18px 40px -16px rgb(0 63 46 / 0.12);
   --shadow-sticker: 0 10px 22px -8px rgb(0 63 46 / 0.22), 0 2px 4px rgb(0 63 46 / 0.06);
+  --shadow-sticker-glow: var(--shadow-sticker), 0 0 56px 16px rgb(169 236 25 / 0.28);
 
   /* Motion */
   --ease-step: cubic-bezier(0.2, 0.8, 0.2, 1);

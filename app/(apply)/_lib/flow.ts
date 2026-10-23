@@ -90,6 +90,7 @@ export { validateName, type NameResult } from "@/lib/application";
 export type Action =
   | { type: "addKid"; name: string }
   | { type: "removeKid"; index: number }
+  | { type: "renameKid"; index: number; name: string }
   | { type: "setAge"; kidIndex: number; age: Age }
   | { type: "toggleGoal"; slug: GoalSlug }
   | { type: "toggleAfterSchool"; slug: AfterSchoolSlug }
@@ -115,6 +116,16 @@ export function reducer(draft: Draft, action: Action): Draft {
     case "removeKid":
       if (action.index < 0 || action.index >= draft.kids.length) return draft;
       return { ...draft, kids: draft.kids.filter((_, i) => i !== action.index) };
+    case "renameKid": {
+      // Keeps the kid's age: a rename is a fix, not a different kid.
+      const kid = draft.kids[action.index];
+      if (!kid) return draft;
+      const others = draft.kids.filter((_, i) => i !== action.index).map((k) => k.name);
+      const result = validateName(action.name, others);
+      if (!result.ok || result.name === kid.name) return draft;
+      const kids = draft.kids.map((k, i) => (i === action.index ? { ...k, name: result.name } : k));
+      return { ...draft, kids };
+    }
     case "setAge": {
       if (!draft.kids[action.kidIndex] || !ageOptions.includes(action.age)) return draft;
       const kids = draft.kids.map((k, i) => (i === action.kidIndex ? { ...k, age: action.age } : k));
