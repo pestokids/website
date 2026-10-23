@@ -27,8 +27,8 @@ export function Chip({
     <button
       type={type}
       aria-pressed={pressed}
-      className={`flex h-11 items-center gap-2 rounded-full border font-display text-[17px] leading-none font-bold whitespace-nowrap text-forest disabled:opacity-50 ${
-        icon ? "pr-4 pl-1.5" : "px-4"
+      className={`flex h-11 items-center gap-1.5 rounded-full border font-display text-[17px] leading-none font-bold whitespace-nowrap text-forest disabled:opacity-50 ${
+        icon ? "pr-3.5 pl-1.5" : "px-4"
       } ${
         pressed
           ? "border-transparent bg-lime-grad shadow-selected"

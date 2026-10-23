@@ -15,10 +15,10 @@ import { useKeyboardInset } from "./use-keyboard-inset";
  * - `placement="inline"` leaves it in the flow (email's submit row); it
  *   only lifts when the keyboard would cover it.
  *
- * Wide screens: set `--footer-lift` on an ancestor to raise an `end` footer
- * off the bottom of the step while the keyboard is closed, e.g.
- * `max(0px, 100dvh - 984px)` to pin it 110px below its 874px-phone position.
- * Ignored while the keyboard is open, so it behaves exactly as on a phone.
+ * Wide screens: `--footer-lift` on an ancestor raises an `end` footer off
+ * the bottom of the step while the keyboard is closed. <FlowColumn> sets it
+ * for every step. Ignored while the keyboard is open, so it behaves exactly
+ * as on a phone.
  */
 export function StickyFooter({
   children,

@@ -25,7 +25,7 @@
   --color-hairline: rgb(0 63 46 / 0.1);
   --color-field-rest: rgb(0 63 46 / 0.15);
   --color-segment-todo: rgb(0 63 46 / 0.09);
-  /* Icon sticker tiles (welcome, desktop) */
+  /* Icon sticker tiles (welcome, desktop, how it works) */
   --color-sticker-peach: #ffd9c4;
   --color-sticker-butter: #ffe7a3;
   --color-sticker-lime: #d7f38e;
@@ -45,6 +45,7 @@
   --shadow-error-ring: 0 0 0 4px rgb(255 100 32 / 0.15);
   --shadow-segment-glow: 0 0 8px rgb(169 236 25 / 0.8);
   --shadow-frosted: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 18px 40px -16px rgb(0 63 46 / 0.12);
+  --shadow-sticker: 0 10px 22px -8px rgb(0 63 46 / 0.22), 0 2px 4px rgb(0 63 46 / 0.06);
 
   /* Motion */
   --ease-step: cubic-bezier(0.2, 0.8, 0.2, 1);
