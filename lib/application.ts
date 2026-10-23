@@ -8,6 +8,7 @@
 import {
   afterSchoolOptions,
   ageOptions,
+  EXCLUSIVE_AFTER_SCHOOL,
   goalOptions,
   MAX_GOALS,
   MAX_KIDS,
@@ -105,6 +106,11 @@ function isSlugList<T extends string>(list: string[], allowed: Set<string>): lis
   return list.every((x) => allowed.has(x)) && new Set(list).size === list.length;
 }
 
+/** True if the exclusive "Mostly just school" is picked together with anything else. */
+export function hasExclusiveConflict(afterSchool: readonly string[]): boolean {
+  return afterSchool.length > 1 && afterSchool.includes(EXCLUSIVE_AFTER_SCHOOL);
+}
+
 /** Keeps known keys with non-empty values, trimmed and length-capped. */
 export function cleanAttribution(raw: Attribution): Attribution {
   const out: Attribution = {};
@@ -150,6 +156,9 @@ export function validateApplication(input: ApplicationInput): ApplicationResult 
   if (afterSchool.length < 1) return fail("afterSchool", "expected at least one option");
   if (!isSlugList<AfterSchoolSlug>(afterSchool, afterSchoolSlugs)) {
     return fail("afterSchool", "unknown or repeated option");
+  }
+  if (hasExclusiveConflict(afterSchool)) {
+    return fail("afterSchool", `${EXCLUSIVE_AFTER_SCHOOL} can't be combined with other options`);
   }
 
   const email = normaliseEmail(input.email);

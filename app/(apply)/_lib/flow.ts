@@ -5,6 +5,7 @@
 import {
   afterSchoolOptions,
   ageOptions,
+  EXCLUSIVE_AFTER_SCHOOL,
   goalOptions,
   MAX_GOALS,
   MAX_KIDS,
@@ -12,7 +13,7 @@ import {
   type Age,
   type GoalSlug,
 } from "@/content/apply";
-import { validateName } from "@/lib/application";
+import { hasExclusiveConflict, validateName } from "@/lib/application";
 import {
   classifyAttribution,
   readAttribution,
@@ -104,6 +105,21 @@ function toggle<T>(list: readonly T[], item: T): T[] {
   return list.includes(item) ? list.filter((x) => x !== item) : [...list, item];
 }
 
+/**
+ * "Mostly just school" is exclusive: picking it clears the others, and
+ * picking anything else drops it.
+ */
+function toggleAfterSchool(list: readonly AfterSchoolSlug[], slug: AfterSchoolSlug) {
+  if (list.includes(slug)) return list.filter((x) => x !== slug);
+  if (slug === EXCLUSIVE_AFTER_SCHOOL) return [slug];
+  return [...list.filter((x) => x !== EXCLUSIVE_AFTER_SCHOOL), slug];
+}
+
+/** Whether toggling `slug` clears other picks, so the screen can say so. */
+export function clearsOtherAfterSchool(list: readonly AfterSchoolSlug[], slug: AfterSchoolSlug) {
+  return slug === EXCLUSIVE_AFTER_SCHOOL && !list.includes(slug) && list.length > 0;
+}
+
 export function reducer(draft: Draft, action: Action): Draft {
   switch (action.type) {
     case "addKid": {
@@ -139,7 +155,7 @@ export function reducer(draft: Draft, action: Action): Draft {
       return { ...draft, goals: toggle(draft.goals, action.slug) };
     }
     case "toggleAfterSchool":
-      return { ...draft, afterSchool: toggle(draft.afterSchool, action.slug) };
+      return { ...draft, afterSchool: toggleAfterSchool(draft.afterSchool, action.slug) };
     case "setEmail":
       return { ...draft, email: action.email };
     case "setStep":
@@ -342,11 +358,17 @@ export function sanitizeDraft(value: unknown): Draft | null {
       ? [...new Set(list.filter((x): x is T => typeof x === "string" && allowed.has(x)))]
       : [];
 
+  let afterSchool = uniq<AfterSchoolSlug>(value.afterSchool, afterSchoolSlugs);
+  // Saved before "Mostly just school" was exclusive: keep the specific picks.
+  if (hasExclusiveConflict(afterSchool)) {
+    afterSchool = afterSchool.filter((x) => x !== EXCLUSIVE_AFTER_SCHOOL);
+  }
+
   const draft: Draft = {
     step: isStep(value.step) && value.step !== "received" ? value.step : "welcome",
     kids,
     goals: uniq<GoalSlug>(value.goals, goalSlugs).slice(0, MAX_GOALS),
-    afterSchool: uniq<AfterSchoolSlug>(value.afterSchool, afterSchoolSlugs),
+    afterSchool,
     email: typeof value.email === "string" ? value.email : "",
     startedAt: value.startedAt,
   };

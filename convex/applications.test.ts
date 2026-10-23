@@ -145,6 +145,7 @@ describe("applications.submit", () => {
     ["kids", { kids: [{ name: "Test Kid", age: "9" }] }],
     ["goals", { goals: ["science", "music", "puzzles", "the_world"] }],
     ["afterSchool", { afterSchool: [] }],
+    ["afterSchool", { afterSchool: ["mostly_school", "tutors"] }],
     ["email", { email: "test.parent@example" }],
   ])("rejects invalid %s without writing anything", async (field, patch) => {
     const t = setupConvex();

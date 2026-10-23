@@ -5,6 +5,7 @@ import {
   canEnter,
   captureAttribution,
   clampStep,
+  clearsOtherAfterSchool,
   createDraft,
   initialStep,
   nextStep,
@@ -148,10 +149,46 @@ describe("goals", () => {
 });
 
 describe("after school", () => {
-  it("is multi-select with no cap; 'mostly just school' isn't exclusive", () => {
-    const all = content.afterSchoolOptions.map((o) => o.slug);
-    const d = run(oneKid, ...all.map((slug) => ({ type: "toggleAfterSchool", slug }) as const));
-    expect(d.afterSchool).toEqual(all);
+  const others = content.afterSchoolOptions
+    .map((o) => o.slug)
+    .filter((slug) => slug !== "mostly_school");
+
+  it("is multi-select with no cap among the non-exclusive options", () => {
+    const d = run(oneKid, ...others.map((slug) => ({ type: "toggleAfterSchool", slug }) as const));
+    expect(d.afterSchool).toEqual(others);
+    expect(run(d, { type: "toggleAfterSchool", slug: "tutors" }).afterSchool).not.toContain(
+      "tutors",
+    );
+  });
+
+  it("'mostly just school' clears the others", () => {
+    const d = run(
+      oneKid,
+      { type: "toggleAfterSchool", slug: "tutors" },
+      { type: "toggleAfterSchool", slug: "grandparents" },
+    );
+    expect(clearsOtherAfterSchool(d.afterSchool, "mostly_school")).toBe(true);
+    expect(run(d, { type: "toggleAfterSchool", slug: "mostly_school" }).afterSchool).toEqual([
+      "mostly_school",
+    ]);
+  });
+
+  it("any other option drops 'mostly just school', without a hint", () => {
+    const d = run(oneKid, { type: "toggleAfterSchool", slug: "mostly_school" });
+    expect(clearsOtherAfterSchool(d.afterSchool, "tutors")).toBe(false);
+    expect(run(d, { type: "toggleAfterSchool", slug: "tutors" }).afterSchool).toEqual(["tutors"]);
+  });
+
+  it("only hints when 'mostly just school' actually clears something", () => {
+    expect(clearsOtherAfterSchool([], "mostly_school")).toBe(false);
+    // Unselecting it clears nothing.
+    expect(clearsOtherAfterSchool(["mostly_school"], "mostly_school")).toBe(false);
+    const d = run(
+      oneKid,
+      { type: "toggleAfterSchool", slug: "mostly_school" },
+      { type: "toggleAfterSchool", slug: "mostly_school" },
+    );
+    expect(d.afterSchool).toEqual([]);
   });
 });
 
@@ -291,6 +328,18 @@ describe("resume from draft", () => {
       email: "",
       startedAt: 1,
     });
+  });
+
+  it("resumed progress with 'mostly just school' and others keeps the others", () => {
+    const storage = memoryStorage();
+    storage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({ ...oneKid, afterSchool: ["tutors", "mostly_school", "grandparents"] }),
+    );
+    expect(loadDraft(storage)?.afterSchool).toEqual(["tutors", "grandparents"]);
+
+    storage.setItem(DRAFT_KEY, JSON.stringify({ ...oneKid, afterSchool: ["mostly_school"] }));
+    expect(loadDraft(storage)?.afterSchool).toEqual(["mostly_school"]);
   });
 
   it("returns null for corrupt JSON or a non-draft", () => {
