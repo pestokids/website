@@ -6,6 +6,7 @@ import { googleCalendarLink } from "@/lib/calendar";
 import { config } from "@/lib/config";
 import { whatsappLink } from "@/lib/whatsapp";
 import { receivedDates } from "../../_lib/received";
+import { track } from "../../_lib/track";
 import { useFlow } from "../apply-flow";
 import { StepScreen } from "../step-screen";
 import { FrostedCard } from "../ui/frosted-card";
@@ -89,6 +90,7 @@ export function ReceivedStep() {
               {/* Same tab: in-app browsers hand wa.me off to the WhatsApp app. */}
               <a
                 href={whatsappLink(config.whatsappNumber, submitted.refCode)}
+                onClick={() => track.whatsappOpened(submitted.kidNames.length)}
                 className="mt-3 flex h-[52px] items-center justify-center gap-2.5 rounded-full bg-whatsapp-grad font-display text-[17px] leading-none font-extrabold text-white shadow-[inset_0_1.5px_0_rgb(255_255_255/0.25),0_10px_22px_-6px_rgb(30_190_90/0.45)] transition-transform duration-150 ease-step motion-safe:active:scale-[0.97]"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}
@@ -110,6 +112,7 @@ export function ReceivedStep() {
                 </div>
                 <a
                   href={googleCalendarLink(copy.betaDay.calendarTitle, config.betaDate.iso)}
+                  onClick={() => track.calendarAdded(submitted.kidNames.length)}
                   target="_blank"
                   rel="noopener noreferrer"
                   // 30px visual, 44px tap target.

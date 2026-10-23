@@ -7,6 +7,7 @@ import { ConvexHttpClient } from "convex/browser";
 import { ConvexError } from "convex/values";
 import { api } from "@/convex/_generated/api";
 import type { SubmitError } from "@/convex/applications";
+import { distinctId } from "@/lib/analytics";
 import { config } from "@/lib/config";
 import type { Draft, Submitted } from "./flow";
 
@@ -29,6 +30,8 @@ export async function submitApplication(draft: Draft, email: string): Promise<Su
   if (kids.length !== draft.kids.length) return { ok: false, reason: "invalid" };
 
   client ??= new ConvexHttpClient(config.convexUrl);
+  // The anonymous PostHog ID, so the application can be joined to its funnel events.
+  const posthogDistinctId = distinctId();
   try {
     const { applicationId, refCode } = await Promise.race([
       client.mutation(api.applications.submit, {
@@ -37,6 +40,7 @@ export async function submitApplication(draft: Draft, email: string): Promise<Su
         afterSchool: draft.afterSchool,
         email,
         attribution: draft.attribution ?? {},
+        ...(posthogDistinctId && { posthogDistinctId }),
       }),
       timeout(),
     ]);
