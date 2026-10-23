@@ -12,6 +12,7 @@ import {
 } from "../../_lib/email";
 import { submitApplication } from "../../_lib/submit";
 import { useFlow } from "../apply-flow";
+import { StepScreen } from "../step-screen";
 import { RoundSubmitButton } from "../ui/button";
 import { SuggestionChip } from "../ui/chip";
 import { LockIcon } from "../ui/icons";
@@ -136,7 +137,7 @@ export function EmailStep() {
           : copy.sub.empty;
 
   return (
-    <section className="flex flex-1 flex-col pt-4" data-step="email">
+    <StepScreen name="email">
       {/* The design's two lines need ~362px; narrower phones wrap it as one balanced sentence. */}
       <h1 className="font-display text-[28px] leading-8 font-extrabold text-balance">
         {copy.headline.map((line, i) => (
@@ -240,6 +241,6 @@ export function EmailStep() {
           </div>
         </StickyFooter>
       </form>
-    </section>
+    </StepScreen>
   );
 }

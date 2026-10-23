@@ -7,6 +7,7 @@ import { config } from "@/lib/config";
 import { whatsappLink } from "@/lib/whatsapp";
 import { receivedDates } from "../../_lib/received";
 import { useFlow } from "../apply-flow";
+import { StepScreen } from "../step-screen";
 import { FrostedCard } from "../ui/frosted-card";
 import { CheckIcon } from "../ui/icons";
 
@@ -22,9 +23,9 @@ export function ReceivedStep() {
   const { receivedOn, sentWhen } = receivedDates(submitted.submittedAt, new Date());
 
   return (
-    <section className="flex flex-1 flex-col pt-[30px] pb-8" data-step="received">
+    <StepScreen name="received" className="pb-8">
       {/* Pesto peeks in from the left edge; the card covers his bottom. */}
-      <div className="relative flex min-h-[102px] justify-end">
+      <div className="relative mt-[18px] flex min-h-[102px] justify-end">
         {/* eslint-disable-next-line @next/next/no-img-element -- static SVG */}
         <img
           src="/mascots/mascot-primary-cutout.svg"
@@ -125,7 +126,7 @@ export function ReceivedStep() {
       <p className="mt-4 px-2 text-center text-[13px] leading-[18px] text-muted [overflow-wrap:anywhere]">
         {copy.footer(submitted.email)}
       </p>
-    </section>
+    </StepScreen>
   );
 }
 
