@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 
 /**
- * The flow column. Phones (< 600px) use the full width; wider touch devices
- * get a centred column (§10).
+ * The flow column. Phones (< 600px) flex with the screen, up to 440px; wider
+ * touch devices (foldables, tablets) get a centred column of exactly 402px,
+ * the phone design width, over the full-bleed page background.
  *
  * Wide screens also lift every step's sticky footer (`--footer-lift`) so it
  * sits 110px below its phone position, measured from the top of the column.
@@ -12,7 +13,7 @@ import type { ReactNode } from "react";
  */
 export function FlowColumn({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-dvh w-full flex-col pb-[env(safe-area-inset-bottom)] min-[600px]:max-w-[440px] min-[600px]:[--footer-lift:max(0px,calc(100dvh-env(safe-area-inset-bottom)-830px))]">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[440px] flex-col pb-[env(safe-area-inset-bottom)] min-[600px]:max-w-[402px] min-[600px]:[--footer-lift:max(0px,calc(100dvh-env(safe-area-inset-bottom)-830px))]">
       {children}
     </div>
   );
