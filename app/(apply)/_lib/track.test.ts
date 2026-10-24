@@ -45,6 +45,17 @@ const twoKids = draftWith(
   { type: "toggleAfterSchool", slug: "tutors" },
 );
 
+const threeKids = draftWith(
+  { type: "addKid", name: "Test Kid A" },
+  { type: "addKid", name: "Test Kid B" },
+  { type: "addKid", name: "Test Kid C" },
+  { type: "setAge", kidIndex: 0, age: "5" },
+  { type: "setAge", kidIndex: 1, age: "8+" },
+  { type: "setAge", kidIndex: 2, age: "3" },
+  { type: "toggleGoal", slug: "science" },
+  { type: "toggleAfterSchool", slug: "tutors" },
+);
+
 const submitted = {
   applicationId: "test-application-id",
   refCode: "PF-TEST",
@@ -80,6 +91,7 @@ describe("stepProps", () => {
     ["names", 0, { step: "names", step_index: 2, kids_count: 0 }],
     ["age-1", 2, { step: "age", step_index: 3, kids_count: 2, kid_index: 0 }],
     ["age-2", 2, { step: "age", step_index: 3, kids_count: 2, kid_index: 1 }],
+    ["age-3", 3, { step: "age", step_index: 3, kids_count: 3, kid_index: 2 }],
     ["goals", 1, { step: "goals", step_index: 4, kids_count: 1 }],
     ["how", 1, { step: "how", step_index: 5, kids_count: 1 }],
     ["after-school", 1, { step: "after_school", step_index: 6, kids_count: 1 }],
@@ -174,6 +186,30 @@ describe("funnel events", () => {
       options: undefined,
     });
     expect(sdk.lr.track).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["names", { step: "names", step_index: 2, kids_count: 3 }],
+    ["age-3", { step: "age", step_index: 3, kids_count: 3, kid_index: 2, age: "3" }],
+    ["goals", { step: "goals", step_index: 4, kids_count: 3, goals: ["science"] }],
+  ] as const)("ff_step_completed on %s with 3 kids", (step, properties) => {
+    expect(captured(() => track.stepCompleted(step, threeKids)).properties).toEqual(properties);
+  });
+
+  it("ff_submitted with 3 kids", () => {
+    expect(
+      captured(() =>
+        track.submitted(threeKids, { ...submitted, kidNames: ["Test Kid A", "Test Kid B", "Test Kid C"] }),
+      ).properties,
+    ).toMatchObject({ kids_count: 3, ages: ["5", "8+", "3"] });
+  });
+
+  it("received-screen events count 3 kids", () => {
+    expect(captured(() => track.whatsappOpened(3)).properties).toEqual({
+      step: "received",
+      step_index: 9,
+      kids_count: 3,
+    });
   });
 
   it.each(["ghost", "chip", "typo"] as const)("ff_email_suggestion_used (%s)", (kind) => {

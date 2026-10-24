@@ -32,6 +32,7 @@ import {
 // Fake names only (public repo).
 const A = "Test Kid A";
 const B = "Test Kid B";
+const C = "Test Kid C";
 
 function run(draft: Draft, ...actions: Action[]): Draft {
   return actions.reduce(reducer, draft);
@@ -56,16 +57,51 @@ const twoKids = run(
   { type: "setAge", kidIndex: 0, age: "5" },
   { type: "setAge", kidIndex: 1, age: "8+" },
 );
+const threeKids = run(
+  twoKids,
+  { type: "addKid", name: C },
+  { type: "setAge", kidIndex: 2, age: "3" },
+);
 
 describe("kids", () => {
-  it("caps at 2 kids", () => {
-    const three = run(twoKids, { type: "addKid", name: "Test Kid C" });
-    expect(three.kids.map((k) => k.name)).toEqual([A, B]);
+  it("caps at 3 kids", () => {
+    expect(content.MAX_KIDS).toBe(3);
+    expect(threeKids.kids.map((k) => k.name)).toEqual([A, B, C]);
+    const four = run(threeKids, { type: "addKid", name: "Test Kid D" });
+    expect(four).toBe(threeKids);
+  });
+
+  it("has a field label for every kid up to the cap", () => {
+    expect(content.names.labels).toEqual([
+      "First kid’s name",
+      "Second kid’s name",
+      "Third kid’s name",
+    ]);
+    expect(content.names.labels).toHaveLength(content.MAX_KIDS);
+    expect(content.names.capNote).toBe("Founding Families is for up to 3 kids per family.");
   });
 
   it("rejects a duplicate name, case-insensitively", () => {
     const dup = run(empty, { type: "addKid", name: A }, { type: "addKid", name: A.toUpperCase() });
     expect(dup.kids).toHaveLength(1);
+  });
+
+  it("the third kid's name must differ from both others", () => {
+    for (const name of [A.toLowerCase(), ` ${B.toUpperCase()} `]) {
+      expect(run(twoKids, { type: "addKid", name })).toBe(twoKids);
+    }
+    expect(run(threeKids, { type: "renameKid", index: 2, name: A })).toBe(threeKids);
+    expect(run(threeKids, { type: "renameKid", index: 0, name: C.toLowerCase() })).toBe(threeKids);
+  });
+
+  it("removing the middle kid keeps the others in order, with their ages", () => {
+    const removed = run(threeKids, { type: "removeKid", index: 1 });
+    expect(removed.kids).toEqual([
+      { name: A, age: "5" },
+      { name: C, age: "3" },
+    ]);
+    expect(nextStep(removed, "age-2")).toBe("goals");
+    expect(canEnter(removed, "age-3")).toBe(false);
   });
 
   it("removing a kid goes back to a single-kid state", () => {
@@ -210,6 +246,22 @@ describe("step order", () => {
   it("2 kids ask for each age", () => {
     expect(pathTo(twoKids, "goals")).toEqual(["welcome", "names", "age-1", "age-2", "goals"]);
     expect(prevStep(twoKids, "goals")).toBe("age-2");
+    expect(nextStep(twoKids, "age-2")).toBe("goals");
+  });
+
+  it("3 kids ask for each age, and back retraces them", () => {
+    expect(pathTo(threeKids, "goals")).toEqual([
+      "welcome",
+      "names",
+      "age-1",
+      "age-2",
+      "age-3",
+      "goals",
+    ]);
+    expect(prevStep(threeKids, "goals")).toBe("age-3");
+    expect(prevStep(threeKids, "age-3")).toBe("age-2");
+    expect(prevStep(threeKids, "age-2")).toBe("age-1");
+    expect(prevStep(threeKids, "age-1")).toBe("names");
   });
 
   it("welcome has no previous step and email has no next one", () => {
@@ -217,16 +269,18 @@ describe("step order", () => {
     expect(nextStep(oneKid, "email")).toBeNull();
   });
 
-  it("maps steps to the 7 progress segments (both age screens are 2)", () => {
+  it("maps steps to the 7 progress segments (every age screen is 2)", () => {
     expect(
-      (["welcome", "names", "age-1", "age-2", "goals", "how", "after-school", "why", "email", "received"] as const).map(
+      (["welcome", "names", "age-1", "age-2", "age-3", "goals", "how", "after-school", "why", "email", "received"] as const).map(
         progressSegment,
       ),
-    ).toEqual([null, 1, 2, 2, 3, 4, 5, 6, 7, null]);
+    ).toEqual([null, 1, 2, 2, 2, 3, 4, 5, 6, 7, null]);
   });
 
   it("reports analytics step names", () => {
+    expect(analyticsStep("age-1")).toEqual({ step: "age", kid_index: 0 });
     expect(analyticsStep("age-2")).toEqual({ step: "age", kid_index: 1 });
+    expect(analyticsStep("age-3")).toEqual({ step: "age", kid_index: 2 });
     expect(analyticsStep("after-school")).toEqual({ step: "after_school" });
   });
 });
@@ -256,6 +310,22 @@ describe("guards and deep links", () => {
     const noAges = run(empty, { type: "addKid", name: A }, { type: "addKid", name: B });
     expect(clampStep(noAges, "age-2")).toBe("age-1");
   });
+
+  it("can't reach the third age screen before the first two ages", () => {
+    const noAges = run(empty, ...[A, B, C].map((name) => ({ type: "addKid", name }) as const));
+    expect(clampStep(noAges, "age-3")).toBe("age-1");
+    const firstAge = run(noAges, { type: "setAge", kidIndex: 0, age: "4" });
+    expect(clampStep(firstAge, "age-3")).toBe("age-2");
+    expect(clampStep(firstAge, "goals")).toBe("age-2");
+    const twoAges = run(firstAge, { type: "setAge", kidIndex: 1, age: "6" });
+    expect(clampStep(twoAges, "age-3")).toBe("age-3");
+    expect(clampStep(twoAges, "goals")).toBe("age-3");
+  });
+
+  it("a stale age-3 entry after removing the third kid lands on age-2", () => {
+    const removed = run(threeKids, { type: "removeKid", index: 2 });
+    expect(clampStep(removed, "age-3")).toBe("age-2");
+  });
 });
 
 describe("resume from draft", () => {
@@ -272,6 +342,32 @@ describe("resume from draft", () => {
     const loaded = loadDraft(storage);
     expect(loaded).toEqual(filled);
     expect(initialStep(loaded, null, null)).toBe("why");
+  });
+
+  it("resumes a 3-kid draft with every kid and age", () => {
+    const three = run(
+      threeKids,
+      { type: "toggleGoal", slug: "science" },
+      { type: "setStep", step: "after-school" },
+    );
+    const storage = memoryStorage();
+    saveDraft(three, storage);
+    const loaded = loadDraft(storage);
+    expect(loaded).toEqual(three);
+    expect(loaded?.kids).toEqual([
+      { name: A, age: "5" },
+      { name: B, age: "8+" },
+      { name: C, age: "3" },
+    ]);
+    expect(initialStep(loaded, null, null)).toBe("after-school");
+  });
+
+  it("resumes on the third kid's age screen", () => {
+    const storage = memoryStorage();
+    const waiting = run(twoKids, { type: "addKid", name: C }, { type: "setStep", step: "age-3" });
+    saveDraft(waiting, storage);
+    expect(initialStep(loadDraft(storage), null, null)).toBe("age-3");
+    expect(initialStep(loadDraft(storage), "goals", null)).toBe("age-3");
   });
 
   it("a ?step= in the URL (refresh) wins over the saved step", () => {
@@ -309,7 +405,9 @@ describe("resume from draft", () => {
           { name: A, age: "5" },
           { name: "<script>", age: "5" },
           { name: B, age: "12" },
-          { name: "Test Kid C", age: "3" },
+          { name: "test kid a", age: "4" },
+          { name: C, age: "3" },
+          { name: "Test Kid D", age: "6" },
         ],
         goals: ["music", "music", "hacking", "science", "puzzles", "the_world"],
         afterSchool: ["tutors", 3],
@@ -319,9 +417,11 @@ describe("resume from draft", () => {
     );
     expect(loadDraft(storage)).toEqual({
       step: "welcome",
+      // Bad and repeated names dropped, then capped at 3.
       kids: [
         { name: A, age: "5" },
         { name: B, age: null },
+        { name: C, age: "3" },
       ],
       goals: ["music", "science", "puzzles"],
       afterSchool: ["tutors"],
@@ -382,6 +482,15 @@ describe("resume from draft", () => {
     expect(loadSubmitted(storage)).toEqual(submitted);
   });
 
+  it("keeps up to 3 kid names on the submitted record", () => {
+    const storage = memoryStorage();
+    const base = { applicationId: "app_1", refCode: "PF-TEST", email: "x@example.com" };
+    saveSubmitted({ ...base, kidNames: [A, B, C] }, storage);
+    expect(loadSubmitted(storage)?.kidNames).toEqual([A, B, C]);
+    storage.setItem(SUBMITTED_KEY, JSON.stringify({ ...base, kidNames: [A, B, C, "Test Kid D"] }));
+    expect(loadSubmitted(storage)?.kidNames).toEqual([A, B, C]);
+  });
+
   it("keeps the submit time, and drops a bad one", () => {
     const storage = memoryStorage();
     const base = { applicationId: "app_1", refCode: "PF-TEST", email: "x@example.com", kidNames: [A] };
@@ -417,11 +526,14 @@ describe("attribution capture", () => {
   });
 });
 
-describe("personalisation · 1 vs 2 kids", () => {
+describe("personalisation · 1, 2 and 3 kids", () => {
   const one = familyOf([A]);
   const two = familyOf([A, B]);
+  const three = familyOf([A, B, C]);
+  const threeNames = `${A}, ${B} & ${C}`;
 
   it("joins names and builds possessives", () => {
+    expect(joinNames([])).toBe("");
     expect(joinNames([A])).toBe(A);
     expect(joinNames([A, B])).toBe(`${A} & ${B}`);
     expect(possessive(A)).toBe(`${A}’s`);
@@ -429,16 +541,30 @@ describe("personalisation · 1 vs 2 kids", () => {
     expect(two).toMatchObject({ names: `${A} & ${B}`, possessive: "their", plural: true });
   });
 
-  it("screen 3: age questions and the second-kid eyebrow", () => {
+  it("joins 3 names with a comma and an ampersand, no Oxford comma", () => {
+    expect(joinNames(["Meera", "Arjun", "Kabir"])).toBe("Meera, Arjun & Kabir");
+    expect(joinNames([A, B, C])).toBe(threeNames);
+    expect(three).toEqual({
+      kidNames: [A, B, C],
+      names: threeNames,
+      possessive: "their",
+      plural: true,
+    });
+  });
+
+  it("screen 3: age questions and the eyebrow for later kids", () => {
     expect(content.ages.question(A)).toBe(`How old is ${A}?`);
-    expect(content.ages.questionSecond(B)).toBe(`And how old is ${B}?`);
-    expect(content.ages.eyebrowSecond(A, "5")).toBe("PESTO ASKS · TEST KID A IS 5 ✓");
+    expect(content.ages.questionAfter(B)).toBe(`And how old is ${B}?`);
+    expect(content.ages.questionAfter(C)).toBe(`And how old is ${C}?`);
+    expect(content.ages.eyebrowAfter(A, "5")).toBe("PESTO ASKS · TEST KID A IS 5 ✓");
+    expect(content.ages.eyebrowAfter(B, "8+")).toBe("PESTO ASKS · TEST KID B IS 8+ ✓");
     expect(content.ages.confirm(B)).toBe(`That’s ${B}!`);
   });
 
   it("screen 4: goals sentence", () => {
     expect(content.goals.sentence(one)).toEqual([`I want ${A}`, "to fall in love with…"]);
     expect(content.goals.sentence(two)).toEqual([`I want ${A} & ${B}`, "to fall in love with…"]);
+    expect(content.goals.sentence(three)).toEqual([`I want ${threeNames}`, "to fall in love with…"]);
   });
 
   it("screen 5: how Pesto works", () => {
@@ -446,6 +572,7 @@ describe("personalisation · 1 vs 2 kids", () => {
       `Pesto is fun first. To ${A} it’s just playtime. The learning sneaks in along the way.`,
     );
     expect(content.how.sub(two)).toContain(`To ${A} & ${B} it’s just playtime.`);
+    expect(content.how.sub(three)).toContain(`To ${threeNames} it’s just playtime.`);
   });
 
   it("screen 6: after school headline", () => {
@@ -453,15 +580,21 @@ describe("personalisation · 1 vs 2 kids", () => {
       `After school, what keeps ${A}’s brain busy?`,
     );
     expect(content.afterSchool.headline(two)).toBe("After school, what keeps their brains busy?");
+    expect(content.afterSchool.headline(three)).toBe("After school, what keeps their brains busy?");
   });
 
   it("screen 9: received", () => {
     expect(content.received.title(one)).toBe(`You’re in the running, ${A}!`);
     expect(content.received.title(two)).toBe(`You’re in the running, ${A} & ${B}!`);
+    expect(content.received.title(three)).toBe(`You’re in the running, ${threeNames}!`);
     expect(content.received.sayHi.sub(two)).toBe(
       `He’ll send a 2-minute story for ${A} & ${B} to try tonight.`,
     );
+    expect(content.received.sayHi.sub(three)).toBe(
+      `He’ll send a 2-minute story for ${threeNames} to try tonight.`,
+    );
     expect(content.received.sayHi.chatMessage(one)).toBe(`Hi ${A}! Story time tonight?`);
+    expect(content.received.sayHi.chatMessage(three)).toBe(`Hi ${threeNames}! Story time tonight?`);
   });
 
   it("WhatsApp prefill includes the ref code", () => {

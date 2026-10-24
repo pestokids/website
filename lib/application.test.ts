@@ -80,10 +80,29 @@ describe("validateApplication", () => {
     expect(withInput({ kids })).toEqual({ ok: false, field: "kids", reason: "name duplicate" });
   });
 
-  it("needs 1–2 kids with a known age", () => {
+  it("rejects a third kid with the same name as either of the others", () => {
+    for (const third of ["test a", " TEST B "]) {
+      const kids = ["Test A", "Test B", third].map((name) => ({ name, age: "4" }));
+      expect(withInput({ kids })).toEqual({ ok: false, field: "kids", reason: "name duplicate" });
+    }
+  });
+
+  it("needs 1–3 kids with a known age", () => {
     expect(withInput({ kids: [] })).toMatchObject({ ok: false, field: "kids" });
-    const three = ["Test A", "Test B", "Test C"].map((name) => ({ name, age: "4" }));
-    expect(withInput({ kids: three })).toMatchObject({ ok: false, field: "kids" });
+    const three = ["Test A", "Test B", "Test C"].map((name, i) => ({ name, age: ["3", "5", "8+"][i] }));
+    const result = withInput({ kids: three });
+    expect(result).toMatchObject({ ok: true });
+    expect(result.ok && result.value.kids).toEqual([
+      { name: "Test A", age: "3" },
+      { name: "Test B", age: "5" },
+      { name: "Test C", age: "8+" },
+    ]);
+    const four = ["Test A", "Test B", "Test C", "Test D"].map((name) => ({ name, age: "4" }));
+    expect(withInput({ kids: four })).toEqual({
+      ok: false,
+      field: "kids",
+      reason: "expected 1–3 kids",
+    });
     for (const age of ["2", "8", "9", "", "five"]) {
       expect(withInput({ kids: [{ name: "Test Kid", age }] })).toMatchObject({
         ok: false,

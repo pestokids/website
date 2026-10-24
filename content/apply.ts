@@ -3,18 +3,18 @@
  * Components import from here; nothing user-facing is hard-coded in them.
  *
  * Personalised strings are functions. They take a `Family` (built by
- * app/(apply)/_lib/personalise.ts) so 1-kid and 2-kid wording lives here.
+ * app/(apply)/_lib/personalise.ts) so 1-kid and 2–3-kid wording lives here.
  */
 
 /** Names of the kids, already joined and possessive-ised for display. */
 export type Family = {
-  /** Display names in order, 1 or 2. */
+  /** Display names in order, 1 to 3. */
   kidNames: string[];
-  /** "Meera" or "Meera & Arjun". */
+  /** "Meera", "Meera & Arjun" or "Meera, Arjun & Kabir". */
   names: string;
-  /** "Meera’s" (1 kid). With 2 kids the copy uses "their" instead. */
+  /** "Meera’s" (1 kid). With 2 or 3 kids the copy uses "their" instead. */
   possessive: string;
-  /** True with 2 kids. */
+  /** True with 2 or 3 kids. */
   plural: boolean;
 };
 
@@ -43,7 +43,7 @@ export type IconName =
 
 export type Option<Slug extends string> = { slug: Slug; label: string; icon: IconName };
 
-export const MAX_KIDS = 2;
+export const MAX_KIDS = 3;
 export const MAX_GOALS = 3;
 export const NAME_MAX_LENGTH = 30;
 export const PROGRESS_SEGMENTS = 7;
@@ -159,8 +159,8 @@ export const progress = {
 
 export const names = {
   headline: ["Who’s joining the", "adventure?"],
-  labelFirst: "First kid’s name",
-  labelSecond: "Second kid’s name",
+  /** Field label by kid: first, second, third (one per MAX_KIDS). */
+  labels: ["First kid’s name", "Second kid’s name", "Third kid’s name"],
   placeholder: "e.g. Meera",
   clear: "Clear name",
   addAnother: "+ Add another kid",
@@ -175,10 +175,12 @@ export const names = {
 
 export const ages = {
   eyebrow: "PESTO ASKS",
-  eyebrowSecond: (firstKid: string, firstAge: Age) =>
-    `PESTO ASKS · ${firstKid.toUpperCase()} IS ${firstAge} ✓`,
+  /** Kids 2 and 3: the eyebrow confirms the kid just before. */
+  eyebrowAfter: (prevKid: string, prevAge: Age) =>
+    `PESTO ASKS · ${prevKid.toUpperCase()} IS ${prevAge} ✓`,
   question: (kid: string) => `How old is ${kid}?`,
-  questionSecond: (kid: string) => `And how old is ${kid}?`,
+  /** Kids 2 and 3. */
+  questionAfter: (kid: string) => `And how old is ${kid}?`,
   unit: "years",
   hint: "Tap the age that fits.",
   pick: "Pick an age",

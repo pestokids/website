@@ -45,7 +45,7 @@ export function FooterDemo() {
           ))}
         </h1>
         <TextField
-          label={names.labelFirst}
+          label={names.labels[0]}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onClear={() => setValue("")}

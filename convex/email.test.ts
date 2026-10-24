@@ -91,11 +91,11 @@ describe("email.sendConfirmation", () => {
     vi.restoreAllMocks();
   });
 
-  async function submitAndSend(response: () => Promise<Response>) {
+  async function submitAndSend(response: () => Promise<Response>, app = application) {
     const fetchSpy = vi.fn(response);
     vi.stubGlobal("fetch", fetchSpy);
     const t = setupConvex();
-    const { applicationId, refCode } = await submit(t, application);
+    const { applicationId, refCode } = await submit(t, app);
     await t.finishAllScheduledFunctions(vi.runAllTimers);
     const doc = await t.run((ctx) => ctx.db.get(applicationId));
     return { fetchSpy, doc, applicationId, refCode };
@@ -128,6 +128,21 @@ describe("email.sendConfirmation", () => {
     expect(body.text).toContain(`https://wa.me/15550000000?text=${prefill}`);
     expect(body.text).toContain("Beta day is October 31.");
     expect(body.text).toContain(refCode);
+  });
+
+  it("names all 3 kids, without an Oxford comma", async () => {
+    const kids = [...application.kids, { name: "Test Kid C", age: "3" }];
+    const { fetchSpy } = await submitAndSend(async () => Response.json({ id: "test-email-id" }), {
+      ...application,
+      kids,
+    });
+    const [, init] = fetchSpy.mock.calls[0] as unknown as [string, RequestInit];
+    const { text } = JSON.parse(init.body as string);
+    expect(text).toContain("your application for Test Kid A, Test Kid B & Test Kid C:");
+    expect(text).toContain("a 2-minute story for Test Kid A, Test Kid B & Test Kid C to try tonight");
+    expect(text).toContain("Test Kid A, age 5");
+    expect(text).toContain("Test Kid B, 8 or older");
+    expect(text).toContain("Test Kid C, age 3");
   });
 
   it("marks the email failed, without retrying, when Resend rejects it with a 4xx", async () => {

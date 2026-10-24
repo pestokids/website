@@ -19,10 +19,18 @@ import {
   type Attribution,
   type Classification,
 } from "@/lib/attribution";
-import { analyticsStep, type Draft, type FormStep, type Step, type Submitted } from "./flow";
+import {
+  ageKidIndex,
+  analyticsStep,
+  isAgeStep,
+  type Draft,
+  type FormStep,
+  type Step,
+  type Submitted,
+} from "./flow";
 import type { SubmitResult } from "./submit";
 
-/** Screen number (01–09) by analytics step name. Both age screens are 3. */
+/** Screen number (01–09) by analytics step name. Every age screen is 3. */
 const STEP_INDEX: Record<string, number> = {
   welcome: 1,
   names: 2,
@@ -73,10 +81,8 @@ export function emailDomain(email: string): string {
 
 /** Extra props for ff_step_completed, by step. */
 function completedProps(step: FormStep, draft: Draft) {
+  if (isAgeStep(step)) return { age: draft.kids[ageKidIndex(step)]?.age ?? null };
   switch (step) {
-    case "age-1":
-    case "age-2":
-      return { age: draft.kids[step === "age-1" ? 0 : 1]?.age ?? null };
     case "goals":
       return { goals: draft.goals };
     case "after-school":

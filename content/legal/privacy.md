@@ -28,7 +28,7 @@ This policy explains how Plus Nine One, Inc., a Delaware corporation doing busin
 | What | Examples | Where it comes from |
 | --- | --- | --- |
 | Your contact details | Your email address | You, on the application |
-| About your kids | First names (a nickname is fine) and age bracket, for up to 2 kids | You, on the application |
+| About your kids | First names (a nickname is fine) and age bracket, for up to 3 kids | You, on the application |
 | Your answers | What you hope Pesto helps with, what your kids do after school | You, on the application |
 | How you found us | The link or ad you came from, campaign tags, the referring site | Your browser, when you arrive |
 | How the site is used | Pages and steps viewed, buttons tapped, errors, device and browser type | Your browser, through our analytics |

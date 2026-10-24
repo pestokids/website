@@ -159,8 +159,25 @@ describe("applications.submit", () => {
     expect(codes.size).toBe(20);
   });
 
+  it("stores up to 3 kids", async () => {
+    const t = setupConvex();
+    const kids = [...application.kids, { name: "Test Kid C", age: "3" }];
+    const { applicationId } = await submit(t, { ...application, kids });
+    const doc = await t.run((ctx) => ctx.db.get(applicationId));
+    expect(doc?.kids).toEqual([
+      { name: "Test kid a", age: "5" },
+      { name: "Test Kid B", age: "8+" },
+      { name: "Test Kid C", age: "3" },
+    ]);
+  });
+
   it.each([
     ["kids", { kids: [] }],
+    [
+      "kids",
+      { kids: ["Test Kid A", "Test Kid B", "Test Kid C", "Test Kid D"].map((name) => ({ name, age: "5" })) },
+    ],
+    ["kids", { kids: ["Test Kid A", "Test Kid B", "test kid b"].map((name) => ({ name, age: "5" })) }],
     ["kids", { kids: [{ name: "Test1", age: "5" }] }],
     ["kids", { kids: [{ name: "Test Kid", age: "9" }] }],
     ["goals", { goals: ["science", "music", "puzzles", "the_world"] }],

@@ -13,6 +13,7 @@ import { expect, type App, type Screen } from 'e2e';
 // ("Is that Test Kid A’s real name?"). Tests that type them use confirmName().
 export const KID_A = 'Test Kid A';
 export const KID_B = 'Test Kid B';
+export const KID_C = 'Test Kid C';
 
 /**
  * A fresh fake address per submit. The server allows 5 submits an hour per

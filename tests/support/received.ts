@@ -24,7 +24,8 @@ function allDayRange(iso: string): string {
 
 /**
  * Every personalised string on screen 9, the stored submitted record, and the
- * WhatsApp and calendar links. `names` is "Test Kid A" or "Test Kid A & Test Kid B".
+ * WhatsApp and calendar links. `names` is "Test Kid A", "Test Kid A & Test Kid B"
+ * or "Test Kid A, Test Kid B & Test Kid C".
  */
 export async function expectReceived(
   screen: Screen,

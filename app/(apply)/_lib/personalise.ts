@@ -5,9 +5,13 @@ export function possessive(name: string): string {
   return `${name}’s`;
 }
 
-/** ["Meera"] → "Meera"; ["Meera", "Arjun"] → "Meera & Arjun". */
+/**
+ * ["Meera"] → "Meera"; ["Meera", "Arjun"] → "Meera & Arjun";
+ * ["Meera", "Arjun", "Kabir"] → "Meera, Arjun & Kabir" (no Oxford comma).
+ */
 export function joinNames(kidNames: readonly string[]): string {
-  return kidNames.join(" & ");
+  if (kidNames.length < 2) return kidNames.join("");
+  return `${kidNames.slice(0, -1).join(", ")} & ${kidNames[kidNames.length - 1]}`;
 }
 
 /** Builds the personalisation object every copy function in content/apply.ts takes. */

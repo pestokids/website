@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type MouseEvent } from "react";
-import { errors, names as copy } from "@/content/apply";
+import { errors, MAX_KIDS, names as copy } from "@/content/apply";
 import { checkName } from "@/lib/name-check";
 import { validateName, type Kid } from "../../_lib/flow";
 import { useFlow } from "../apply-flow";
@@ -21,11 +21,12 @@ const errorCopy = {
 
 /**
  * - first:  the field edits kid 1 (states A, B). Prefilled when kid 1 exists.
- * - second: kid 1 is a chip, the field is for kid 2 (state C).
- * - review: both kids listed (state D). Only when the screen opens with 2 kids
- *   saved; closing the keyboard in C keeps the field.
+ * - more:   the saved kids are chips, the field adds the next one: kid 2
+ *   (state C) or kid 3 (state C3, no "Add another kid" at the cap).
+ * - review: every kid listed (state D). Only when the screen opens with 2 or
+ *   more kids saved; closing the keyboard in C/C3 keeps the field.
  */
-type Mode = "first" | "second" | "review";
+type Mode = "first" | "more" | "review";
 
 /** Keeps focus (and the keyboard) in the field when an action button is tapped. */
 const keepFocus = (event: MouseEvent) => event.preventDefault();
@@ -42,11 +43,14 @@ export function NamesStep() {
   // Names already nudged (lowercased): each gets the nudge once, then goes through.
   const nudged = useRef(new Set<string>());
 
-  const others = mode === "second" ? [kids[0].name] : [];
+  const others = mode === "more" ? kids.map((k) => k.name) : [];
   const result = validateName(input, others);
   const error = !result.ok && result.error !== "empty" ? errorCopy[result.error] : null;
-  const secondEmpty = mode === "second" && input.trim() === "";
-  const canNext = mode === "review" || result.ok || secondEmpty;
+  // A later kid's field left empty: Next carries on with the kids already added.
+  const moreEmpty = mode === "more" && input.trim() === "";
+  const canNext = mode === "review" || result.ok || moreEmpty;
+  // Room for a kid after the one in the field.
+  const canAddAnother = mode === "first" ? MAX_KIDS > 1 : kids.length + 2 <= MAX_KIDS;
 
   /**
    * Shows the nudge instead of acting if `name` looks fake and hasn't been
@@ -61,32 +65,31 @@ export function NamesStep() {
     return true;
   };
 
-  /** Saves the field as kid 1 (adding or renaming). */
-  const firstKidAction = (name: string) =>
-    kids.length === 0
-      ? ({ type: "addKid", name } as const)
-      : ({ type: "renameKid", index: 0, name } as const);
+  /** Saves the field: kid 1 (adding or renaming), or the next kid. */
+  const saveAction = (name: string) =>
+    mode === "first" && kids.length > 0
+      ? ({ type: "renameKid", index: 0, name } as const)
+      : ({ type: "addKid", name } as const);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   const next = () => {
     if (!canNext) return;
-    if (mode === "review" || secondEmpty) advance();
-    else if (result.ok && !nudgeFirst(result.name, "next")) {
-      advance(mode === "first" ? firstKidAction(result.name) : { type: "addKid", name: result.name });
-    }
+    if (mode === "review" || moreEmpty) advance();
+    else if (result.ok && !nudgeFirst(result.name, "next")) advance(saveAction(result.name));
   };
 
   const addAnother = () => {
+    if (!canAddAnother) return;
     if (!result.ok) {
       inputRef.current?.focus();
       return;
     }
     if (nudgeFirst(result.name, "add")) return;
-    dispatch(firstKidAction(result.name));
+    dispatch(saveAction(result.name));
     setInput("");
     setNudge(null);
-    setMode("second");
+    setMode("more");
   };
 
   /** "Yes, that's right": carries on with whichever button was tapped. */
@@ -98,6 +101,8 @@ export function NamesStep() {
   const remove = (index: number) => {
     const remaining = kids.filter((_, i) => i !== index);
     dispatch({ type: "removeKid", index });
+    // The list stays while it has 2 or more kids; with 1 left, the field edits them.
+    if (remaining.length >= 2) return;
     setInput(remaining[0]?.name ?? "");
     setMode("first");
   };
@@ -113,18 +118,23 @@ export function NamesStep() {
         <ReviewList kids={kids} onRemove={remove} />
       ) : (
         <>
-          {mode === "second" && (
-            <p className="mt-5 flex">
-              <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-lime-deep bg-lime/20 pr-3.5 pl-2.5 text-[16px] font-medium">
-                <CheckIcon size={15} />
-                {kids[0].name}
-              </span>
-            </p>
+          {mode === "more" && (
+            <ul className="mt-5 flex flex-wrap gap-2">
+              {kids.map((kid) => (
+                <li
+                  key={kid.name}
+                  className="inline-flex h-8 max-w-full items-center gap-1.5 rounded-full border border-lime-deep bg-lime/20 pr-3.5 pl-2.5 text-[16px] font-medium"
+                >
+                  <CheckIcon size={15} className="shrink-0" />
+                  <span className="truncate">{kid.name}</span>
+                </li>
+              ))}
+            </ul>
           )}
           <TextField
             ref={inputRef}
-            className={mode === "second" ? "mt-3.5" : "mt-6"}
-            label={mode === "first" ? copy.labelFirst : copy.labelSecond}
+            className={mode === "more" ? "mt-3.5" : "mt-6"}
+            label={copy.labels[mode === "more" ? kids.length : 0]}
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
@@ -162,13 +172,13 @@ export function NamesStep() {
           />
           <StickyFooter placement="inline" className="mt-2.5">
             <div className="flex justify-between gap-3">
-              {mode === "first" && (
+              {canAddAnother && (
                 <SecondaryButton className="w-auto" onMouseDown={keepFocus} onClick={addAnother}>
                   {copy.addAnother}
                 </SecondaryButton>
               )}
               <PrimaryButton
-                className={mode === "first" ? "w-[120px]" : "w-full"}
+                className={canAddAnother ? "w-[120px]" : "w-full"}
                 disabled={!canNext}
                 onMouseDown={keepFocus}
                 onClick={next}

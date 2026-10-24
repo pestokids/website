@@ -15,16 +15,16 @@ import { FrostedCard } from "../ui/frosted-card";
 const MASCOT_SIZE = 232;
 const MASCOT_GAP = 34;
 
-export function AgeStep({ kidIndex }: { kidIndex: 0 | 1 }) {
+export function AgeStep({ kidIndex }: { kidIndex: number }) {
   const { draft, dispatch, advance } = useFlow();
   const questionId = useId();
   const kid = draft.kids[kidIndex];
-  const first = draft.kids[0];
+  // Kids 2 and 3: the eyebrow confirms the kid just before.
+  const prev = kidIndex > 0 ? draft.kids[kidIndex - 1] : undefined;
   if (!kid) return null;
 
-  const eyebrow =
-    kidIndex === 1 && first.age ? copy.eyebrowSecond(first.name, first.age) : copy.eyebrow;
-  const question = kidIndex === 1 ? copy.questionSecond(kid.name) : copy.question(kid.name);
+  const eyebrow = prev?.age ? copy.eyebrowAfter(prev.name, prev.age) : copy.eyebrow;
+  const question = kidIndex > 0 ? copy.questionAfter(kid.name) : copy.question(kid.name);
 
   return (
     // No sticky footer: the button sits inside the card.

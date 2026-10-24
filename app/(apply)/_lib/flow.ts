@@ -21,11 +21,14 @@ import {
   type Classification,
 } from "@/lib/attribution";
 
+/** One age screen per kid, up to MAX_KIDS. */
+export const AGE_STEPS = ["age-1", "age-2", "age-3"] as const;
+export type AgeStep = (typeof AGE_STEPS)[number];
+
 export const STEPS = [
   "welcome",
   "names",
-  "age-1",
-  "age-2",
+  ...AGE_STEPS,
   "goals",
   "how",
   "after-school",
@@ -63,6 +66,15 @@ export type Submitted = {
 
 export function isStep(value: unknown): value is Step {
   return typeof value === "string" && (STEPS as readonly string[]).includes(value);
+}
+
+export function isAgeStep(step: Step): step is AgeStep {
+  return (AGE_STEPS as readonly string[]).includes(step);
+}
+
+/** The kid an age screen asks about, from 0. */
+export function ageKidIndex(step: AgeStep): number {
+  return AGE_STEPS.indexOf(step);
 }
 
 export function createDraft(now: number): Draft {
@@ -173,14 +185,15 @@ export function reducer(draft: Draft, action: Action): Draft {
 export function canEnter(draft: Draft, step: Step): boolean {
   const { kids } = draft;
   const agesDone = kids.length > 0 && kids.every((k) => k.age !== null);
+  if (isAgeStep(step)) {
+    // The kid exists, and every kid before them has an age.
+    const index = ageKidIndex(step);
+    return kids.length > index && kids.slice(0, index).every((k) => k.age !== null);
+  }
   switch (step) {
     case "welcome":
     case "names":
       return true;
-    case "age-1":
-      return kids.length >= 1;
-    case "age-2":
-      return kids.length === 2 && kids[0].age !== null;
     case "goals":
       return agesDone;
     case "how":
@@ -195,15 +208,15 @@ export function canEnter(draft: Draft, step: Step): boolean {
 }
 
 export function nextStep(draft: Draft, step: FormStep): FormStep | null {
+  if (isAgeStep(step)) {
+    const index = ageKidIndex(step) + 1;
+    return index < draft.kids.length && index < AGE_STEPS.length ? AGE_STEPS[index] : "goals";
+  }
   switch (step) {
     case "welcome":
       return "names";
     case "names":
       return "age-1";
-    case "age-1":
-      return draft.kids.length === 2 ? "age-2" : "goals";
-    case "age-2":
-      return "goals";
     case "goals":
       return "how";
     case "how":
@@ -218,17 +231,20 @@ export function nextStep(draft: Draft, step: FormStep): FormStep | null {
 }
 
 export function prevStep(draft: Draft, step: FormStep): FormStep | null {
+  if (isAgeStep(step)) {
+    const index = ageKidIndex(step);
+    return index === 0 ? "names" : AGE_STEPS[index - 1];
+  }
   switch (step) {
     case "welcome":
       return null;
     case "names":
       return "welcome";
-    case "age-1":
-      return "names";
-    case "age-2":
-      return "age-1";
-    case "goals":
-      return draft.kids.length === 2 ? "age-2" : "age-1";
+    case "goals": {
+      // The last kid's age screen.
+      const last = Math.min(Math.max(draft.kids.length, 1), AGE_STEPS.length) - 1;
+      return AGE_STEPS[last];
+    }
     case "how":
       return "goals";
     case "after-school":
@@ -242,7 +258,7 @@ export function prevStep(draft: Draft, step: FormStep): FormStep | null {
 
 /**
  * The steps from welcome up to `step`, following the draft's path. If `step`
- * isn't on that path (e.g. age-2 with one kid), stops at the last step before it.
+ * isn't on that path (e.g. age-3 with two kids), stops at the last step before it.
  */
 export function pathTo(draft: Draft, step: FormStep): FormStep[] {
   const target = STEPS.indexOf(step);
@@ -287,12 +303,11 @@ export function initialStep(
 
 /** Progress segment (1–7) for the header, or null on screens without one. */
 export function progressSegment(step: Step): number | null {
+  // Every kid's age screen is segment 2.
+  if (isAgeStep(step)) return 2;
   switch (step) {
     case "names":
       return 1;
-    case "age-1":
-    case "age-2":
-      return 2;
     case "goals":
       return 3;
     case "how":
@@ -310,8 +325,7 @@ export function progressSegment(step: Step): number | null {
 
 /** Step name and kid index as reported to analytics. */
 export function analyticsStep(step: Step): { step: string; kid_index?: number } {
-  if (step === "age-1") return { step: "age", kid_index: 0 };
-  if (step === "age-2") return { step: "age", kid_index: 1 };
+  if (isAgeStep(step)) return { step: "age", kid_index: ageKidIndex(step) };
   return { step: step.replace("-", "_") };
 }
 

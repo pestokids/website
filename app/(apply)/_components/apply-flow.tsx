@@ -11,6 +11,7 @@ import {
 } from "react";
 import type { Family } from "@/content/apply";
 import {
+  ageKidIndex,
   captureAttribution,
   clampStep,
   createDraft,
@@ -261,9 +262,9 @@ function StepView({ step }: { step: Step }): ReactNode {
     case "names":
       return <NamesStep />;
     case "age-1":
-      return <AgeStep kidIndex={0} />;
     case "age-2":
-      return <AgeStep kidIndex={1} />;
+    case "age-3":
+      return <AgeStep kidIndex={ageKidIndex(step)} />;
     case "goals":
       return <GoalsStep />;
     case "how":
