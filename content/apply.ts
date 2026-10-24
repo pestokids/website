@@ -132,8 +132,16 @@ export const welcome = {
   headline: ["For kids", "who ask", "why?"],
   stickers: ["diya", "moon", "bow", "deer"] satisfies IconName[],
   cta: "Count us in",
+  /** The desktop screen's footer line. */
   footer: (admissionsCloseShort: string) =>
     `3 minutes · ${familyCountCopy} · Admissions close ${admissionsCloseShort}`,
+  /** The scrolling strip at the top of the welcome screen, shown as "3 minutes ✦ 100 families ✦ …". */
+  marquee: (admissionsCloseShort: string) => [
+    "3 minutes",
+    familyCountCopy,
+    `Admissions close ${admissionsCloseShort}`,
+  ],
+  marqueeSeparator: "✦",
   /** Fine print under the footer: "By continuing, you agree to our Terms and Privacy Policy." Links open in a new tab. */
   consent: {
     before: "By continuing, you agree to our ",
