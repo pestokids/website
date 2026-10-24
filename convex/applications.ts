@@ -121,6 +121,7 @@ export const submit = mutation({
       refCode = existing.refCode;
       await ctx.db.patch(applicationId, {
         kids: app.kids,
+        nameCheck: app.nameCheck,
         goals: app.goals,
         afterSchool: app.afterSchool,
         posthogDistinctId: app.posthogDistinctId ?? existing.posthogDistinctId,
@@ -133,6 +134,7 @@ export const submit = mutation({
       applicationId = await ctx.db.insert("applications", {
         email: app.email,
         kids: app.kids,
+        nameCheck: app.nameCheck,
         goals: app.goals,
         afterSchool: app.afterSchool,
         refCode,

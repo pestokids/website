@@ -2,10 +2,12 @@
 
 import { useRef, useState, type MouseEvent } from "react";
 import { errors, names as copy } from "@/content/apply";
+import { checkName } from "@/lib/name-check";
 import { validateName, type Kid } from "../../_lib/flow";
 import { useFlow } from "../apply-flow";
 import { Headline } from "../placeholder";
 import { PrimaryButton, SecondaryButton } from "../ui/button";
+import { SuggestionChip } from "../ui/chip";
 import { CheckIcon, CloseIcon } from "../ui/icons";
 import { StepScreen } from "../step-screen";
 import { StickyFooter } from "../ui/sticky-footer";
@@ -28,17 +30,36 @@ type Mode = "first" | "second" | "review";
 /** Keeps focus (and the keyboard) in the field when an action button is tapped. */
 const keepFocus = (event: MouseEvent) => event.preventDefault();
 
+/** A likely-fake name waiting on a second look, and the button that was tapped. */
+type Nudge = { name: string; action: "next" | "add" };
+
 export function NamesStep() {
   const { draft, dispatch, advance } = useFlow();
   const { kids } = draft;
   const [mode, setMode] = useState<Mode>(kids.length >= 2 ? "review" : "first");
   const [input, setInput] = useState(() => (kids.length === 1 ? kids[0].name : ""));
+  const [nudge, setNudge] = useState<Nudge | null>(null);
+  // Names already nudged (lowercased): each gets the nudge once, then goes through.
+  const nudged = useRef(new Set<string>());
 
   const others = mode === "second" ? [kids[0].name] : [];
   const result = validateName(input, others);
   const error = !result.ok && result.error !== "empty" ? errorCopy[result.error] : null;
   const secondEmpty = mode === "second" && input.trim() === "";
   const canNext = mode === "review" || result.ok || secondEmpty;
+
+  /**
+   * Shows the nudge instead of acting if `name` looks fake and hasn't been
+   * nudged yet. Saved names (coming back to this screen) aren't nudged again.
+   */
+  const nudgeFirst = (name: string, action: Nudge["action"]): boolean => {
+    const key = name.toLocaleLowerCase();
+    if (checkName(name) === "ok" || nudged.current.has(key)) return false;
+    if (kids.some((k) => k.name.toLocaleLowerCase() === key)) return false;
+    nudged.current.add(key);
+    setNudge({ name, action });
+    return true;
+  };
 
   /** Saves the field as kid 1 (adding or renaming). */
   const firstKidAction = (name: string) =>
@@ -51,7 +72,9 @@ export function NamesStep() {
   const next = () => {
     if (!canNext) return;
     if (mode === "review" || secondEmpty) advance();
-    else if (result.ok) advance(mode === "first" ? firstKidAction(result.name) : { type: "addKid", name: result.name });
+    else if (result.ok && !nudgeFirst(result.name, "next")) {
+      advance(mode === "first" ? firstKidAction(result.name) : { type: "addKid", name: result.name });
+    }
   };
 
   const addAnother = () => {
@@ -59,9 +82,17 @@ export function NamesStep() {
       inputRef.current?.focus();
       return;
     }
+    if (nudgeFirst(result.name, "add")) return;
     dispatch(firstKidAction(result.name));
     setInput("");
+    setNudge(null);
     setMode("second");
+  };
+
+  /** "Yes, that's right": carries on with whichever button was tapped. */
+  const confirmName = () => {
+    if (nudge?.action === "add") addAnother();
+    else next();
   };
 
   const remove = (index: number) => {
@@ -95,13 +126,32 @@ export function NamesStep() {
             className={mode === "second" ? "mt-3.5" : "mt-6"}
             label={mode === "first" ? copy.labelFirst : copy.labelSecond}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              // Editing dismisses the nudge; a different name gets its own on Next.
+              setNudge(null);
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") next();
             }}
-            onClear={() => setInput("")}
+            onClear={() => {
+              setInput("");
+              setNudge(null);
+            }}
             clearLabel={copy.clear}
             error={error}
+            hint={
+              nudge && (
+                <>
+                  {copy.nudge(nudge.name)}
+                  <span className="mt-2 mb-1 flex">
+                    <SuggestionChip onMouseDown={keepFocus} onClick={confirmName}>
+                      {copy.nudgeConfirm}
+                    </SuggestionChip>
+                  </span>
+                </>
+              )
+            }
             placeholder={copy.placeholder}
             autoCapitalize="words"
             autoComplete="off"

@@ -58,6 +58,7 @@ describe("applications.submit", () => {
         { name: "Test kid a", age: "5" },
         { name: "Test Kid B", age: "8+" },
       ],
+      nameCheck: "suspicious",
       goals: ["science", "music"],
       afterSchool: ["bedtime_stories", "tutors"],
       refCode: result.refCode,
@@ -83,6 +84,25 @@ describe("applications.submit", () => {
     expect(docs[0]).toMatchObject({ sourceType: "paid", source: "meta", campaign: "test_campaign" });
     expect(docs[1]).toMatchObject({ sourceType: "direct", source: "direct" });
     expect(docs[1]?.campaign).toBeUndefined();
+  });
+
+  it("checks the kids' names on the server, on every submit", async () => {
+    const t = setupConvex();
+    const real = { ...application, kids: [{ name: "Aarav", age: "4" }] };
+    const { applicationId } = await submit(t, real);
+    expect(await t.run((ctx) => ctx.db.get(applicationId))).toMatchObject({ nameCheck: "ok" });
+
+    await submit(t, { ...real, kids: [{ name: "asdf", age: "4" }] });
+    expect(await t.run((ctx) => ctx.db.get(applicationId))).toMatchObject({
+      kids: [{ name: "Asdf", age: "4" }],
+      nameCheck: "suspicious",
+    });
+  });
+
+  it("doesn't accept a client-supplied nameCheck", async () => {
+    const t = setupConvex();
+    const forged = { ...application, nameCheck: "ok" };
+    await expect(t.mutation(api.applications.submit, forged)).rejects.toThrow(/nameCheck/);
   });
 
   it("doesn't accept a client-supplied source", async () => {

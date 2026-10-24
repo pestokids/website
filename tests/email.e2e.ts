@@ -1,6 +1,6 @@
 import { test } from '@e2e-dev/web';
 import { expect } from 'e2e';
-import { KID_A, openWithDraft, runOnlyOn, type SeedDraft } from './support/apply';
+import { KID_A, openWithDraft, readStored, runOnlyOn, SUBMITTED_KEY, type SeedDraft } from './support/apply';
 
 const atEmail: SeedDraft = {
   step: 'email',
@@ -83,4 +83,27 @@ test('email: ghost suggestion, typo fix and a long address', async ({ app, brows
     'The email field is a single line, it shows the start of a long address, and nothing spills outside it',
     { vision: true },
   );
+});
+
+test('email: a domain that can’t receive mail asks for the spelling', async ({ app, browser, screen }) => {
+  await runOnlyOn(browser, ['phone-webkit']);
+  await openWithDraft(app, browser, atEmail);
+
+  const field = screen.getByLabel('Email');
+  const submit = screen.getByRole('button', 'Submit application');
+  // `.invalid` is reserved (RFC 2606): it never has mail servers.
+  await field.fill('test.parent@nomail.invalid');
+  await expect(submit).toBeEnabled();
+  await submit.tap();
+
+  await expect(screen.getByText('We can’t send to that address. Check the spelling?')).toBeVisible();
+  await expect(field).toHaveAttribute('aria-invalid', 'true');
+  await expect(screen.getByText('Fix your email to submit')).toBeVisible();
+  await expect(submit).toBeDisabled();
+  expect(await readStored(browser, SUBMITTED_KEY)).toBeNull();
+
+  // Fixing the address clears it.
+  await field.fill('test.parent@example.com');
+  await expect(field).not.toHaveAttribute('aria-invalid');
+  await expect(submit).toBeEnabled();
 });

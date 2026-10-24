@@ -1,6 +1,6 @@
 import { test } from '@e2e-dev/web';
 import { expect, unique } from 'e2e';
-import { KID_A, KID_B, openApply, runOnlyOn, testEmail } from './support/apply';
+import { confirmName, KID_A, KID_B, openApply, runOnlyOn, testEmail } from './support/apply';
 import { expectReceived } from './support/received';
 
 const names = `${KID_A} & ${KID_B}`;
@@ -15,9 +15,12 @@ test('two kids apply and reach the received screen', async ({ app, browser, scre
   await expect(screen.getByRole('heading', 'Who’s joining the adventure?')).toBeVisible();
   await expect(screen.getByRole('progressbar', 'Step 1 of 7')).toBeVisible();
 
-  await agent.act('add two kids named {first} and {second}, then go to the next screen', {
-    params: { first: KID_A, second: KID_B },
-  });
+  await screen.getByLabel('First kid’s name').fill(KID_A);
+  await screen.getByRole('button', '+ Add another kid').tap();
+  await confirmName(screen, KID_A);
+  await screen.getByLabel('Second kid’s name').fill(KID_B);
+  await screen.getByRole('button', 'Next ›').tap();
+  await confirmName(screen, KID_B);
 
   // 3 Ages, once per kid
   await expect(screen.getByRole('heading', `How old is ${KID_A}?`)).toBeVisible();

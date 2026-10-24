@@ -23,15 +23,25 @@ import { TextField } from "../ui/text-field";
 
 type Status = "idle" | "submitting" | "failed";
 /**
- * The "Did you mean" state (B), set on blur or a submit attempt. `disposable`:
- * a throwaway inbox, which can't be sent at all.
+ * The invalid state (B), set on blur or a submit attempt: "Did you mean" (with
+ * a fix chip when there's a suggestion), or a plain line when the address
+ * can't be used: `disposable` (a throwaway inbox) or `undeliverable` (its
+ * domain can't receive mail).
  */
-type Invalid = { suggestion: string | null; disposable?: boolean };
+type Invalid = { suggestion: string | null; problem?: "disposable" | "undeliverable" };
+
+const problemOf = {
+  invalid_email: undefined,
+  disposable_email: "disposable",
+  undeliverable_email: "undeliverable",
+} as const;
 
 /**
  * Screen 8. States: A empty, E ghost completion (submit disabled until it's
  * accepted), B invalid or likely typo with a fix chip, C ready, D submitting,
- * plus the network error line. Also holds an off-screen spam-trap field.
+ * plus the network error line. Submitting first asks the server whether the
+ * domain can receive mail; if not, it's state B with the "can't send" line.
+ * Also holds an off-screen spam-trap field.
  */
 export function EmailStep() {
   const { draft, dispatch, completeSubmit } = useFlow();
@@ -86,7 +96,7 @@ export function EmailStep() {
     }
     const email = normaliseEmail(value);
     if (isDisposableEmail(email)) {
-      setInvalid({ suggestion: null, disposable: true });
+      setInvalid({ suggestion: null, problem: "disposable" });
       return false;
     }
     if (suggestion && !warnedTypos.current.has(email)) {
@@ -100,11 +110,13 @@ export function EmailStep() {
   const submit = async () => {
     if (inFlight.current) return;
     if (ghost) return acceptGhost();
-    if (invalid || !check()) return;
+    // Spam trap first: a filled trap skips every check and goes straight to
+    // the server, which answers with a decoy success. Bots learn nothing.
+    const trapValue = trap.current?.value ?? "";
+    if (!trapValue && (invalid || !check())) return;
 
     inFlight.current = true;
     setStatus("submitting");
-    const trapValue = trap.current?.value ?? "";
     const result = await submitApplication(draft, normaliseEmail(value), trapValue);
     inFlight.current = false;
 
@@ -115,9 +127,13 @@ export function EmailStep() {
       return;
     }
     track.submitFailed(draft, result.reason);
-    if (result.reason === "invalid_email" || result.reason === "disposable_email") {
+    if (
+      result.reason === "invalid_email" ||
+      result.reason === "disposable_email" ||
+      result.reason === "undeliverable_email"
+    ) {
       setStatus("idle");
-      setInvalid({ suggestion: null, disposable: result.reason === "disposable_email" });
+      setInvalid({ suggestion: null, problem: problemOf[result.reason] });
     } else {
       setStatus("failed");
     }
@@ -195,7 +211,7 @@ export function EmailStep() {
             }}
             error={
               invalid &&
-              (invalid.disposable ? (
+              (invalid.problem === "disposable" ? (
                 errors.emailDisposable
               ) : fix ? (
                 <>
@@ -211,6 +227,8 @@ export function EmailStep() {
                     </SuggestionChip>
                   </span>
                 </>
+              ) : invalid.problem === "undeliverable" ? (
+                errors.emailUndeliverable
               ) : (
                 errors.emailInvalidPlain
               ))

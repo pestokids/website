@@ -19,6 +19,7 @@ import {
 } from "../content/apply";
 import { ATTRIBUTION_PARAMS, type Attribution } from "./attribution";
 import { isDisposableEmail } from "./disposable-email";
+import { checkNames, type NameCheck } from "./name-check";
 
 // ── Names ────────────────────────────────────────────────────────────────────
 
@@ -81,6 +82,8 @@ export type ApplicationInput = {
 
 export type ValidApplication = {
   kids: { name: string; age: Age }[];
+  /** Whether any kid's name looks fake (lib/name-check.ts). Informational, never a rejection. */
+  nameCheck: NameCheck;
   goals: GoalSlug[];
   afterSchool: AfterSchoolSlug[];
   email: string;
@@ -128,7 +131,8 @@ export function cleanAttribution(raw: Attribution): Attribution {
 /**
  * Validates and normalises a submitted application: names cleaned as in the
  * names step, email normalised, slugs checked against content/apply.ts.
- * Returns the first problem found.
+ * Returns the first problem found. Also re-runs the name check, so the
+ * stored `nameCheck` never depends on the client.
  */
 export function validateApplication(input: ApplicationInput): ApplicationResult {
   const fail = (field: ApplicationField, reason: string): ApplicationResult => ({
@@ -171,6 +175,7 @@ export function validateApplication(input: ApplicationInput): ApplicationResult 
 
   const value: ValidApplication = {
     kids,
+    nameCheck: checkNames(kids.map((k) => k.name)),
     goals: [...goals],
     afterSchool: [...afterSchool],
     email,

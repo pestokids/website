@@ -47,6 +47,24 @@ export function loadSubmitted(storage = browserStorage()): Submitted | null {
   return sanitizeSubmitted(readJson(storage, SUBMITTED_KEY));
 }
 
+/**
+ * Development only (the caller checks NODE_ENV): if the URL has `?reset=1`,
+ * clears the draft and the submitted record, then drops the param so a
+ * reload doesn't reset again and it isn't captured as the landing URL.
+ */
+export function consumeDevReset(storage = browserStorage()) {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("reset")) return;
+  try {
+    storage?.removeItem(DRAFT_KEY);
+    storage?.removeItem(SUBMITTED_KEY);
+  } catch {
+    // ignore
+  }
+  url.searchParams.delete("reset");
+  window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+}
+
 /** Stores the submitted record and clears the draft. */
 export function saveSubmitted(submitted: Submitted, storage = browserStorage()) {
   writeJson(storage, SUBMITTED_KEY, submitted);

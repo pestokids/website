@@ -21,6 +21,9 @@ export default defineSchema({
   applications: defineTable({
     email: v.string(), // lowercased, trimmed
     kids: v.array(v.object({ name: v.string(), age: v.string() })), // age "3".."7" | "8+"
+    // Whether a kid's name looks fake (lib/name-check.ts), re-checked on the
+    // server. Absent on applications from before the check.
+    nameCheck: v.optional(v.union(v.literal("ok"), v.literal("suspicious"))),
     goals: v.array(v.string()), // 1–3 slugs
     afterSchool: v.array(v.string()), // ≥1 slugs
     refCode: v.string(), // unique, used in the WhatsApp prefill

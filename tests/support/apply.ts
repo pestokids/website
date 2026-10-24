@@ -5,10 +5,12 @@
  * The repo is public: only obviously fake data goes in here.
  */
 import { test, type Browser } from '@e2e-dev/web';
-import type { App } from 'e2e';
+import { expect, type App, type Screen } from 'e2e';
 
 // ── Test data ────────────────────────────────────────────────────────────────
 
+// "Test Kid" is a placeholder, so the names screen nudges each of these once
+// ("Is that Test Kid A’s real name?"). Tests that type them use confirmName().
 export const KID_A = 'Test Kid A';
 export const KID_B = 'Test Kid B';
 
@@ -124,6 +126,22 @@ export async function openWithDraft(app: App, browser: Browser, seed: SeedDraft)
     { key: DRAFT_KEY, value: JSON.stringify(draft) },
   );
   await browser.goto(`/apply?step=${seed.step}`);
+}
+
+// ── Names screen ─────────────────────────────────────────────────────────────
+
+/** The likely-fake-name nudge for `name` (its text, before the button). */
+export function nameNudge(screen: Screen, name: string) {
+  return screen.getByText(new RegExp(`^Is that ${name}’s real name\\?`));
+}
+
+/**
+ * After Next or "+ Add another kid" with a placeholder name: checks the nudge
+ * and answers "Yes, that’s right", which carries on with that button.
+ */
+export async function confirmName(screen: Screen, name: string) {
+  await expect(nameNudge(screen, name)).toBeVisible();
+  await screen.getByRole('button', 'Yes, that’s right').tap();
 }
 
 // ── Copy helpers ─────────────────────────────────────────────────────────────
