@@ -1,8 +1,7 @@
 // @vitest-environment edge-runtime
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { api } from "./_generated/api";
 import { isRetryableStatus, readEmailConfig } from "./email";
-import { setupConvex } from "./test.setup";
+import { setupConvex, submit } from "./test.setup";
 
 // Obviously fake values only: the repo is public.
 const env = {
@@ -96,7 +95,7 @@ describe("email.sendConfirmation", () => {
     const fetchSpy = vi.fn(response);
     vi.stubGlobal("fetch", fetchSpy);
     const t = setupConvex();
-    const { applicationId, refCode } = await t.mutation(api.applications.submit, application);
+    const { applicationId, refCode } = await submit(t, application);
     await t.finishAllScheduledFunctions(vi.runAllTimers);
     const doc = await t.run((ctx) => ctx.db.get(applicationId));
     return { fetchSpy, doc, applicationId, refCode };
@@ -176,7 +175,7 @@ describe("email.sendConfirmation", () => {
     const fetchSpy = vi.fn(async () => new Response("{}", { status: 500 }));
     vi.stubGlobal("fetch", fetchSpy);
     const t = setupConvex();
-    const { applicationId } = await t.mutation(api.applications.submit, application);
+    const { applicationId } = await submit(t, application);
     await runDueScheduledFunctions(t);
     expect(fetchSpy).toHaveBeenCalledOnce();
     const doc = await t.run((ctx) => ctx.db.get(applicationId));
@@ -187,9 +186,9 @@ describe("email.sendConfirmation", () => {
     const fetchSpy = vi.fn(async () => Response.json({}));
     vi.stubGlobal("fetch", fetchSpy);
     const t = setupConvex();
-    await t.mutation(api.applications.submit, application);
+    await submit(t, application);
     vi.advanceTimersByTime(1);
-    const { applicationId } = await t.mutation(api.applications.submit, {
+    const { applicationId } = await submit(t, {
       ...application,
       goals: ["music"],
     });
@@ -202,7 +201,7 @@ describe("email.sendConfirmation", () => {
 
   it("doesn't let a retry for an older submit send or overwrite a newer one's status", async () => {
     const t = setupConvex();
-    const first = await t.mutation(api.applications.submit, application);
+    const first = await submit(t, application);
     const oldKey = `confirmation/${first.applicationId}/${Date.now()}`;
     // The older submission's sends keep failing; the newer one's succeed.
     const fetchSpy = vi.fn(async (_url: string, init: RequestInit) => {
@@ -213,7 +212,7 @@ describe("email.sendConfirmation", () => {
     await runDueScheduledFunctions(t); // attempt 1 fails, retry due in ~1 min
 
     vi.advanceTimersByTime(1);
-    await t.mutation(api.applications.submit, { ...application, goals: ["music"] });
+    await submit(t, { ...application, goals: ["music"] });
     await t.finishAllScheduledFunctions(vi.runAllTimers);
 
     const doc = await t.run((ctx) => ctx.db.get(first.applicationId));

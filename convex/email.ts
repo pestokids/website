@@ -43,7 +43,7 @@ export function readEmailConfig(env: EmailEnv): EmailConfig | { problems: string
   return { enabled: true, apiKey, from, whatsappNumber, betaDate: betaDate.long };
 }
 
-const RESEND_URL = "https://api.resend.com/emails";
+export const RESEND_URL = "https://api.resend.com/emails";
 
 /** Delays before the 2nd and 3rd attempts. Only transient failures are retried. */
 export const RETRY_DELAYS_MS = [60_000, 10 * 60_000];

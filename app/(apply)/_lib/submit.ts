@@ -8,6 +8,7 @@ import { ConvexError } from "convex/values";
 import { api } from "@/convex/_generated/api";
 import type { SubmitError } from "@/convex/applications";
 import { distinctId } from "@/lib/analytics";
+import { DISPOSABLE_EMAIL_REASON } from "@/lib/application";
 import { config } from "@/lib/config";
 import type { Draft, Submitted } from "./flow";
 
@@ -16,8 +17,14 @@ const TIMEOUT_MS = 20_000;
 
 export type SubmitResult =
   | { ok: true; submitted: Submitted }
-  /** `invalid_email`: the server rejected the address. Anything else is shown as a network error. */
-  | { ok: false; reason: "invalid_email" | "invalid" | "rate_limited" | "timeout" | "network" };
+  /**
+   * `invalid_email` / `disposable_email`: the server rejected the address.
+   * Anything else is shown as a network error.
+   */
+  | {
+      ok: false;
+      reason: "invalid_email" | "disposable_email" | "invalid" | "rate_limited" | "timeout" | "network";
+    };
 
 let client: ConvexHttpClient | null = null;
 
@@ -25,7 +32,12 @@ function timeout(): Promise<never> {
   return new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), TIMEOUT_MS));
 }
 
-export async function submitApplication(draft: Draft, email: string): Promise<SubmitResult> {
+/** `trap` is the email step's off-screen spam-trap field, sent as is. */
+export async function submitApplication(
+  draft: Draft,
+  email: string,
+  trap = "",
+): Promise<SubmitResult> {
   const kids = draft.kids.flatMap((k) => (k.age ? [{ name: k.name, age: k.age }] : []));
   if (kids.length !== draft.kids.length) return { ok: false, reason: "invalid" };
 
@@ -41,6 +53,7 @@ export async function submitApplication(draft: Draft, email: string): Promise<Su
         email,
         attribution: draft.attribution ?? {},
         ...(posthogDistinctId && { posthogDistinctId }),
+        ...(trap && { website: trap }),
       }),
       timeout(),
     ]);
@@ -58,7 +71,11 @@ export async function submitApplication(draft: Draft, email: string): Promise<Su
     if (error instanceof ConvexError) {
       const data = error.data as SubmitError;
       if (data.code === "rate_limited") return { ok: false, reason: "rate_limited" };
-      return { ok: false, reason: data.field === "email" ? "invalid_email" : "invalid" };
+      if (data.field !== "email") return { ok: false, reason: "invalid" };
+      return {
+        ok: false,
+        reason: data.reason === DISPOSABLE_EMAIL_REASON ? "disposable_email" : "invalid_email",
+      };
     }
     if (error instanceof Error && error.message === "timeout") return { ok: false, reason: "timeout" };
     return { ok: false, reason: "network" };

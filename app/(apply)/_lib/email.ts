@@ -10,8 +10,9 @@ import {
   emailTypoDomains,
 } from "@/content/apply";
 import { isValidEmail, normaliseEmail } from "@/lib/application";
+import { isDisposableEmail } from "@/lib/disposable-email";
 
-export { isValidEmail, normaliseEmail };
+export { isDisposableEmail, isValidEmail, normaliseEmail };
 
 /** Whether the normalised value passes the shared format check. */
 export function isEmailFormatValid(value: string): boolean {

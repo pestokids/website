@@ -3,7 +3,8 @@
  *
  * Both SDKs are loaded with `import()` only when NEXT_PUBLIC_ANALYTICS_ENABLED
  * is true, so with it off (local, Preview) no SDK code is fetched and nothing
- * is sent: every function here is a no-op. Calls made before the SDKs finish
+ * is sent: every function here is a no-op. The same goes for exception
+ * capture, which is part of the PostHog init. Calls made before the SDKs finish
  * loading are queued and replayed in order. Analytics never throws into the UI.
  */
 import type { Linkrunner } from "@linkrunner/web";
@@ -32,6 +33,9 @@ function load(): Promise<Sdks> | null {
         capture_dead_clicks: false,
         // Only applies if replay is switched on in the PostHog project.
         session_recording: { maskAllInputs: true },
+        // Uncaught errors and unhandled rejections go to PostHog error
+        // tracking. Console errors stay out: they can echo form values.
+        capture_exceptions: { capture_unhandled_errors: true, capture_unhandled_rejections: true },
       });
       ready = { posthog, lr };
       return ready;

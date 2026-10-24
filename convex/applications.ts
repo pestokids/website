@@ -36,6 +36,18 @@ function randomRefCode(): string {
   return `PF-${code}`;
 }
 
+// Convex document IDs are 32 characters of lowercase base32.
+const FAKE_ID_ALPHABET = "0123456789abcdefghjkmnpqrstvwxyz";
+
+/** A response shaped like a real one, for submits caught by the spam trap. */
+function decoyResult(): { applicationId: string; refCode: string } {
+  let applicationId = "";
+  for (let i = 0; i < 32; i++) {
+    applicationId += FAKE_ID_ALPHABET[Math.floor(Math.random() * FAKE_ID_ALPHABET.length)];
+  }
+  return { applicationId, refCode: randomRefCode() };
+}
+
 async function uniqueRefCode(ctx: MutationCtx): Promise<string> {
   for (let i = 0; i < REF_CODE_ATTEMPTS; i++) {
     const code = randomRefCode();
@@ -60,6 +72,10 @@ async function limit(ctx: MutationCtx, name: "submitPerEmail" | "submitGlobal", 
  * same rules as the client, then upserts it by email: a repeat keeps its
  * refCode, createdAt and first-touch attribution, and updates the answers.
  * Either way the confirmation email is (re)sent.
+ *
+ * `website` is the email step's spam trap, an off-screen field people never
+ * fill. When it has a value the call looks like it succeeded, but nothing is
+ * saved and no email is sent.
  */
 export const submit = mutation({
   args: {
@@ -69,9 +85,16 @@ export const submit = mutation({
     email: v.string(),
     attribution,
     posthogDistinctId: v.optional(v.string()),
+    website: v.optional(v.string()),
   },
-  returns: v.object({ applicationId: v.id("applications"), refCode: v.string() }),
-  handler: async (ctx, args) => {
+  // A string rather than v.id: spam-trap responses carry a made-up ID.
+  returns: v.object({ applicationId: v.string(), refCode: v.string() }),
+  handler: async (ctx, { website, ...args }) => {
+    if (website?.trim()) {
+      console.log("Spam trap filled; submit ignored");
+      return decoyResult();
+    }
+
     const result = validateApplication(args);
     if (!result.ok) {
       throw new ConvexError<SubmitError>({

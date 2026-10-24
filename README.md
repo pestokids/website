@@ -25,7 +25,13 @@ pnpm dev
 - `applications.submit`: validates with the same rules as the flow (`lib/application.ts`), upserts by email (a repeat keeps its ref code and first-touch source), rate-limits per email and globally, and schedules the confirmation email.
 - `email.sendConfirmation`: sends the confirmation through Resend and sets `emailStatus`. It only sends when `EMAIL_SEND_ENABLED=true`; otherwise the status is `skipped`. Network errors and Resend 429/5xx are retried twice (after ~1 and ~10 minutes) with the same idempotency key, then the status is `failed`.
 
-Convex env vars (set per deployment with `npx convex env set KEY value`, or in the dashboard): `EMAIL_SEND_ENABLED`, `RESEND_API_KEY`, `EMAIL_FROM`, `NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_BETA_DATE`.
+- `digest.sendDaily` (cron, `crons.ts`): at 9am Los Angeles time, emails yesterday's new-application counts (total, by `sourceType` and by `source`; no names or emails) to `DIGEST_EMAIL` through Resend. Does nothing when `DIGEST_EMAIL` is unset. Send one now with `npx convex run digest:sendDaily '{"force": true}'`.
+
+Spam: the email step has an off-screen trap field. A submit with it filled gets a normal-looking response, but nothing is saved or sent. Throwaway-inbox domains (`lib/disposable-email.ts`) are rejected by the shared validation.
+
+Convex env vars (set per deployment with `npx convex env set KEY value`, or in the dashboard): `EMAIL_SEND_ENABLED`, `RESEND_API_KEY`, `EMAIL_FROM`, `NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_BETA_DATE`, `DIGEST_EMAIL`.
+
+Uncaught browser errors go to PostHog error tracking (`capture_exceptions`), only when analytics is on.
 
 ## Scripts
 
