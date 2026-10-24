@@ -37,6 +37,25 @@ Convex env vars (set per deployment with `npx convex env set KEY value`, or in t
 | `pnpm typecheck` | Route type generation + `tsc` |
 | `pnpm lint` | ESLint |
 | `pnpm build` | Production build |
+| `pnpm test:e2e` | End-to-end tests (below) |
+
+## End-to-end tests
+
+`tests/*.e2e.ts`, run with [e2e](https://e2e.tester.army/docs) (Playwright plus agent steps). Each test runs on four targets: `phone-webkit` and `phone-chromium` (402×874), `fold` (984×1092) and `desktop` (1440×900). Tests skip the targets they aren't meant for.
+
+```bash
+# .env.local needs ANTHROPIC_API_KEY (agent steps) and E2E_TELEMETRY_DISABLED=1
+pnpm exec e2e-web install chromium webkit
+pnpm test:e2e                          # starts (or reuses) `pnpm dev`
+pnpm test:e2e --target fold            # one target
+pnpm test:e2e tests/email.e2e.ts       # one file; add :line for one test
+PREVIEW_URL=https://… VERCEL_AUTOMATION_BYPASS_SECRET=… pnpm test:e2e   # a protected Preview
+```
+
+- Use only fake data: kids "Test Kid A/B", emails `test.parent+e2e-…@example.com`. Submits from Previews and local runs go to the Convex dev deployment, with analytics and emails off.
+- Exact copy, URLs and localStorage are checked with locators; agent steps do navigation and fuzzy checks.
+- `.e2e/cache/` is committed: passing `agent.act` steps replay from it with no model call. Review its changes like test data. Never commit `.e2e/results` or logs.
+- CI (`.github/workflows/e2e.yml`) runs the suite on every pull request against its Vercel Preview and comments the results on the PR. `e2e-smoke.yml` runs the read-only `smoke` tests (welcome, desktop) against Production after each deploy to `main`.
 
 ## Layout
 

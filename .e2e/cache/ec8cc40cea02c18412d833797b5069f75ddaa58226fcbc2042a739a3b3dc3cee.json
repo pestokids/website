@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "trace-1",
+  "createdAt": "2026-10-24T07:42:02.480Z",
+  "payload": {
+    "actions": [
+      {
+        "name": "tap",
+        "summary": "tap button \"science\" in \"tap a word below\"",
+        "target": {
+          "role": "button",
+          "name": "science",
+          "within": "tap a word below"
+        }
+      },
+      {
+        "name": "tap",
+        "summary": "tap button \"puzzles\" in \"science\"",
+        "target": {
+          "role": "button",
+          "name": "puzzles",
+          "within": "science"
+        }
+      },
+      {
+        "name": "tap",
+        "summary": "tap button \"new words\" in \"science\"",
+        "target": {
+          "role": "button",
+          "name": "new words",
+          "within": "science"
+        }
+      }
+    ],
+    "executor": {
+      "name": "e2e-default-agent",
+      "version": "2"
+    },
+    "recordedFor": {
+      "testId": "tests/limits.e2e.ts::goals%20stop%20at%20three",
+      "targetId": "phone-chromium",
+      "instructionDigest": "d05d774c0c4726d3de163ece442b49303773f6687728c16d6f3df9372a62460f",
+      "paramsDigest": "ac787dfaddda996283029dc4fc79370c44b8434e012b31301ce7e0683706d2fc",
+      "callIndex": 0,
+      "agent": "default"
+    },
+    "recordedBy": {
+      "provider": "anthropic.messages",
+      "model": "claude-haiku-5-5"
+    },
+    "summary": "Tapped \"science\", \"puzzles\", and \"new words\" in the goals word bank. The sentence now shows them in order with a \"3 OF 3\" counter, the other words are disabled, and the button reads \"That's us\". The goals stop at three behaved as required.",
+    "startPath": "/apply?step=goals",
+    "endPath": "/apply?step=goals",
+    "endAnchors": [
+      {
+        "role": "button",
+        "name": "science",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "text": "and"
+      },
+      {
+        "role": "button",
+        "name": "puzzles",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "role": "button",
+        "name": "new words",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "text": "3 OF 3"
+      },
+      {
+        "role": "button",
+        "name": "That’s us"
+      }
+    ],
+    "goneAnchors": [
+      {
+        "text": "tap a word below"
+      },
+      {
+        "text": "0 OF 3"
+      },
+      {
+        "role": "button",
+        "name": "science"
+      },
+      {
+        "role": "button",
+        "name": "puzzles"
+      },
+      {
+        "role": "button",
+        "name": "new words"
+      },
+      {
+        "role": "button",
+        "name": "Pick at least one"
+      }
+    ],
+    "endWaitMs": 11820,
+    "keyedBy": {
+      "cacheSchema": "trace-1",
+      "policyVersion": "conservative/6",
+      "project": "331304ea821e602ac31a233f5093bb076e0710ae1c64588275736c99b0f970b5",
+      "platform": "web",
+      "engineName": "web",
+      "engineSpiVersion": 1,
+      "appIdentity": "a930ed5c311b11f983397669bc1219f4f41cf0a5a62985aaae79969203c133a1",
+      "agentContextDigest": "2c0190676a6e259905710b8715154ce1080efd246749c77493773f571faa4871"
+    }
+  }
+}

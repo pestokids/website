@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "trace-1",
+  "createdAt": "2026-10-24T07:42:19.121Z",
+  "payload": {
+    "actions": [
+      {
+        "name": "tap",
+        "summary": "tap button \"8+ years\" in \"3\"",
+        "target": {
+          "role": "button",
+          "name": "8+ years",
+          "within": "3"
+        }
+      }
+    ],
+    "executor": {
+      "name": "e2e-default-agent",
+      "version": "2"
+    },
+    "recordedFor": {
+      "testId": "tests/happy-path.e2e.ts::two%20kids%20apply%20and%20reach%20the%20received%20screen",
+      "targetId": "phone-chromium",
+      "instructionDigest": "5b46986065734121f3f339778979caa96e46803d9f232e8575f0f9f1b78653fb",
+      "paramsDigest": "085437710a0f14ca10057a1e5b81148160d3c157476e624becc6e2ead080b049",
+      "callIndex": 0,
+      "agent": "default"
+    },
+    "recordedBy": {
+      "provider": "anthropic.messages",
+      "model": "claude-haiku-5-5"
+    },
+    "summary": "Tapped the \"8+ years\" tile for Test Kid B without confirming. The tile now shows pressed, and the confirm button changed from disabled \"Pick an age\" to \"That's Test Kid B!\" (not tapped). Still on Step 2 of 7.",
+    "startPath": "/apply?step=age-2",
+    "endPath": "/apply?step=age-2",
+    "endAnchors": [
+      {
+        "role": "button",
+        "name": "That’s Test Kid B!"
+      },
+      {
+        "role": "button",
+        "name": "8+ years",
+        "states": [
+          "pressed"
+        ]
+      }
+    ],
+    "goneAnchors": [
+      {
+        "role": "button",
+        "name": "Pick an age"
+      },
+      {
+        "role": "button",
+        "name": "8+ years"
+      }
+    ],
+    "endWaitMs": 11433,
+    "keyedBy": {
+      "cacheSchema": "trace-1",
+      "policyVersion": "conservative/6",
+      "project": "331304ea821e602ac31a233f5093bb076e0710ae1c64588275736c99b0f970b5",
+      "platform": "web",
+      "engineName": "web",
+      "engineSpiVersion": 1,
+      "appIdentity": "a930ed5c311b11f983397669bc1219f4f41cf0a5a62985aaae79969203c133a1",
+      "agentContextDigest": "2c0190676a6e259905710b8715154ce1080efd246749c77493773f571faa4871"
+    }
+  }
+}

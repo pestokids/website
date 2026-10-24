@@ -1,0 +1,106 @@
+name: e2e
+
+# End-to-end tests against the pull request's Vercel Preview.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  E2E_TELEMETRY_DISABLED: '1'
+
+jobs:
+  preview:
+    name: Wait for the Vercel Preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      deployments: read
+    outputs:
+      url: ${{ steps.preview.outputs.url }}
+    steps:
+      # Vercel creates a GitHub deployment for the commit; its latest status
+      # carries the Preview URL as environment_url once it's ready.
+      - name: Wait for the Preview of ${{ github.event.pull_request.head.sha }}
+        id: preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          for i in $(seq 1 120); do
+            id=$(gh api "repos/$GITHUB_REPOSITORY/deployments?sha=$SHA&per_page=100" \
+              --jq '[.[] | select(.environment | test("^preview"; "i"))][0].id // empty')
+            if [ -n "$id" ]; then
+              status=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=1" \
+                --jq '.[0] | "\(.state) \(.environment_url // "")"')
+              state=${status%% *}
+              url=${status#* }
+              echo "Deployment $id: ${state:-pending}"
+              case "$state" in
+                success) break ;;
+                failure|error|inactive) echo "::error::The Vercel Preview deployment ended in $state"; exit 1 ;;
+              esac
+            else
+              echo "No Preview deployment for $SHA yet"
+            fi
+            url=
+            sleep 10
+          done
+          if [ -z "$url" ]; then
+            echo "::error::No ready Vercel Preview with a URL for $SHA"
+            exit 1
+          fi
+          url=${url%/}
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H "x-vercel-protection-bypass: $BYPASS" "$url/apply")
+          if [ "$code" != 200 ]; then
+            echo "::error::$url/apply answered $code"
+            exit 1
+          fi
+          echo "Preview: $url"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+  e2e:
+    name: e2e
+    needs: preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install browsers
+        run: pnpm exec e2e-web install chromium webkit --with-deps
+
+      # One rerun of the failed tests catches flakes; the PR comment shows them as flaky.
+      - name: Run e2e
+        run: pnpm exec e2e run --reporter list,junit || pnpm exec e2e run --last-failed
+        env:
+          PREVIEW_URL: ${{ needs.preview.outputs.url }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-report
+          path: |
+            .e2e/report.json
+            .e2e/junit.xml
+          if-no-files-found: warn

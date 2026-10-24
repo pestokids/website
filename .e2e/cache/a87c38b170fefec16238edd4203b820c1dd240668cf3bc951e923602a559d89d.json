@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "trace-1",
+  "createdAt": "2026-10-24T07:41:58.899Z",
+  "payload": {
+    "actions": [
+      {
+        "name": "tap",
+        "summary": "tap button \"YouTube & cartoons\"",
+        "target": {
+          "role": "button",
+          "name": "YouTube & cartoons"
+        }
+      },
+      {
+        "name": "tap",
+        "summary": "tap button \"Tutors\" in \"YouTube & cartoons\"",
+        "target": {
+          "role": "button",
+          "name": "Tutors",
+          "within": "YouTube & cartoons"
+        }
+      }
+    ],
+    "executor": {
+      "name": "e2e-default-agent",
+      "version": "2"
+    },
+    "recordedFor": {
+      "testId": "tests/after-school.e2e.ts::%22Mostly%20just%20school%22%20is%20exclusive",
+      "targetId": "phone-chromium",
+      "instructionDigest": "897f391ace05e8d1ae8faf7678d3c39a60353e787795930f3e38757eafa8f619",
+      "paramsDigest": "3f273f6c419318725522fdc3c2d4336a0dda844026022982eba8e4da986c352c",
+      "callIndex": 0,
+      "agent": "default"
+    },
+    "recordedBy": {
+      "provider": "anthropic.messages",
+      "model": "claude-haiku-5-5"
+    },
+    "summary": "Picked \"YouTube & cartoons\" and \"Tutors\"; both now show pressed, and the continue button changed to \"That's their week\" (enabled). Both selections are active.",
+    "startPath": "/apply?step=after-school",
+    "endPath": "/apply?step=after-school",
+    "endAnchors": [
+      {
+        "role": "button",
+        "name": "YouTube & cartoons",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "role": "button",
+        "name": "Tutors",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "role": "button",
+        "name": "That’s their week"
+      }
+    ],
+    "goneAnchors": [
+      {
+        "role": "button",
+        "name": "YouTube & cartoons"
+      },
+      {
+        "role": "button",
+        "name": "Tutors"
+      },
+      {
+        "role": "button",
+        "name": "Pick at least one"
+      }
+    ],
+    "endWaitMs": 11447,
+    "keyedBy": {
+      "cacheSchema": "trace-1",
+      "policyVersion": "conservative/6",
+      "project": "331304ea821e602ac31a233f5093bb076e0710ae1c64588275736c99b0f970b5",
+      "platform": "web",
+      "engineName": "web",
+      "engineSpiVersion": 1,
+      "appIdentity": "a930ed5c311b11f983397669bc1219f4f41cf0a5a62985aaae79969203c133a1",
+      "agentContextDigest": "2c0190676a6e259905710b8715154ce1080efd246749c77493773f571faa4871"
+    }
+  }
+}

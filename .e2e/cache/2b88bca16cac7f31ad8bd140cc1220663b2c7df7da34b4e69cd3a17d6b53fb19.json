@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "trace-1",
+  "createdAt": "2026-10-24T07:42:04.744Z",
+  "payload": {
+    "actions": [
+      {
+        "name": "tap",
+        "summary": "tap button \"being kind\" in \"tap a word below\"",
+        "target": {
+          "role": "button",
+          "name": "being kind",
+          "within": "tap a word below"
+        }
+      },
+      {
+        "name": "tap",
+        "summary": "tap button \"the world\" in \"being kind\"",
+        "target": {
+          "role": "button",
+          "name": "the world",
+          "within": "being kind"
+        }
+      }
+    ],
+    "executor": {
+      "name": "e2e-default-agent",
+      "version": "2"
+    },
+    "recordedFor": {
+      "testId": "tests/resume.e2e.ts::reload%20resumes%20mid-flow%3B%20after%20submit%20the%20form%20stays%20closed",
+      "targetId": "phone-chromium",
+      "instructionDigest": "2bd0afd9c63ee87cb1232d3fc31640b2cb19d12f7415716c8bc575febf2a012a",
+      "paramsDigest": "543e19e1fd9f09f553d0a7bfd4b1909bea45eb4f498532d784e8e62289b0c07e",
+      "callIndex": 0,
+      "agent": "default"
+    },
+    "recordedBy": {
+      "provider": "anthropic.messages",
+      "model": "claude-haiku-5-5"
+    },
+    "summary": "Tapped \"being kind\" and \"the world\" in the goals sentence. The sentence now reads \"I want Test Kid A to fall in love with… being kind and the world\", the counter shows \"2 OF 3\", and the button changed to \"That's us\".",
+    "startPath": "/apply?step=goals",
+    "endPath": "/apply?step=goals",
+    "endAnchors": [
+      {
+        "role": "button",
+        "name": "being kind",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "text": "and"
+      },
+      {
+        "role": "button",
+        "name": "the world",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "text": "one more?"
+      },
+      {
+        "text": "2 OF 3"
+      },
+      {
+        "role": "button",
+        "name": "That’s us"
+      }
+    ],
+    "goneAnchors": [
+      {
+        "text": "tap a word below"
+      },
+      {
+        "text": "0 OF 3"
+      },
+      {
+        "role": "button",
+        "name": "being kind"
+      },
+      {
+        "role": "button",
+        "name": "the world"
+      },
+      {
+        "role": "button",
+        "name": "Pick at least one"
+      }
+    ],
+    "endWaitMs": 12531,
+    "keyedBy": {
+      "cacheSchema": "trace-1",
+      "policyVersion": "conservative/6",
+      "project": "331304ea821e602ac31a233f5093bb076e0710ae1c64588275736c99b0f970b5",
+      "platform": "web",
+      "engineName": "web",
+      "engineSpiVersion": 1,
+      "appIdentity": "a930ed5c311b11f983397669bc1219f4f41cf0a5a62985aaae79969203c133a1",
+      "agentContextDigest": "2c0190676a6e259905710b8715154ce1080efd246749c77493773f571faa4871"
+    }
+  }
+}

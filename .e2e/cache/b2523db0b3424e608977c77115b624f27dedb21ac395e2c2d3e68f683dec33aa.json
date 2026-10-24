@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "trace-1",
+  "createdAt": "2026-10-24T07:42:02.299Z",
+  "payload": {
+    "actions": [
+      {
+        "name": "tap",
+        "summary": "tap button \"Bal Vihar\" in \"YouTube & cartoons\"",
+        "target": {
+          "role": "button",
+          "name": "Bal Vihar",
+          "within": "YouTube & cartoons"
+        }
+      }
+    ],
+    "executor": {
+      "name": "e2e-default-agent",
+      "version": "2"
+    },
+    "recordedFor": {
+      "testId": "tests/one-kid.e2e.ts::one%20kid%3A%20singular%20copy%20and%20possessives",
+      "targetId": "phone-webkit",
+      "instructionDigest": "77bdd8031567e42f6a51d69f9931eb5381f9d7e5b4df44ea537754f5abba886d",
+      "paramsDigest": "bdd7c2ac0cd0ff600cd4fbf8e2c3d5ff16e28add883783fc46720f71692ee86e",
+      "callIndex": 0,
+      "agent": "default"
+    },
+    "recordedBy": {
+      "provider": "anthropic.messages",
+      "model": "claude-haiku-5-5"
+    },
+    "summary": "Tapped the \"Bal Vihar\" option on the after-school screen. It now shows pressed, and the button changed from disabled \"Pick at least one\" to enabled \"That’s their week\".",
+    "startPath": "/apply?step=after-school",
+    "endPath": "/apply?step=after-school",
+    "endAnchors": [
+      {
+        "role": "button",
+        "name": "Bal Vihar",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "role": "button",
+        "name": "That’s their week"
+      }
+    ],
+    "goneAnchors": [
+      {
+        "role": "button",
+        "name": "Bal Vihar"
+      },
+      {
+        "role": "button",
+        "name": "Pick at least one"
+      }
+    ],
+    "endWaitMs": 11797,
+    "keyedBy": {
+      "cacheSchema": "trace-1",
+      "policyVersion": "conservative/6",
+      "project": "331304ea821e602ac31a233f5093bb076e0710ae1c64588275736c99b0f970b5",
+      "platform": "web",
+      "engineName": "web",
+      "engineSpiVersion": 1,
+      "appIdentity": "a930ed5c311b11f983397669bc1219f4f41cf0a5a62985aaae79969203c133a1",
+      "agentContextDigest": "2c0190676a6e259905710b8715154ce1080efd246749c77493773f571faa4871"
+    }
+  }
+}

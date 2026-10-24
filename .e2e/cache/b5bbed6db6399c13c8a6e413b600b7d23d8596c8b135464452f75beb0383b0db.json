@@ -1,0 +1,154 @@
+{
+  "schemaVersion": "trace-1",
+  "createdAt": "2026-10-24T07:42:21.821Z",
+  "payload": {
+    "actions": [
+      {
+        "name": "tap",
+        "summary": "tap textbox \"First kid’s name\"",
+        "target": {
+          "role": "textbox",
+          "name": "First kid’s name",
+          "placeholder": "e.g. Meera"
+        }
+      },
+      {
+        "name": "type",
+        "summary": "type \"Test Kid A\" into textbox \"First kid’s name\"",
+        "target": {
+          "role": "textbox",
+          "name": "First kid’s name",
+          "placeholder": "e.g. Meera"
+        },
+        "value": "Test Kid A"
+      },
+      {
+        "name": "tap",
+        "summary": "tap button \"+ Add another kid\"",
+        "target": {
+          "role": "button",
+          "name": "+ Add another kid"
+        }
+      },
+      {
+        "name": "tap",
+        "summary": "tap textbox \"Second kid’s name\"",
+        "target": {
+          "role": "textbox",
+          "name": "Second kid’s name",
+          "placeholder": "e.g. Meera"
+        }
+      },
+      {
+        "name": "type",
+        "summary": "type \"Test Kid B\" into textbox \"Second kid’s name\"",
+        "target": {
+          "role": "textbox",
+          "name": "Second kid’s name",
+          "placeholder": "e.g. Meera"
+        },
+        "value": "Test Kid B"
+      },
+      {
+        "name": "tap",
+        "summary": "tap button \"Next ›\"",
+        "target": {
+          "role": "button",
+          "name": "Next ›"
+        }
+      }
+    ],
+    "executor": {
+      "name": "e2e-default-agent",
+      "version": "2"
+    },
+    "recordedFor": {
+      "testId": "tests/happy-path.e2e.ts::two%20kids%20apply%20and%20reach%20the%20received%20screen",
+      "targetId": "phone-webkit",
+      "instructionDigest": "733b36e6a58c225c131057fe9d12de9e67a384ebd63b94c4e1284eeebc4ee993",
+      "paramsDigest": "4ab988feb8964022c84aed0b9981c6281f8dbc1cacf6a275aae591cc5d32f0c4",
+      "callIndex": 0,
+      "agent": "default"
+    },
+    "recordedBy": {
+      "provider": "anthropic.messages",
+      "model": "claude-haiku-5-5"
+    },
+    "summary": "Added two kids, \"Test Kid A\" and \"Test Kid B\", on the names screen (Step 1 of 7), then tapped Next. The app advanced to Step 2 of 7, the age screen \"How old is Test Kid A?\", which shows the age options.",
+    "startPath": "/apply?step=names",
+    "endPath": "/apply?step=age-1",
+    "endAnchors": [
+      {
+        "role": "progressbar",
+        "name": "Step 2 of 7"
+      },
+      {
+        "text": "PESTO ASKS"
+      },
+      {
+        "role": "heading",
+        "name": "How old is Test Kid A?"
+      },
+      {
+        "text": "years"
+      },
+      {
+        "text": "8+"
+      },
+      {
+        "text": "Tap the age that fits."
+      },
+      {
+        "role": "button",
+        "name": "Pick an age"
+      },
+      {
+        "role": "group",
+        "name": "How old is Test Kid A?"
+      }
+    ],
+    "goneAnchors": [
+      {
+        "role": "progressbar",
+        "name": "Step 1 of 7"
+      },
+      {
+        "text": "Who’s joining the"
+      },
+      {
+        "text": "adventure?"
+      },
+      {
+        "text": "First kid’s name"
+      },
+      {
+        "role": "textbox",
+        "name": "First kid’s name",
+        "placeholder": "e.g. Meera"
+      },
+      {
+        "role": "button",
+        "name": "+ Add another kid"
+      },
+      {
+        "role": "button",
+        "name": "Next ›"
+      },
+      {
+        "role": "heading",
+        "name": "Who’s joining the adventure?"
+      }
+    ],
+    "endWaitMs": 11456,
+    "keyedBy": {
+      "cacheSchema": "trace-1",
+      "policyVersion": "conservative/6",
+      "project": "331304ea821e602ac31a233f5093bb076e0710ae1c64588275736c99b0f970b5",
+      "platform": "web",
+      "engineName": "web",
+      "engineSpiVersion": 1,
+      "appIdentity": "a930ed5c311b11f983397669bc1219f4f41cf0a5a62985aaae79969203c133a1",
+      "agentContextDigest": "2c0190676a6e259905710b8715154ce1080efd246749c77493773f571faa4871"
+    }
+  }
+}
