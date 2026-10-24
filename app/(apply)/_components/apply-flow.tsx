@@ -26,9 +26,8 @@ import {
   type Submitted,
 } from "../_lib/flow";
 import { familyOf } from "../_lib/personalise";
-import { loadDraft, loadSubmitted, saveDraft, saveSubmitted } from "../_lib/storage";
+import { consumeDevReset, loadDraft, loadSubmitted, saveDraft, saveSubmitted } from "../_lib/storage";
 import { track } from "../_lib/track";
-import { DevPanel } from "./dev-panel";
 import { FlowProgressHeader } from "./progress-header";
 import { AfterSchoolStep } from "./steps/after-school";
 import { AgeStep } from "./steps/age";
@@ -153,6 +152,8 @@ export function ApplyFlow() {
   // First load: read storage, capture first touch, resume. Renders nothing
   // until then, so the server HTML never flashes the wrong step.
   useEffect(() => {
+    // Development only: /apply?reset=1 starts over. Stripped from production builds.
+    if (process.env.NODE_ENV === "development") consumeDevReset();
     const urlStepNow = getUrlStep();
     const submitted = loadSubmitted();
     let draft = loadDraft() ?? createDraft(Date.now());
@@ -249,7 +250,6 @@ export function ApplyFlow() {
       <main className="flex flex-1 flex-col px-[var(--margin-page)]">
         <StepView step={step} />
       </main>
-      {process.env.NODE_ENV === "development" && <DevPanel />}
     </FlowContext>
   );
 }

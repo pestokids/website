@@ -115,6 +115,8 @@ export const errors = {
   emailInvalidPlain: "Hmm, that doesn’t look right.",
   /** A throwaway-inbox domain (lib/disposable-email.ts). */
   emailDisposable: "That looks like a temporary inbox. Use one you’ll check, so your letter finds you.",
+  /** The address looks fine, but its domain can't receive mail (no MX). */
+  emailUndeliverable: "We can’t send to that address. Check the spelling?",
   network: "Couldn’t send that. Check your connection and try again.",
 } as const;
 
@@ -149,6 +151,9 @@ export const names = {
   next: "Next ›",
   reviewLabel: "Your kids",
   remove: (name: string) => `Remove ${name}`,
+  /** Gentle check on a name that looks made up. Never blocks: Next or the button carries on. */
+  nudge: (name: string) => `Is that ${name}’s real name?`,
+  nudgeConfirm: "Yes, that’s right",
   capNote: `Founding Families is for up to ${MAX_KIDS} kids per family.`,
 } as const;
 

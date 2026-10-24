@@ -27,15 +27,7 @@ const app = {
 const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 const headers: Record<string, string> = bypass ? { 'x-vercel-protection-bypass': bypass } : {};
 
-// `next dev` renders a debug panel under the flow. Hide it in local runs so
-// layouts match a Preview build, which never has it.
-const hideDevPanel = `addEventListener('DOMContentLoaded', () => {
-  const style = document.createElement('style');
-  style.textContent = 'details:has([data-testid="dev-state"]) { display: none !important; }';
-  document.head.append(style);
-});`;
-
-const options = { headers, initScripts: previewUrl ? [] : [hideDevPanel] };
+const options = { headers };
 const phone = { width: 402, height: 874 };
 
 export default {

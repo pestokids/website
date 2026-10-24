@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   mutation: vi.fn(),
   distinctId: vi.fn<() => string | undefined>(),
+  canReceiveMail: vi.fn<(email: string) => Promise<boolean>>(),
 }));
 
 vi.mock("convex/browser", () => ({
@@ -12,6 +13,7 @@ vi.mock("convex/browser", () => ({
 }));
 vi.mock("@/lib/config", () => ({ config: { convexUrl: "https://test.convex.example" } }));
 vi.mock("@/lib/analytics", () => ({ distinctId: mocks.distinctId }));
+vi.mock("./deliverability", () => ({ canReceiveMail: mocks.canReceiveMail }));
 
 import { ConvexError } from "convex/values";
 import { createDraft, reducer, type Action } from "./flow";
@@ -30,6 +32,7 @@ const draft = (
 beforeEach(() => {
   mocks.mutation.mockReset().mockResolvedValue({ applicationId: "test-id", refCode: "PF-TEST" });
   mocks.distinctId.mockReset();
+  mocks.canReceiveMail.mockReset().mockResolvedValue(true);
 });
 
 describe("submitApplication", () => {
@@ -61,5 +64,29 @@ describe("submitApplication", () => {
       ok: false,
       reason: expected,
     });
+  });
+
+  it("doesn't submit to an address whose domain can't receive mail", async () => {
+    mocks.canReceiveMail.mockResolvedValue(false);
+    const result = await submitApplication(draft, "test.parent@nomail.invalid");
+    expect(result).toEqual({ ok: false, reason: "undeliverable_email" });
+    expect(mocks.canReceiveMail).toHaveBeenCalledWith("test.parent@nomail.invalid");
+    expect(mocks.mutation).not.toHaveBeenCalled();
+  });
+
+  it("checks a throwaway inbox before spending an MX lookup on it", async () => {
+    const result = await submitApplication(draft, "test.parent@mailinator.com");
+    expect(result).toEqual({ ok: false, reason: "disposable_email" });
+    expect(mocks.canReceiveMail).not.toHaveBeenCalled();
+    expect(mocks.mutation).not.toHaveBeenCalled();
+  });
+
+  it("sends a filled spam trap straight to the server, skipping the email checks", async () => {
+    mocks.canReceiveMail.mockResolvedValue(false);
+    const trap = "https://spam.example.com";
+    const result = await submitApplication(draft, "test.parent@mailinator.com", trap);
+    expect(result.ok).toBe(true);
+    expect(mocks.canReceiveMail).not.toHaveBeenCalled();
+    expect(mocks.mutation.mock.calls[0][1]).toMatchObject({ website: trap });
   });
 });

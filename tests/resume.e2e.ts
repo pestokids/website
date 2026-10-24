@@ -1,6 +1,7 @@
 import { test } from '@e2e-dev/web';
 import { expect, unique } from 'e2e';
 import {
+  confirmName,
   DRAFT_KEY,
   KID_A,
   openApply,
@@ -22,7 +23,9 @@ test('reload resumes mid-flow; after submit the form stays closed', async ({
   await openApply(app, browser);
   await screen.getByRole('button', 'Count us in').tap();
 
-  await agent.act('add one kid named {name} and go to the next screen', { params: { name: KID_A } });
+  await screen.getByLabel('First kid’s name').fill(KID_A);
+  await screen.getByRole('button', 'Next ›').tap();
+  await confirmName(screen, KID_A);
   await expect(screen.getByRole('heading', `How old is ${KID_A}?`)).toBeVisible();
   await screen.getByRole('button', /^6\s*years$/).tap();
   await screen.getByRole('button', `That’s ${KID_A}!`).tap();

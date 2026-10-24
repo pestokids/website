@@ -32,6 +32,8 @@ describe("validateApplication", () => {
           { name: "Test kid a", age: "5" },
           { name: "Test Kid B", age: "8+" },
         ],
+        // "Test Kid" is a placeholder: flagged, but still accepted.
+        nameCheck: "suspicious",
         goals: ["science", "music"],
         afterSchool: ["bedtime_stories"],
         email: "test.parent@example.com",
@@ -56,6 +58,18 @@ describe("validateApplication", () => {
     for (const name of ["", "Test1", "a".repeat(31), "<script>"]) {
       expect(withInput({ kids: [{ name, age: "3" }] })).toMatchObject({ ok: false, field: "kids" });
     }
+  });
+
+  it("re-checks the names on the server and never rejects for it", () => {
+    expect(withInput({ kids: [{ name: "Aarav", age: "4" }] })).toMatchObject({
+      ok: true,
+      value: { nameCheck: "ok" },
+    });
+    const kids = [
+      { name: "Aarav", age: "4" },
+      { name: "asdf", age: "6" },
+    ];
+    expect(withInput({ kids })).toMatchObject({ ok: true, value: { nameCheck: "suspicious" } });
   });
 
   it("rejects the same name twice, ignoring case", () => {

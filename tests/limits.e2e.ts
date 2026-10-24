@@ -1,15 +1,25 @@
 import { test } from '@e2e-dev/web';
 import { expect } from 'e2e';
-import { DRAFT_KEY, KID_A, KID_B, openApply, openWithDraft, readStored, runOnlyOn, type StoredDraft } from './support/apply';
+import {
+  confirmName,
+  DRAFT_KEY,
+  KID_A,
+  KID_B,
+  openApply,
+  openWithDraft,
+  readStored,
+  runOnlyOn,
+  type StoredDraft,
+} from './support/apply';
 
-test('kids stop at two', async ({ app, browser, screen, agent }) => {
+test('kids stop at two', async ({ app, browser, screen }) => {
   await runOnlyOn(browser, ['phone-chromium']);
   await openApply(app, browser);
   await screen.getByRole('button', 'Count us in').tap();
 
-  await agent.act('type {name} as the first kid’s name and add another kid', {
-    params: { name: KID_A },
-  });
+  await screen.getByLabel('First kid’s name').fill(KID_A);
+  await screen.getByRole('button', '+ Add another kid').tap();
+  await confirmName(screen, KID_A);
   // State C: kid 1 is a chip, the field is for kid 2, and "Add another kid" is gone.
   await expect(screen.getByLabel('Second kid’s name')).toBeVisible();
   await expect(screen.getByText(KID_A)).toBeVisible();
@@ -17,6 +27,7 @@ test('kids stop at two', async ({ app, browser, screen, agent }) => {
 
   await screen.getByLabel('Second kid’s name').fill(KID_B);
   await screen.getByRole('button', 'Next ›').tap();
+  await confirmName(screen, KID_B);
   await expect(screen.getByRole('heading', `How old is ${KID_A}?`)).toBeVisible();
 
   // Back on the names screen with two kids saved: the review list (state D),

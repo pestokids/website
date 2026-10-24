@@ -211,7 +211,15 @@ describe("funnel events", () => {
     );
   });
 
-  it.each(["network", "timeout", "rate_limited", "invalid", "invalid_email"] as const)(
+  it.each([
+    "network",
+    "timeout",
+    "rate_limited",
+    "invalid",
+    "invalid_email",
+    "disposable_email",
+    "undeliverable_email",
+  ] as const)(
     "ff_submit_failed (%s), with no identify or signup",
     (reason) => {
       expect(captured(() => track.submitFailed(twoKids, reason))).toMatchObject({

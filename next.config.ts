@@ -8,8 +8,6 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   // Dev only: lets phones on the local network load the dev server.
   allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "*.local"],
-  // Keeps the indicator clear of the Dev panel bar.
-  devIndicators: { position: "bottom-right" },
   turbopack: {
     rules: {
       "*.css": {
