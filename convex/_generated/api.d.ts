@@ -9,6 +9,8 @@
  */
 
 import type * as applications from "../applications.js";
+import type * as crons from "../crons.js";
+import type * as digest from "../digest.js";
 import type * as email from "../email.js";
 import type * as linkrunner from "../linkrunner.js";
 
@@ -20,6 +22,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   applications: typeof applications;
+  crons: typeof crons;
+  digest: typeof digest;
   email: typeof email;
   linkrunner: typeof linkrunner;
 }>;

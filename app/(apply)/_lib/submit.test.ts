@@ -13,6 +13,7 @@ vi.mock("convex/browser", () => ({
 vi.mock("@/lib/config", () => ({ config: { convexUrl: "https://test.convex.example" } }));
 vi.mock("@/lib/analytics", () => ({ distinctId: mocks.distinctId }));
 
+import { ConvexError } from "convex/values";
 import { createDraft, reducer, type Action } from "./flow";
 import { submitApplication } from "./submit";
 
@@ -42,5 +43,23 @@ describe("submitApplication", () => {
     mocks.distinctId.mockReturnValue(undefined);
     await submitApplication(draft, "test.parent@example.com");
     expect(mocks.mutation.mock.calls[0][1]).not.toHaveProperty("posthogDistinctId");
+  });
+
+  it("sends the spam-trap field only when it has a value", async () => {
+    await submitApplication(draft, "test.parent@example.com");
+    expect(mocks.mutation.mock.calls[0][1]).not.toHaveProperty("website");
+    await submitApplication(draft, "test.parent@example.com", "https://spam.example.com");
+    expect(mocks.mutation.mock.calls[1][1]).toMatchObject({ website: "https://spam.example.com" });
+  });
+
+  it.each([
+    ["invalid email", "invalid_email"],
+    ["disposable email", "disposable_email"],
+  ])("maps a server email rejection (%s) to %s", async (reason, expected) => {
+    mocks.mutation.mockRejectedValue(new ConvexError({ code: "invalid", field: "email", reason }));
+    expect(await submitApplication(draft, "test.parent@example.com")).toEqual({
+      ok: false,
+      reason: expected,
+    });
   });
 });

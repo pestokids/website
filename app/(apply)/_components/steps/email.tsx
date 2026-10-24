@@ -7,6 +7,7 @@ import {
   emailSuggestion,
   ghostDomain,
   ghostText,
+  isDisposableEmail,
   isEmailFormatValid,
   normaliseEmail,
 } from "../../_lib/email";
@@ -21,13 +22,16 @@ import { StickyFooter } from "../ui/sticky-footer";
 import { TextField } from "../ui/text-field";
 
 type Status = "idle" | "submitting" | "failed";
-/** The "Did you mean" state (B), set on blur or a submit attempt. */
-type Invalid = { suggestion: string | null };
+/**
+ * The "Did you mean" state (B), set on blur or a submit attempt. `disposable`:
+ * a throwaway inbox, which can't be sent at all.
+ */
+type Invalid = { suggestion: string | null; disposable?: boolean };
 
 /**
  * Screen 8. States: A empty, E ghost completion (submit disabled until it's
  * accepted), B invalid or likely typo with a fix chip, C ready, D submitting,
- * plus the network error line.
+ * plus the network error line. Also holds an off-screen spam-trap field.
  */
 export function EmailStep() {
   const { draft, dispatch, completeSubmit } = useFlow();
@@ -42,6 +46,7 @@ export function EmailStep() {
   // real domain can still go through after a second look.
   const warnedTypos = useRef(new Set<string>());
   const inFlight = useRef(false);
+  const trap = useRef<HTMLInputElement>(null);
 
   const submitting = status === "submitting";
   // No ghost over state B: the fix chip is the suggestion there.
@@ -80,6 +85,10 @@ export function EmailStep() {
       return false;
     }
     const email = normaliseEmail(value);
+    if (isDisposableEmail(email)) {
+      setInvalid({ suggestion: null, disposable: true });
+      return false;
+    }
     if (suggestion && !warnedTypos.current.has(email)) {
       warnedTypos.current.add(email);
       setInvalid({ suggestion });
@@ -95,18 +104,20 @@ export function EmailStep() {
 
     inFlight.current = true;
     setStatus("submitting");
-    const result = await submitApplication(draft, normaliseEmail(value));
+    const trapValue = trap.current?.value ?? "";
+    const result = await submitApplication(draft, normaliseEmail(value), trapValue);
     inFlight.current = false;
 
     if (result.ok) {
-      track.submitted(draft, result.submitted);
+      // A filled trap means a bot: the server saved nothing, so record no conversion.
+      if (!trapValue) track.submitted(draft, result.submitted);
       completeSubmit(result.submitted);
       return;
     }
     track.submitFailed(draft, result.reason);
-    if (result.reason === "invalid_email") {
+    if (result.reason === "invalid_email" || result.reason === "disposable_email") {
       setStatus("idle");
-      setInvalid({ suggestion: null });
+      setInvalid({ suggestion: null, disposable: result.reason === "disposable_email" });
     } else {
       setStatus("failed");
     }
@@ -184,7 +195,9 @@ export function EmailStep() {
             }}
             error={
               invalid &&
-              (fix ? (
+              (invalid.disposable ? (
+                errors.emailDisposable
+              ) : fix ? (
                 <>
                   {errors.emailInvalid}
                   <span className="mt-2 mb-3 flex">
@@ -232,6 +245,15 @@ export function EmailStep() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Spam trap: off-screen, out of the tab order and hidden from screen
+            readers, so only bots fill it. */}
+        <div aria-hidden className="absolute -left-[9999px] size-px overflow-hidden">
+          <label>
+            {copy.honeypotLabel}
+            <input ref={trap} type="text" name="website" tabIndex={-1} autoComplete="off" />
+          </label>
         </div>
 
         <StickyFooter placement="inline">

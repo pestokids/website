@@ -18,6 +18,7 @@ import {
   type GoalSlug,
 } from "../content/apply";
 import { ATTRIBUTION_PARAMS, type Attribution } from "./attribution";
+import { isDisposableEmail } from "./disposable-email";
 
 // ── Names ────────────────────────────────────────────────────────────────────
 
@@ -88,6 +89,9 @@ export type ValidApplication = {
 };
 
 export type ApplicationField = "kids" | "goals" | "afterSchool" | "email";
+
+/** The `reason` for a throwaway-inbox email, so the flow can say so kindly. */
+export const DISPOSABLE_EMAIL_REASON = "disposable email";
 
 export type ApplicationResult =
   | { ok: true; value: ValidApplication }
@@ -163,6 +167,7 @@ export function validateApplication(input: ApplicationInput): ApplicationResult 
 
   const email = normaliseEmail(input.email);
   if (!isValidEmail(email)) return fail("email", "invalid email");
+  if (isDisposableEmail(email)) return fail("email", DISPOSABLE_EMAIL_REASON);
 
   const value: ValidApplication = {
     kids,

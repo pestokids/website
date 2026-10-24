@@ -113,6 +113,8 @@ export const errors = {
   emailInvalid: "Hmm, that doesn’t look right. Did you mean",
   /** Same, when there's nothing to suggest. */
   emailInvalidPlain: "Hmm, that doesn’t look right.",
+  /** A throwaway-inbox domain (lib/disposable-email.ts). */
+  emailDisposable: "That looks like a temporary inbox. Use one you’ll check, so your letter finds you.",
   network: "Couldn’t send that. Check your connection and try again.",
 } as const;
 
@@ -231,6 +233,8 @@ export const email = {
   /** Shown after a lock icon (not an emoji). */
   privacy: "Only used for your application. Never shared.",
   submitLabel: "Submit application",
+  /** Spam trap: an off-screen field people never see. Bots that fill it are ignored. */
+  honeypotLabel: "Leave this empty",
 } as const;
 
 export const received = {

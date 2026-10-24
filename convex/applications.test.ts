@@ -3,7 +3,7 @@ import { ConvexError } from "convex/values";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { api } from "./_generated/api";
 import type { SubmitError } from "./applications";
-import { setupConvex } from "./test.setup";
+import { setupConvex, submit } from "./test.setup";
 
 // Obviously fake data only: the repo is public.
 const application = {
@@ -48,7 +48,7 @@ afterEach(() => {
 describe("applications.submit", () => {
   it("stores a new application and returns its id and ref code", async () => {
     const t = setupConvex();
-    const result = await t.mutation(api.applications.submit, application);
+    const result = await submit(t, application);
     expect(result.refCode).toMatch(REF_CODE);
 
     const doc = await t.run((ctx) => ctx.db.get(result.applicationId));
@@ -70,8 +70,8 @@ describe("applications.submit", () => {
 
   it("classifies the source on the server from the raw attribution", async () => {
     const t = setupConvex();
-    const paid = await t.mutation(api.applications.submit, application);
-    const direct = await t.mutation(api.applications.submit, {
+    const paid = await submit(t, application);
+    const direct = await submit(t, {
       ...application,
       email: "test.parent2@example.com",
       attribution: {},
@@ -88,16 +88,16 @@ describe("applications.submit", () => {
   it("doesn't accept a client-supplied source", async () => {
     const t = setupConvex();
     const forged = { ...application, sourceType: "paid", source: "meta" };
-    await expect(t.mutation(api.applications.submit, forged)).rejects.toThrow(/sourceType/);
+    await expect(submit(t, forged)).rejects.toThrow(/sourceType/);
   });
 
   it("upserts by email: keeps refCode, createdAt and first touch, updates the answers", async () => {
     const t = setupConvex();
-    const first = await t.mutation(api.applications.submit, application);
+    const first = await submit(t, application);
     const before = await t.run((ctx) => ctx.db.get(first.applicationId));
     vi.advanceTimersByTime(60_000);
 
-    const second = await t.mutation(api.applications.submit, {
+    const second = await submit(t, {
       kids: [{ name: "Test Kid C", age: "3" }],
       goals: ["puzzles"],
       afterSchool: ["mostly_school"],
@@ -130,7 +130,7 @@ describe("applications.submit", () => {
     const t = setupConvex();
     const codes = new Set<string>();
     for (let i = 0; i < 20; i++) {
-      const { refCode } = await t.mutation(api.applications.submit, {
+      const { refCode } = await submit(t, {
         ...application,
         email: `test.parent+${i}@example.com`,
       });
@@ -149,25 +149,25 @@ describe("applications.submit", () => {
     ["email", { email: "test.parent@example" }],
   ])("rejects invalid %s without writing anything", async (field, patch) => {
     const t = setupConvex();
-    const data = await submitError(t.mutation(api.applications.submit, { ...application, ...patch }));
+    const data = await submitError(submit(t, { ...application, ...patch }));
     expect(data).toMatchObject({ code: "invalid", field });
     expect(await t.run((ctx) => ctx.db.query("applications").collect())).toHaveLength(0);
   });
 
   it("rate-limits repeat submits per email", async () => {
     const t = setupConvex();
-    for (let i = 0; i < 5; i++) await t.mutation(api.applications.submit, application);
+    for (let i = 0; i < 5; i++) await submit(t, application);
 
-    const data = await submitError(t.mutation(api.applications.submit, application));
+    const data = await submitError(submit(t, application));
     expect(data).toMatchObject({ code: "rate_limited" });
     expect(data.retryAfter).toBeGreaterThan(0);
 
     // Other addresses aren't affected.
-    await t.mutation(api.applications.submit, { ...application, email: "test.other@example.com" });
+    await submit(t, { ...application, email: "test.other@example.com" });
 
     // The window resets.
     vi.advanceTimersByTime(2 * 60 * 60 * 1000);
-    await t.mutation(api.applications.submit, application);
+    await submit(t, application);
   });
 
   it("has a global limit across all emails", async () => {
@@ -175,7 +175,7 @@ describe("applications.submit", () => {
     let limited: Record<string, unknown> | null = null;
     for (let i = 0; i < 200 && !limited; i++) {
       try {
-        await t.mutation(api.applications.submit, {
+        await submit(t, {
           ...application,
           email: `test.parent+${i}@example.com`,
         });
@@ -186,12 +186,39 @@ describe("applications.submit", () => {
     expect(limited).toMatchObject({ code: "rate_limited" });
   });
 
+  it("rejects a throwaway inbox", async () => {
+    const t = setupConvex();
+    const data = await submitError(submit(t, { ...application, email: "test.parent@yopmail.com" }));
+    expect(data).toMatchObject({ code: "invalid", field: "email", reason: "disposable email" });
+  });
+
+  it("answers a filled spam trap like a success, but saves and sends nothing", async () => {
+    const t = setupConvex();
+    vi.stubEnv("LINKRUNNER_SERVER_KEY", "test-linkrunner-key");
+    const result = await t.mutation(api.applications.submit, {
+      ...application,
+      website: "https://spam.example.com",
+    });
+    expect(result.applicationId).toMatch(/^[0-9a-z]{32}$/);
+    expect(result.refCode).toMatch(REF_CODE);
+
+    expect(await t.run((ctx) => ctx.db.query("applications").collect())).toHaveLength(0);
+    const scheduled = await t.run((ctx) => ctx.db.system.query("_scheduled_functions").collect());
+    expect(scheduled).toHaveLength(0);
+  });
+
+  it("ignores an empty spam trap", async () => {
+    const t = setupConvex();
+    await submit(t, { ...application, website: "  " });
+    expect(await t.run((ctx) => ctx.db.query("applications").collect())).toHaveLength(1);
+  });
+
   it("schedules the confirmation email, which is skipped when sending is off", async () => {
     const t = setupConvex();
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
     try {
-      const { applicationId } = await t.mutation(api.applications.submit, application);
+      const { applicationId } = await submit(t, application);
       await t.finishAllScheduledFunctions(vi.runAllTimers);
       const doc = await t.run((ctx) => ctx.db.get(applicationId));
       expect(doc?.emailStatus).toBe("skipped");

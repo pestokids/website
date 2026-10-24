@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ATTRIBUTION_VALUE_MAX_LENGTH,
   cleanAttribution,
+  DISPOSABLE_EMAIL_REASON,
   isValidEmail,
   normaliseEmail,
   validateApplication,
@@ -36,6 +37,14 @@ describe("validateApplication", () => {
         email: "test.parent@example.com",
         attribution: { utm_source: "whatsapp", utm_campaign: "test_campaign" },
       },
+    });
+  });
+
+  it("rejects a throwaway inbox with its own reason", () => {
+    expect(withInput({ email: "Test.Parent@Mailinator.com" })).toEqual({
+      ok: false,
+      field: "email",
+      reason: DISPOSABLE_EMAIL_REASON,
     });
   });
 

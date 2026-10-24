@@ -77,7 +77,7 @@ describe("with analytics on", () => {
     sdk.config.analytics = ENABLED;
   });
 
-  it("inits PostHog once, without pageviews or autocapture, masking replay inputs", async () => {
+  it("inits PostHog once, without pageviews or autocapture, masking replay inputs, capturing exceptions", async () => {
     const a = await freshAnalytics();
     a.initAnalytics();
     a.initAnalytics();
@@ -92,6 +92,7 @@ describe("with analytics on", () => {
       rageclick: false,
       capture_dead_clicks: false,
       session_recording: { maskAllInputs: true },
+      capture_exceptions: { capture_unhandled_errors: true, capture_unhandled_rejections: true },
     });
   });
 

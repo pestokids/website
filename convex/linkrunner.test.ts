@@ -1,8 +1,7 @@
 // @vitest-environment edge-runtime
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { api } from "./_generated/api";
 import { CAPTURE_EVENT_URL, linkrunnerServerKey, signupEvent } from "./linkrunner";
-import { setupConvex } from "./test.setup";
+import { setupConvex, submit } from "./test.setup";
 
 // Obviously fake data only: the repo is public.
 const application = {
@@ -45,7 +44,7 @@ describe("signup mirror", () => {
   it("is off without LINKRUNNER_SERVER_KEY", async () => {
     vi.stubEnv("LINKRUNNER_SERVER_KEY", "");
     const t = setupConvex();
-    await t.mutation(api.applications.submit, application);
+    await submit(t, application);
     await t.finishAllScheduledFunctions(vi.runAllTimers);
     expect(linkrunnerCalls(fetchSpy)).toHaveLength(0);
   });
@@ -53,10 +52,10 @@ describe("signup mirror", () => {
   it("posts a web signup keyed by the application ID, once per application", async () => {
     vi.stubEnv("LINKRUNNER_SERVER_KEY", "test-linkrunner-key");
     const t = setupConvex();
-    const { applicationId } = await t.mutation(api.applications.submit, application);
+    const { applicationId } = await submit(t, application);
     await t.finishAllScheduledFunctions(vi.runAllTimers);
     // A repeat from the same email updates the application but isn't a new signup.
-    await t.mutation(api.applications.submit, application);
+    await submit(t, application);
     await t.finishAllScheduledFunctions(vi.runAllTimers);
 
     const calls = linkrunnerCalls(fetchSpy);
@@ -81,7 +80,7 @@ describe("signup mirror", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     fetchSpy.mockResolvedValue(new Response("", { status: 500 }));
     const t = setupConvex();
-    await t.mutation(api.applications.submit, application);
+    await submit(t, application);
     await t.finishAllScheduledFunctions(vi.runAllTimers);
 
     expect(linkrunnerCalls(fetchSpy)).toHaveLength(1);
