@@ -10,6 +10,7 @@
 
 import type * as applications from "../applications.js";
 import type * as email from "../email.js";
+import type * as linkrunner from "../linkrunner.js";
 
 import type {
   ApiFromModules,
@@ -20,6 +21,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   applications: typeof applications;
   email: typeof email;
+  linkrunner: typeof linkrunner;
 }>;
 
 /**

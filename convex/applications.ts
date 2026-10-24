@@ -5,6 +5,7 @@ import { validateApplication } from "../lib/application";
 import { components, internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation, internalQuery, mutation, type MutationCtx } from "./_generated/server";
+import { linkrunnerServerKey } from "./linkrunner";
 import { attribution } from "./schema";
 
 /**
@@ -121,6 +122,10 @@ export const submit = mutation({
         updatedAt: now,
         emailStatus: "pending",
       });
+      // Optional server copy of the Linkrunner signup, for new applications only.
+      if (linkrunnerServerKey(process.env.LINKRUNNER_SERVER_KEY)) {
+        await ctx.scheduler.runAfter(0, internal.linkrunner.mirrorSignup, { applicationId });
+      }
     }
 
     await ctx.scheduler.runAfter(0, internal.email.sendConfirmation, {

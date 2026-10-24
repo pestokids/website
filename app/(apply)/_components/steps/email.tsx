@@ -11,6 +11,7 @@ import {
   normaliseEmail,
 } from "../../_lib/email";
 import { submitApplication } from "../../_lib/submit";
+import { track, type SuggestionKind } from "../../_lib/track";
 import { useFlow } from "../apply-flow";
 import { StepScreen } from "../step-screen";
 import { RoundSubmitButton } from "../ui/button";
@@ -56,13 +57,18 @@ export function EmailStep() {
     if (status === "failed") setStatus("idle");
   };
 
+  const applySuggestion = (next: string, kind: SuggestionKind) => {
+    setEmail(next);
+    track.emailSuggestionUsed(draft, next, kind);
+  };
+
   const pickDomain = (domain: string) => {
     if (!value.trim()) setPreferredDomain(domain);
-    else setEmail(completeWith(value, domain));
+    else applySuggestion(completeWith(value, domain), "chip");
   };
 
   const acceptGhost = () => {
-    if (ghost) setEmail(value + ghost);
+    if (ghost) applySuggestion(value + ghost, "ghost");
   };
 
   /** Shows state B if the address is wrong or looks like a typo. True when it can be sent. */
@@ -93,8 +99,12 @@ export function EmailStep() {
     inFlight.current = false;
 
     if (result.ok) {
+      track.submitted(draft, result.submitted);
       completeSubmit(result.submitted);
-    } else if (result.reason === "invalid_email") {
+      return;
+    }
+    track.submitFailed(draft, result.reason);
+    if (result.reason === "invalid_email") {
       setStatus("idle");
       setInvalid({ suggestion: null });
     } else {
@@ -182,7 +192,7 @@ export function EmailStep() {
                       highlighted
                       // Keep the keyboard up: don't move focus off the field.
                       onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => setEmail(fix)}
+                      onClick={() => applySuggestion(fix, "typo")}
                     >
                       {copy.suggestion(fix)}
                     </SuggestionChip>

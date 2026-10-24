@@ -4,6 +4,7 @@ import {
   createContext,
   use,
   useEffect,
+  useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
@@ -26,6 +27,7 @@ import {
 } from "../_lib/flow";
 import { familyOf } from "../_lib/personalise";
 import { loadDraft, loadSubmitted, saveDraft, saveSubmitted } from "../_lib/storage";
+import { track } from "../_lib/track";
 import { DevPanel } from "./dev-panel";
 import { FlowProgressHeader } from "./progress-header";
 import { AfterSchoolStep } from "./steps/after-school";
@@ -158,6 +160,7 @@ export function ApplyFlow() {
     const step = initialStep(draft, urlStepNow, submitted);
     if (step !== "received") draft = reducer(draft, { type: "setStep", step });
     if (!submitted) saveDraft(draft);
+    track.source(draft);
     syncHistoryOnLoad(draft, step, urlStepNow);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off read of localStorage after mount
     setState({ draft, submitted });
@@ -171,6 +174,15 @@ export function ApplyFlow() {
     else if (!isStep(urlStep) || urlStep === "received") step = "welcome";
     else step = clampStep(state.draft, urlStep);
   }
+
+  // ff_step_viewed once per screen shown (each age screen counts).
+  const kidsCount = state?.submitted ? state.submitted.kidNames.length : (state?.draft.kids.length ?? 0);
+  const viewed = useRef<Step | null>(null);
+  useEffect(() => {
+    if (!step || viewed.current === step) return;
+    viewed.current = step;
+    track.stepViewed(step, kidsCount);
+  }, [step, kidsCount]);
 
   // Keep the URL and the saved draft in line with the step on screen.
   useEffect(() => {
@@ -209,6 +221,8 @@ export function ApplyFlow() {
       const updated = action ? reducer(draft, action) : draft;
       const target = nextStep(updated, step);
       if (!target) return;
+      if (step === "welcome") track.started(updated);
+      else track.stepCompleted(step, updated);
       commit(reducer(updated, { type: "setStep", step: target }));
       pushStep(target);
     },

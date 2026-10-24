@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { desktop, welcome } from "@/content/apply";
 import { config } from "@/lib/config";
 import { handoffUrl } from "../_lib/desktop";
+import { track } from "../_lib/track";
 import { FrostedCard } from "./ui/frosted-card";
 import { QrCode } from "./ui/qr-code";
 import { IconSticker, PestoSticker } from "./ui/sticker";
@@ -39,7 +40,7 @@ export function DesktopScreen() {
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
-    // TODO(analytics): capture `ff_desktop_gate_viewed` once the PostHog helper exists.
+    track.desktopGateViewed(window.location.href, document.referrer);
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     const previous = meta?.content;
     if (meta) meta.content = THEME_COLOR;
@@ -51,7 +52,7 @@ export function DesktopScreen() {
 
   const copy = async () => {
     if (!(await copyText(url))) return;
-    // TODO(analytics): capture `ff_desktop_link_copied` once the PostHog helper exists.
+    track.desktopLinkCopied();
     setCopied(true);
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setCopied(false), COPIED_MS);
