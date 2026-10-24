@@ -238,6 +238,14 @@ export const email = {
   /** Shown after a lock icon (not an emoji). */
   privacy: "Only used for your application. Never shared.",
   submitLabel: "Submit application",
+  /** Under the submit row: "By applying, you agree to our Terms and Privacy Policy." Links open in a new tab. */
+  consent: {
+    before: "By applying, you agree to our ",
+    terms: { label: "Terms", href: "/terms" },
+    between: " and ",
+    privacy: { label: "Privacy Policy", href: "/privacy" },
+    after: ".",
+  },
   /** Spam trap: an off-screen field people never see. Bots that fill it are ignored. */
   honeypotLabel: "Leave this empty",
 } as const;

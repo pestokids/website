@@ -289,8 +289,23 @@ export function EmailStep() {
               busy={submitting}
             />
           </div>
+          <p className="text-center text-[13px] leading-[18px] text-balance text-muted">
+            {copy.consent.before}
+            <ConsentLink {...copy.consent.terms} />
+            {copy.consent.between}
+            <ConsentLink {...copy.consent.privacy} />
+            {copy.consent.after}
+          </p>
         </StickyFooter>
       </form>
     </StepScreen>
+  );
+}
+
+function ConsentLink({ label, href }: { label: string; href: string }) {
+  return (
+    <a href={href} target="_blank" rel="noopener" className="whitespace-nowrap underline underline-offset-2">
+      {label}
+    </a>
   );
 }
