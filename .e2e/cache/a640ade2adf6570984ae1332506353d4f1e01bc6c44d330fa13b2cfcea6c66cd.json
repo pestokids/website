@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "trace-1",
+  "createdAt": "2026-10-24T07:42:19.122Z",
+  "payload": {
+    "actions": [
+      {
+        "name": "type",
+        "summary": "type \"{{param:/email}}\" into textbox \"Email\"",
+        "target": {
+          "role": "textbox",
+          "name": "Email",
+          "placeholder": "you@email.com"
+        },
+        "value": "{{param:/email}}"
+      }
+    ],
+    "executor": {
+      "name": "e2e-default-agent",
+      "version": "2"
+    },
+    "recordedFor": {
+      "testId": "tests/happy-path.e2e.ts::two%20kids%20apply%20and%20reach%20the%20received%20screen",
+      "targetId": "phone-chromium",
+      "instructionDigest": "642dcc1214ed8f2116fb7cbf067b8f1e1871c6eda35553ebac687f1b2d674ace",
+      "paramsDigest": "7112884177195e13665e56a453d5aafb0c1d41d6a459e1ee7fc4f9b315716f3b",
+      "callIndex": 0,
+      "agent": "default"
+    },
+    "recordedBy": {
+      "provider": "anthropic.messages",
+      "model": "claude-haiku-5-5"
+    },
+    "summary": "Typed test.parent+e2e-mvm3bvr5@example.com into the Email textbox on the Step 7 of 7 screen. The field now holds that value, and the Submit application button is enabled with \"Submit your application\" text shown.",
+    "startPath": "/apply?step=email",
+    "endPath": "/apply?step=email",
+    "endAnchors": [
+      {
+        "text": "Only used for your application. Never shared."
+      },
+      {
+        "text": "Submit your application"
+      }
+    ],
+    "goneAnchors": [
+      {
+        "role": "textbox",
+        "name": "Email",
+        "placeholder": "you@email.com"
+      },
+      {
+        "role": "button",
+        "name": "@gmail.com"
+      },
+      {
+        "role": "button",
+        "name": "@icloud.com"
+      },
+      {
+        "role": "button",
+        "name": "@yahoo.com"
+      },
+      {
+        "role": "button",
+        "name": "@outlook.com"
+      },
+      {
+        "text": "Enter your email to submit"
+      },
+      {
+        "role": "group",
+        "name": "Email domains"
+      }
+    ],
+    "endWaitMs": 11464,
+    "keyedBy": {
+      "cacheSchema": "trace-1",
+      "policyVersion": "conservative/6",
+      "project": "331304ea821e602ac31a233f5093bb076e0710ae1c64588275736c99b0f970b5",
+      "platform": "web",
+      "engineName": "web",
+      "engineSpiVersion": 1,
+      "appIdentity": "a930ed5c311b11f983397669bc1219f4f41cf0a5a62985aaae79969203c133a1",
+      "agentContextDigest": "2c0190676a6e259905710b8715154ce1080efd246749c77493773f571faa4871"
+    }
+  }
+}

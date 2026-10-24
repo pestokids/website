@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "trace-1",
+  "createdAt": "2026-10-24T07:42:02.298Z",
+  "payload": {
+    "actions": [
+      {
+        "name": "tap",
+        "summary": "tap button \"our stories\" in \"tap a word below\"",
+        "target": {
+          "role": "button",
+          "name": "our stories",
+          "within": "tap a word below"
+        }
+      }
+    ],
+    "executor": {
+      "name": "e2e-default-agent",
+      "version": "2"
+    },
+    "recordedFor": {
+      "testId": "tests/one-kid.e2e.ts::one%20kid%3A%20singular%20copy%20and%20possessives",
+      "targetId": "phone-webkit",
+      "instructionDigest": "a97e3027355ab7c06ad3606a590f57f3ab177d448fca288c9accb14c4b20e8f6",
+      "paramsDigest": "01a1fde298a45bb34067eefe42424c35b3a5d24f2902a2d17fcc49e5ff291228",
+      "callIndex": 0,
+      "agent": "default"
+    },
+    "recordedBy": {
+      "provider": "anthropic.messages",
+      "model": "claude-haiku-5-5"
+    },
+    "summary": "Tapped \"our stories\" word; it dropped into the sentence (counter now \"1 OF 3\", hint reads \"one more?\", button now \"That’s us\" enabled). Step complete.",
+    "startPath": "/apply?step=goals",
+    "endPath": "/apply?step=goals",
+    "endAnchors": [
+      {
+        "role": "button",
+        "name": "our stories",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "text": "one more?"
+      },
+      {
+        "text": "1 OF 3"
+      },
+      {
+        "role": "button",
+        "name": "That’s us"
+      }
+    ],
+    "goneAnchors": [
+      {
+        "text": "tap a word below"
+      },
+      {
+        "text": "0 OF 3"
+      },
+      {
+        "role": "button",
+        "name": "our stories"
+      },
+      {
+        "role": "button",
+        "name": "Pick at least one"
+      }
+    ],
+    "endWaitMs": 11593,
+    "keyedBy": {
+      "cacheSchema": "trace-1",
+      "policyVersion": "conservative/6",
+      "project": "331304ea821e602ac31a233f5093bb076e0710ae1c64588275736c99b0f970b5",
+      "platform": "web",
+      "engineName": "web",
+      "engineSpiVersion": 1,
+      "appIdentity": "a930ed5c311b11f983397669bc1219f4f41cf0a5a62985aaae79969203c133a1",
+      "agentContextDigest": "2c0190676a6e259905710b8715154ce1080efd246749c77493773f571faa4871"
+    }
+  }
+}

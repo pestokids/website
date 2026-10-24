@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "trace-1",
+  "createdAt": "2026-10-24T07:42:19.122Z",
+  "payload": {
+    "actions": [
+      {
+        "name": "tap",
+        "summary": "tap button \"Bedtime stories\" in \"YouTube & cartoons\"",
+        "target": {
+          "role": "button",
+          "name": "Bedtime stories",
+          "within": "YouTube & cartoons"
+        }
+      },
+      {
+        "name": "tap",
+        "summary": "tap button \"Grandparents\" in \"YouTube & cartoons\"",
+        "target": {
+          "role": "button",
+          "name": "Grandparents",
+          "within": "YouTube & cartoons"
+        }
+      }
+    ],
+    "executor": {
+      "name": "e2e-default-agent",
+      "version": "2"
+    },
+    "recordedFor": {
+      "testId": "tests/happy-path.e2e.ts::two%20kids%20apply%20and%20reach%20the%20received%20screen",
+      "targetId": "phone-chromium",
+      "instructionDigest": "897f391ace05e8d1ae8faf7678d3c39a60353e787795930f3e38757eafa8f619",
+      "paramsDigest": "c207f7e32a9b7aa74045195f05c5edcfa482ba50056cb91cefa4de05661a9a03",
+      "callIndex": 0,
+      "agent": "default"
+    },
+    "recordedBy": {
+      "provider": "anthropic.messages",
+      "model": "claude-haiku-5-5"
+    },
+    "summary": "Selected \"Bedtime stories\" and \"Grandparents\" on the Step 5 of 7 after-school screen; both tiles show pressed and the confirm button now reads \"That's their week\" (enabled). Did not confirm, per the step.",
+    "startPath": "/apply?step=after-school",
+    "endPath": "/apply?step=after-school",
+    "endAnchors": [
+      {
+        "role": "button",
+        "name": "Bedtime stories",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "role": "button",
+        "name": "Grandparents",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "role": "button",
+        "name": "That’s their week"
+      }
+    ],
+    "goneAnchors": [
+      {
+        "role": "button",
+        "name": "Bedtime stories"
+      },
+      {
+        "role": "button",
+        "name": "Grandparents"
+      },
+      {
+        "role": "button",
+        "name": "Pick at least one"
+      }
+    ],
+    "endWaitMs": 11459,
+    "keyedBy": {
+      "cacheSchema": "trace-1",
+      "policyVersion": "conservative/6",
+      "project": "331304ea821e602ac31a233f5093bb076e0710ae1c64588275736c99b0f970b5",
+      "platform": "web",
+      "engineName": "web",
+      "engineSpiVersion": 1,
+      "appIdentity": "a930ed5c311b11f983397669bc1219f4f41cf0a5a62985aaae79969203c133a1",
+      "agentContextDigest": "2c0190676a6e259905710b8715154ce1080efd246749c77493773f571faa4871"
+    }
+  }
+}

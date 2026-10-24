@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "trace-1",
+  "createdAt": "2026-10-24T07:42:21.823Z",
+  "payload": {
+    "actions": [
+      {
+        "name": "tap",
+        "summary": "tap button \"science\" in \"tap a word below\"",
+        "target": {
+          "role": "button",
+          "name": "science",
+          "within": "tap a word below"
+        }
+      },
+      {
+        "name": "tap",
+        "summary": "tap button \"music\" in \"science\"",
+        "target": {
+          "role": "button",
+          "name": "music",
+          "within": "science"
+        }
+      }
+    ],
+    "executor": {
+      "name": "e2e-default-agent",
+      "version": "2"
+    },
+    "recordedFor": {
+      "testId": "tests/happy-path.e2e.ts::two%20kids%20apply%20and%20reach%20the%20received%20screen",
+      "targetId": "phone-webkit",
+      "instructionDigest": "2bd0afd9c63ee87cb1232d3fc31640b2cb19d12f7415716c8bc575febf2a012a",
+      "paramsDigest": "5663b38279ace2b9e9e16cc25bab024caa6f3ae00606a71560698bc8a6a48ea9",
+      "callIndex": 0,
+      "agent": "default"
+    },
+    "recordedBy": {
+      "provider": "anthropic.messages",
+      "model": "claude-haiku-5-5"
+    },
+    "summary": "Tapped \"science\" and \"music\" word tiles into the goals sentence. The counter now reads \"2 OF 3\", the sentence shows \"and\" between them, and the main button reads \"That's us\". Stopped here as instructed.",
+    "startPath": "/apply?step=goals",
+    "endPath": "/apply?step=goals",
+    "endAnchors": [
+      {
+        "role": "button",
+        "name": "science",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "text": "and"
+      },
+      {
+        "role": "button",
+        "name": "music",
+        "states": [
+          "pressed"
+        ]
+      },
+      {
+        "text": "one more?"
+      },
+      {
+        "text": "2 OF 3"
+      },
+      {
+        "role": "button",
+        "name": "That’s us"
+      }
+    ],
+    "goneAnchors": [
+      {
+        "text": "tap a word below"
+      },
+      {
+        "text": "0 OF 3"
+      },
+      {
+        "role": "button",
+        "name": "science"
+      },
+      {
+        "role": "button",
+        "name": "music"
+      },
+      {
+        "role": "button",
+        "name": "Pick at least one"
+      }
+    ],
+    "endWaitMs": 12891,
+    "keyedBy": {
+      "cacheSchema": "trace-1",
+      "policyVersion": "conservative/6",
+      "project": "331304ea821e602ac31a233f5093bb076e0710ae1c64588275736c99b0f970b5",
+      "platform": "web",
+      "engineName": "web",
+      "engineSpiVersion": 1,
+      "appIdentity": "a930ed5c311b11f983397669bc1219f4f41cf0a5a62985aaae79969203c133a1",
+      "agentContextDigest": "2c0190676a6e259905710b8715154ce1080efd246749c77493773f571faa4871"
+    }
+  }
+}
