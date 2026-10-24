@@ -22,19 +22,6 @@ test('email: ghost suggestion, typo fix and a long address', async ({ app, brows
   await expect(screen.getByText('Enter your email to submit')).toBeVisible();
   await expect(submit).toBeDisabled();
 
-  // The consent line under the submit row links the legal pages, each in a new tab.
-  await expect(
-    screen.getByText('By applying, you agree to our Terms and Privacy Policy.'),
-  ).toBeVisible();
-  for (const [name, href] of [
-    ['Terms', '/terms'],
-    ['Privacy Policy', '/privacy'],
-  ]) {
-    const link = screen.getByRole('link', name);
-    await expect(link).toHaveAttribute('href', href);
-    await expect(link).toHaveAttribute('target', '_blank');
-  }
-
   // Local part only: the ghost completes to @gmail.com, the gmail chip is the
   // suggestion, and submit stays disabled until it's accepted.
   await field.fill('test.parent');

@@ -16,11 +16,11 @@ const stickerLayout: { tilt: number; drop: number }[] = [
 ];
 
 /**
- * Screen 1. No header. Content is top-aligned; the button and footer line sit
- * at the bottom (lifted on wide screens by <FlowColumn>).
+ * Screen 1. No header. Content is top-aligned; the button, footer line and
+ * consent line sit at the bottom (lifted on wide screens by <FlowColumn>).
  *
  * Wide screens use a fixed top padding: 8% of the reference phone's 720px
- * visible height, so the content keeps its phone position. The footer line
+ * visible height, so the content keeps its phone position. The consent line
  * sits 8px above the bottom edge, closer than other steps' buttons do.
  */
 export function WelcomeStep() {
@@ -63,10 +63,33 @@ export function WelcomeStep() {
 
       <StickyFooter className="w-full pb-2!">
         <PrimaryButton onClick={() => advance()}>{welcome.cta}</PrimaryButton>
-        <p className="text-center text-[13px] leading-[18px] text-muted">
-          {welcome.footer(config.admissionsCloseDate.short)}
-        </p>
+        {/* The consent line is fine print: it hugs the footer line, adding only its own height. */}
+        <div className="flex flex-col gap-0.5 text-center text-muted">
+          <p className="text-[13px] leading-[18px]">
+            {welcome.footer(config.admissionsCloseDate.short)}
+          </p>
+          <p className="text-xs leading-4 text-balance">
+            {welcome.consent.before}
+            <ConsentLink {...welcome.consent.terms} />
+            {welcome.consent.between}
+            <ConsentLink {...welcome.consent.privacy} />
+            {welcome.consent.after}
+          </p>
+        </div>
       </StickyFooter>
     </section>
+  );
+}
+
+function ConsentLink({ label, href }: { label: string; href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener"
+      className="whitespace-nowrap underline decoration-muted/40 underline-offset-2"
+    >
+      {label}
+    </a>
   );
 }

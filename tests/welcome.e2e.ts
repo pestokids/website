@@ -24,6 +24,19 @@ test('welcome screen', { tags: ['smoke'] }, async ({ app, browser, screen, agent
       : /^3 minutes · 100 families · Admissions close [A-Z][a-z]{2} \d{1,2}$/,
   );
 
+  // The consent line under the footer links the legal pages, each in a new tab.
+  await expect(
+    screen.getByText('By continuing, you agree to our Terms and Privacy Policy.'),
+  ).toBeVisible();
+  for (const [name, href] of [
+    ['Terms', '/terms'],
+    ['Privacy Policy', '/privacy'],
+  ]) {
+    const link = screen.getByRole('link', name);
+    await expect(link).toHaveAttribute('href', href);
+    await expect(link).toHaveAttribute('target', '_blank');
+  }
+
   // Screen 1 has no header: no back button and no progress bar.
   await expect(screen.getByRole('button', 'Back')).toHaveCount(0);
   await expect(screen.getByRole('progressbar')).toHaveCount(0);
