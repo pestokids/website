@@ -18,6 +18,10 @@ const stickerLayout: { tilt: number; drop: number }[] = [
 /**
  * Screen 1. No header. Content is top-aligned; the button and footer line sit
  * at the bottom (lifted on wide screens by <FlowColumn>).
+ *
+ * Wide screens use a fixed top padding: 8% of the reference phone's 720px
+ * visible height, so the content keeps its phone position. The footer line
+ * sits 8px above the bottom edge, closer than other steps' buttons do.
  */
 export function WelcomeStep() {
   const { advance } = useFlow();
@@ -26,7 +30,7 @@ export function WelcomeStep() {
   return (
     <section
       data-step="welcome"
-      className="flex flex-1 flex-col items-center pt-[clamp(16px,8dvh,64px)] min-[600px]:pt-[64px]"
+      className="flex flex-1 flex-col items-center pt-[clamp(16px,8dvh,64px)] min-[600px]:pt-[58px]"
     >
       <div className="relative h-[154px] w-[260px] shrink-0">
         <Sparkle size={18} className="absolute top-[15px] left-[25px] text-lime-deep" />
@@ -57,7 +61,7 @@ export function WelcomeStep() {
         <Sparkle size={10} className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-orange" />
       </div>
 
-      <StickyFooter className="w-full">
+      <StickyFooter className="w-full pb-2!">
         <PrimaryButton onClick={() => advance()}>{welcome.cta}</PrimaryButton>
         <p className="text-center text-[13px] leading-[18px] text-muted">
           {welcome.footer(config.admissionsCloseDate.short)}
