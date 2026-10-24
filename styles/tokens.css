@@ -60,6 +60,15 @@
   /* A chip dropping into the goals sentence. */
   --animate-drop-in: drop-in 180ms var(--ease-step) backwards;
 
+  /* The welcome strip: one half of its doubled track is ~2,250px, so ~30px/s. */
+  --animate-marquee: marquee 75s linear infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
   @keyframes drop-in {
     from {
       opacity: 0;

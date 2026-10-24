@@ -1,0 +1,114 @@
+/*
+ * Rendered legal markdown (/privacy, /terms). Readable on a phone: 16px body,
+ * comfortable line height, and wide tables that scroll inside their own box.
+ */
+.legal-prose {
+  font-size: 16px;
+  line-height: 26px;
+  overflow-wrap: break-word;
+
+  & h1 {
+    font-family: var(--font-display);
+    font-size: 34px;
+    line-height: 40px;
+    font-weight: 800;
+    text-wrap: balance;
+  }
+
+  & h2 {
+    margin-top: 40px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  & h1 + p {
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--color-muted);
+  }
+
+  & p,
+  & ul,
+  & .legal-table {
+    margin-top: 16px;
+  }
+
+  & h2 + p,
+  & h2 + ul {
+    margin-top: 12px;
+  }
+
+  & ul {
+    padding-left: 22px;
+    list-style: disc;
+  }
+
+  & li + li {
+    margin-top: 8px;
+  }
+
+  & li::marker {
+    color: var(--color-lime-deep);
+  }
+
+  & strong {
+    font-weight: 700;
+  }
+
+  & a {
+    text-decoration: underline;
+    text-decoration-color: var(--color-lime-deep);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
+  /* "What this means": a plain-words summary, set apart from the binding text. */
+  & .legal-note {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-field);
+    background-color: rgb(225 235 190 / 0.6);
+    color: var(--color-forest);
+  }
+
+  & .legal-note + p {
+    margin-top: 16px;
+  }
+
+  & .legal-table {
+    overflow-x: auto;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-field);
+    background-color: rgb(255 255 255 / 0.7);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  & table {
+    min-width: 560px;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    line-height: 22px;
+  }
+
+  & th,
+  & td {
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  & th {
+    font-weight: 700;
+    background-color: rgb(225 235 190 / 0.45);
+  }
+
+  & tr + tr td,
+  & tbody tr:first-child td {
+    border-top: 1px solid var(--color-hairline);
+  }
+}
