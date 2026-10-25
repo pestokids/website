@@ -14,6 +14,7 @@
 import type { Linkrunner } from "@linkrunner/web";
 import type { CaptureOptions, PostHog, Properties } from "posthog-js";
 import { config } from "./config";
+import { POSTHOG_PATH, POSTHOG_UI_HOST } from "./relay";
 
 type Sdks = { posthog: PostHog; lr: Linkrunner };
 type Call = (sdks: Sdks) => void;
@@ -46,7 +47,9 @@ function load() {
   Promise.all([import("posthog-js"), import("@linkrunner/web")]).then(
     ([{ default: posthog }, { lr }]) => {
       posthog.init(analytics.posthogKey, {
-        api_host: analytics.posthogHost,
+        // Through pestokids.com, so ad blockers don't drop it (lib/relay).
+        api_host: POSTHOG_PATH,
+        ui_host: POSTHOG_UI_HOST,
         // Steps are client state, not pages; ff_step_viewed covers them.
         capture_pageview: false,
         persistence: "localStorage+cookie",

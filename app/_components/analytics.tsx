@@ -4,6 +4,7 @@ import { LinkrunnerScript } from "@linkrunner/web/next";
 import { useEffect, useState } from "react";
 import { initAnalytics } from "@/lib/analytics";
 import { onIdle } from "@/lib/idle";
+import { LINKRUNNER_EVENTS_PATH, LINKRUNNER_SCRIPT_PATH } from "@/lib/relay";
 
 /** Longest wait for an idle moment before loading anyway. */
 const IDLE_TIMEOUT_MS = 2000;
@@ -30,5 +31,12 @@ export function Analytics({ linkrunnerToken }: { linkrunnerToken: string }) {
     [],
   );
   // Rendered only once idle, which also keeps its preload out of the server HTML.
-  return idle ? <LinkrunnerScript token={linkrunnerToken} /> : null;
+  // Script and events both go through pestokids.com (lib/relay).
+  return idle ? (
+    <LinkrunnerScript
+      token={linkrunnerToken}
+      scriptSrc={LINKRUNNER_SCRIPT_PATH}
+      endpoint={LINKRUNNER_EVENTS_PATH}
+    />
+  ) : null;
 }
