@@ -8,13 +8,15 @@ describe("landing copy", () => {
     expect(meta.title).toContain("Pesto");
   });
 
-  it("has a description under 155 characters that names Pesto Kids", () => {
+  it("has a description under 155 characters that names Pesto and Pesto Kids", () => {
     expect(meta.description.length).toBeLessThan(155);
+    expect(meta.description).toMatch(/^Pesto\b/);
     expect(meta.description).toContain("Pesto Kids");
   });
 
-  it("has alt text for the scene", () => {
-    expect(meta.sceneAlt).toMatch(/Pesto/);
+  it("has alt text for the share card that reads the tagline", () => {
+    expect(meta.shareAlt).toMatch(/Pesto/);
+    expect(meta.shareAlt).toContain([...tagline.lines, tagline.highlight].join(" "));
   });
 
   it("reads the tagline as one sentence", () => {

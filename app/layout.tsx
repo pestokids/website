@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { config } from "@/lib/config";
 import { baloo, nunito } from "@/lib/fonts";
+import { SITE_URL } from "@/lib/site";
 import { Analytics } from "./_components/analytics";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pestokids.com"),
+  metadataBase: new URL(SITE_URL),
   title: "Pesto",
 };
 

@@ -1,27 +1,17 @@
-import type { Metadata, Viewport } from "next";
+import type { Viewport } from "next";
 import { meta, tagline } from "@/content/landing";
 import { GetInEarly } from "./_components/landing/get-in-early";
 import { Header } from "./_components/landing/header";
 import { ParallaxLoader } from "./_components/landing/parallax-loader";
 import { Scene } from "./_components/landing/scene";
+import { StructuredData } from "./_components/landing/structured-data";
+import { pageMetadata } from "./_components/page-metadata";
 import "./_components/landing/landing.css";
 
 // Prerendered at build time; nothing here may read the request.
 export const ensureStatic = "navigation";
 
-export const metadata: Metadata = {
-  title: meta.title,
-  description: meta.description,
-  alternates: { canonical: meta.url },
-  openGraph: {
-    type: "website",
-    url: meta.url,
-    siteName: meta.siteName,
-    title: meta.title,
-    description: meta.description,
-  },
-  twitter: { card: "summary_large_image" },
-};
+export const metadata = pageMetadata({ title: meta.title, description: meta.description, path: "/" });
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -49,6 +39,7 @@ export default function HomePage() {
         </section>
       </div>
       <ParallaxLoader />
+      <StructuredData />
     </main>
   );
 }

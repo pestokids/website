@@ -29,6 +29,39 @@ describe('home', () => {
     await expect(screen.getByRole('link', 'pesto')).toHaveAttribute('href', '/');
   });
 
+  test('is ready for search and link previews', { tags: ['smoke'] }, async ({ app, browser }) => {
+    await runOnlyOn(browser, ['desktop']);
+    await openApply(app, browser, '/');
+    const head = await browser.evaluate(() => {
+      const content = (selector: string) => document.head.querySelector(selector)?.getAttribute('content') ?? null;
+      return {
+        h1s: document.querySelectorAll('h1').length,
+        canonical: document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href ?? null,
+        image: content('meta[property="og:image"]'),
+        width: content('meta[property="og:image:width"]'),
+        height: content('meta[property="og:image:height"]'),
+        alt: content('meta[property="og:image:alt"]'),
+        card: content('meta[name="twitter:card"]'),
+      };
+    });
+    expect(head).toMatchObject({
+      h1s: 1,
+      canonical: 'https://pestokids.com/',
+      width: '1200',
+      height: '630',
+      card: 'summary_large_image',
+    });
+    expect(head.image).toMatch(/^https:\/\/pestokids\.com\/share\/card-\w+\.jpg$/);
+    expect(head.alt).toMatch(/For kids who ask why\?/);
+
+    // The tag points at production; fetch the same path from the app under test.
+    const served = await browser.evaluate(async (image: string) => {
+      const response = await fetch(new URL(image).pathname);
+      return { status: response.status, type: response.headers.get('content-type') };
+    }, head.image!);
+    expect(served).toEqual({ status: 200, type: 'image/jpeg' });
+  });
+
   test('the button goes to /apply with the UTMs kept', async ({ app, browser, screen }) => {
     const target = await runOnlyOn(browser, ['phone-webkit', 'phone-chromium', 'desktop']);
     await openApply(app, browser, visitPath);
