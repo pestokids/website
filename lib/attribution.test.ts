@@ -3,6 +3,7 @@ import {
   classifyAttribution,
   readAttribution,
   sourceFromReferrerHost,
+  withAttribution,
   type Attribution,
 } from "./attribution";
 
@@ -170,5 +171,50 @@ describe("sourceFromReferrerHost", () => {
   it("doesn't match lookalike hosts", () => {
     expect(sourceFromReferrerHost("notinstagram.com")).toBe("notinstagram.com");
     expect(sourceFromReferrerHost("google.example.com")).toBe("google.example.com");
+  });
+});
+
+describe("withAttribution", () => {
+  it("returns the bare path when there is no query", () => {
+    expect(withAttribution("/apply", "")).toBe("/apply");
+    expect(withAttribution("/apply", "?")).toBe("/apply");
+  });
+
+  it("carries every UTM, click ID and via", () => {
+    const search =
+      "?utm_source=meta&utm_medium=paid_social&utm_campaign=c1&utm_content=ad1" +
+      "&utm_term=t&utm_id=123&fbclid=FB&gclid=G&ttclid=T&via=inv-test";
+    expect(withAttribution("/apply", search)).toBe(`/apply${search}`);
+  });
+
+  it("drops params that aren't attribution", () => {
+    expect(withAttribution("/apply", "?step=email&utm_source=whatsapp&reset=1")).toBe(
+      "/apply?utm_source=whatsapp",
+    );
+    expect(withAttribution("/apply", "?step=email")).toBe("/apply");
+  });
+
+  it("drops empty values and trims the rest", () => {
+    expect(withAttribution("/apply", "?utm_source=&via=%20desktop%20&gclid=%20")).toBe(
+      "/apply?via=desktop",
+    );
+  });
+
+  it("re-encodes values safely", () => {
+    expect(withAttribution("/apply", "?utm_campaign=spring%20%26%20summer&via=a%2Bb")).toBe(
+      "/apply?utm_campaign=spring+%26+summer&via=a%2Bb",
+    );
+    const kept = new URL(withAttribution("/apply", "?utm_campaign=spring%20%26%20summer"), "https://x.test");
+    expect(kept.searchParams.get("utm_campaign")).toBe("spring & summer");
+  });
+
+  it("keeps the first value of a repeated param, in the list's order", () => {
+    expect(withAttribution("/apply", "?via=b&utm_source=x&utm_source=y")).toBe(
+      "/apply?utm_source=x&via=b",
+    );
+  });
+
+  it("accepts a search string without the leading ?", () => {
+    expect(withAttribution("/apply", "gclid=G")).toBe("/apply?gclid=G");
   });
 });

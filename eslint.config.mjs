@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "convex/_generated/**",
     // Conductor workspace scratch files (not committed).
     ".context/**",
+    // Private design files (not committed).
+    "internal/**",
   ]),
 ]);
 

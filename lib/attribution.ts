@@ -103,6 +103,22 @@ export function readAttribution(landingUrl: string, referrer: string): Attributi
   return out;
 }
 
+/**
+ * `path` plus the attribution params found in `search` (a location.search
+ * string), so a link from the landing page keeps the visit's UTMs, click IDs
+ * and `via`. Other params are dropped: they mean nothing to the next page.
+ */
+export function withAttribution(path: string, search: string): string {
+  const incoming = new URLSearchParams(search);
+  const kept = new URLSearchParams();
+  for (const key of ATTRIBUTION_PARAMS) {
+    const value = clean(incoming.get(key));
+    if (value) kept.set(key, value);
+  }
+  const query = kept.toString();
+  return query ? `${path}?${query}` : path;
+}
+
 /** Maps a referrer host to a source name: a known network, else the bare host. */
 export function sourceFromReferrerHost(host: string): string {
   if (GOOGLE_HOST.test(host)) return "google";

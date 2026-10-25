@@ -16,12 +16,6 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  async redirects() {
-    return [
-      // Temporary until the landing page ships at /. Query strings (UTMs) carry over.
-      { source: "/", destination: "/apply", permanent: false },
-    ];
-  },
 };
 
 export default nextConfig;
