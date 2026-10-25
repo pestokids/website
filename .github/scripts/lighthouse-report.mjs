@@ -12,21 +12,19 @@
 import { appendFileSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-const ROUTES = ['/', '/privacy', '/terms', '/apply'];
+const ROUTES = JSON.parse(readFileSync(new URL('../lighthouse-routes.json', import.meta.url), 'utf8'));
 const PRESETS = ['mobile', 'desktop'];
 
-/**
- * Lowest Performance score per preset and route. 98 leaves room for lab
- * noise. The lower ones are temporary floors at today's score: the React
- * runtime runs before the first frame and /apply renders on the client.
- */
-const PERFORMANCE = {
-  mobile: { '/': 94, '/apply': 96 },
-  default: 98,
-};
+/** Lowest Performance score; under 100 for lab noise. */
+const PERFORMANCE = 98;
 
-/** Compressed JavaScript, in bytes. 60 KB needs a landing page without React. */
-const SCRIPT_BYTES = { '/': 170_000, default: 150_000 };
+/**
+ * Compressed JavaScript per route, in bytes: today's size on a Preview plus a
+ * little headroom, so a regression fails. React and Next.js alone are about
+ * 145 KB; getting near 60 KB needs a landing page without React. / also
+ * prefetches /apply's code for the button.
+ */
+const SCRIPT_BYTES = { '/': 210_000, '/apply': 200_000, default: 160_000 };
 
 /** Everything a phone downloads for /, in bytes. */
 const MOBILE_HOME_TOTAL_BYTES = 500_000;
@@ -72,7 +70,6 @@ for (const route of ROUTES) {
       continue;
     }
     const m = (pick) => median(lhrs.map(pick));
-    const perfMin = PERFORMANCE[preset]?.[route] ?? PERFORMANCE.default;
     const scriptMax = SCRIPT_BYTES[route] ?? SCRIPT_BYTES.default;
     const totalMax = preset === 'mobile' && route === '/' ? MOBILE_HOME_TOTAL_BYTES : Infinity;
 
@@ -88,7 +85,7 @@ for (const route of ROUTES) {
     const cells = [
       `\`${route}\``,
       preset,
-      cell(perf, perf >= perfMin),
+      cell(perf, perf >= PERFORMANCE),
       ...['accessibility', 'best-practices', 'seo'].map((category) => {
         const value = m((lhr) => score(lhr, category));
         return cell(value, value === 100);
@@ -101,9 +98,6 @@ for (const route of ROUTES) {
   }
 }
 
-const floors = PRESETS.flatMap((preset) =>
-  Object.entries(PERFORMANCE[preset] ?? {}).map(([route, min]) => `${min} for \`${route}\` on ${preset}`),
-);
 const sha = process.env.SHA ? ` of ${process.env.SHA.slice(0, 7)}` : '';
 const markdown = `<!-- lighthouse -->
 ### Lighthouse: ${failures === 0 ? 'all on budget ✅' : `${failures} over budget ❌`}
@@ -114,7 +108,7 @@ Median of 3 runs per route on the Vercel Preview${sha}.
 |---|---|---|---|---|---|---|---|---|
 ${rows.join('\n')}
 
-Budgets: Performance ${PERFORMANCE.default}${floors.length ? ` (for now ${floors.join(', ')})` : ''}; Accessibility, Best Practices and SEO 100; CLS 0; JavaScript ${kb(SCRIPT_BYTES['/'])} on \`/\`, ${kb(SCRIPT_BYTES.default)} elsewhere; ${kb(MOBILE_HOME_TOTAL_BYTES)} in total for \`/\` on mobile.
+Budgets: Performance ${PERFORMANCE}; Accessibility, Best Practices and SEO 100; CLS 0; JavaScript ${kb(SCRIPT_BYTES['/'])} on \`/\`, ${kb(SCRIPT_BYTES['/apply'])} on \`/apply\`, ${kb(SCRIPT_BYTES.default)} elsewhere; ${kb(MOBILE_HOME_TOTAL_BYTES)} in total for \`/\` on mobile.
 `;
 
 writeFileSync(out, markdown);

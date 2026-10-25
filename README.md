@@ -68,7 +68,7 @@ PREVIEW_URL=https://… VERCEL_AUTOMATION_BYPASS_SECRET=… pnpm test:e2e   # a 
 
 ## Lighthouse
 
-`.github/workflows/lighthouse.yml` runs Lighthouse on every pull request's Vercel Preview: `/`, `/privacy`, `/terms` and `/apply`, mobile and desktop, 3 runs each. It comments the medians on the PR and fails it when a route is over budget. The budgets are at the top of `.github/scripts/lighthouse-report.mjs`.
+`.github/workflows/lighthouse.yml` runs Lighthouse on every pull request's Vercel Preview: `/`, `/privacy`, `/terms` and `/apply`, mobile and desktop, 3 runs each. It comments the medians on the PR and fails it when a route is over budget. The routes are in `.github/lighthouse-routes.json` and the budgets at the top of `.github/scripts/lighthouse-report.mjs`.
 
 To run it locally against a production build (`pnpm build && pnpm start`):
 
