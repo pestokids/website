@@ -2,9 +2,7 @@
  * All copy for the landing page (/). Components import from here; nothing
  * user-facing is hard-coded in them.
  *
- * Placeholder text until the copy session; the structure stays. The share card
- * image is built from `tagline` by scripts/share-art.mjs: re-run it when the
- * tagline changes.
+ * Placeholder text until the copy session; the structure stays.
  */
 
 /** The facts every search engine, link preview and AI assistant should agree on. */
@@ -26,9 +24,8 @@ export const meta = {
   description:
     "Pesto, also known as Pesto Kids, is a warm, beautifully made learning app for curious kids aged 3 to 8. Join the Founding Families waitlist.",
   siteName: "Pesto",
-  /** Alt text for the share card: the tagline over the felt scene. The page itself hides the scene from screen readers. */
-  shareAlt:
-    "Pesto: “For kids who ask why?” over a felt night scene. Pesto the green parrot peeks out of a meadow of flowers under a starry sky with a crescent moon.",
+  /** Alt text for the share card (scripts/share-art.mjs): the wordmark next to flat Pesto. */
+  shareAlt: "The word “pesto” next to Pesto, a cartoon green parrot with a big orange beak, on dark green.",
 };
 
 /** The h1, one line per entry. The highlight is the last line, in orange. */

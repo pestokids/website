@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { absoluteUrl, PRIVATE_ROUTES } from "@/lib/site";
+import { absoluteUrl } from "@/lib/site";
 
 /**
  * AI crawlers named outright, so the answer to "may we read this?" is a clear
@@ -16,9 +16,12 @@ export const AI_CRAWLERS = [
   "Google-Extended",
 ];
 
-/** Everything is open except the private routes (/apply). */
+/**
+ * Everything is open. /apply isn't blocked on purpose: it's kept out of
+ * search by its noindex tag, which crawlers can only see if they may fetch it.
+ */
 export default function robots(): MetadataRoute.Robots {
-  const rules = { allow: "/", disallow: [...PRIVATE_ROUTES] };
+  const rules = { allow: "/" };
   return {
     rules: [
       { userAgent: "*", ...rules },

@@ -1,10 +1,11 @@
 /**
- * Builds the share card and the app icons from the felt night-scene art.
+ * Builds the share card (flat Pesto and the wordmark on forest green) and the
+ * app icons (the felt Pesto layer on navy).
  *
  *   node scripts/share-art.mjs
  *
- * Reads the wide source layers and Baloo 2 from internal/ (private, not in the
- * repo), and the tagline from content/landing.ts. Writes:
+ * Reads public/mascots/mascot-primary.svg, and the felt Pesto layer and
+ * Baloo 2 from internal/ (private, not in the repo). Writes:
  *   public/share/card-{hash}.jpg                    1200×630 share card for /, /privacy and /terms
  *   app/(marketing)/_components/share-card.ts      its URL and size, for the page metadata
  *   app/icon.png                                    512×512, felt Pesto on a navy rounded square
@@ -13,30 +14,26 @@
  *
  * The hash in the card's name changes with its content, so link previews
  * fetch the new card instead of a cached one. Commit all of them. Re-run when
- * the art or the tagline changes.
+ * the art changes.
  */
 import { createHash } from "node:crypto";
-import { mkdir, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
-import { tagline } from "../content/landing.ts";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const LAYERS = path.join(ROOT, "internal/landing/gpt/complete/layers/landscape");
 const BALOO = path.join(ROOT, "internal/landing/fonts/Baloo2_800ExtraBold.ttf");
+const MASCOT = path.join(ROOT, "public/mascots/mascot-primary.svg");
 const SHARE_DIR = path.join(ROOT, "public/share");
 const SHARE_MODULE = path.join(ROOT, "app/(marketing)/_components/share-card.ts");
 const APP = path.join(ROOT, "app");
 
-/** Bottom to top, as in scripts/landing-art.mjs. */
-const LAYER_FILES = ["01-sky.png", "02-stars-moon.png", "03-back-meadow.png", "04-pesto.png", "05-front-flowers.png"];
-
 const NIGHT = "#13235f";
 const CREAM = "#fffbeb";
-const ORANGE = "#ff6420";
+const FOREST = "#003f2e";
 
 const kb = (bytes) => `${(bytes / 1024).toFixed(0)} KB`;
-const escape = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 /** Baloo 2 ExtraBold text as an RGBA image, from Pango markup. */
 async function text(markup, { size }) {
@@ -53,89 +50,71 @@ async function text(markup, { size }) {
   return { data, width: info.width, height: info.height };
 }
 
+/** The "pesto" wordmark in cream, as on the page's header logo (-0.01em tracking). */
+function wordmark(size) {
+  return text(`<span foreground="${CREAM}" letter_spacing="${Math.round(size * -0.01 * 1024)}">pesto</span>`, { size });
+}
+
+const WIDTH = 1200;
+const HEIGHT = 630;
+
 /**
- * The tagline, centred, one line per entry with the highlight in orange.
- * Each line is set on its own and stacked at the page's 0.9 line height:
- * Baloo's own line box is much taller.
+ * 1200×630: flat Pesto on forest green, bleeding off the bottom left (the art
+ * is already cut flat on those edges), with the wordmark beside him. Large
+ * enough to read in a ~300px WhatsApp thumbnail.
  */
-async function taglineGlyphs(size) {
-  const entries = [
-    ...tagline.lines.map((line) => ({ line, colour: CREAM })),
-    { line: tagline.highlight, colour: ORANGE },
+async function brandCard() {
+  // Sketch writes the colours as display-p3, which librsvg can't read; and the
+  // art's own background square goes, so Pesto sits on exactly FOREST.
+  const svg = srgbSvg(await readFile(MASCOT, "utf8")).replace(/<polygon id="Deep-green-background"[^>]*>(<\/polygon>)?/, "");
+  // 640 square, its left 40px and bottom 10px off the card.
+  const size = 640;
+  const pesto = await sharp(Buffer.from(svg), { density: (72 * size) / 1024 })
+    .resize(size)
+    .extract({ left: 40, top: 0, width: size - 40, height: HEIGHT })
+    .png()
+    .toBuffer();
+  // Centred in the space right of Pesto, inside a 70px safe margin.
+  const mark = await wordmark(200);
+  const space = { left: size - 40, right: WIDTH - 70 };
+  return sharp({ create: { width: WIDTH, height: HEIGHT, channels: 3, background: FOREST } })
+    .composite([
+      { input: pesto, left: 0, top: 0 },
+      {
+        input: mark.data,
+        left: Math.round((space.left + space.right - mark.width) / 2),
+        top: Math.round((HEIGHT - mark.height) / 2),
+      },
+    ])
+    .png()
+    .toBuffer();
+}
+
+/** Sketch's `color(display-p3 r g b)` as sRGB hex: P3 → linear → sRGB, clamped. */
+function srgbSvg(svg) {
+  const linear = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const encode = (c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
+  const P3_TO_SRGB = [
+    [1.2249401, -0.2249404, 0],
+    [-0.0420569, 1.0420571, 0],
+    [-0.0196376, -0.0786361, 1.0982735],
   ];
-  const lines = await Promise.all(
-    entries.map(({ line, colour }) =>
-      text(`<span foreground="${colour}" letter_spacing="${Math.round(size * -0.015 * 1024)}">${escape(line)}</span>`, {
-        size,
-      }),
-    ),
-  );
-  const advance = Math.round(size * 0.9);
-  const width = Math.max(...lines.map((line) => line.width));
-  const height = advance * (lines.length - 1) + lines.at(-1).height;
-  const data = await sharp({ create: { width, height, channels: 4, background: "#0000" } })
-    .composite(lines.map((line, i) => ({ input: line.data, top: i * advance, left: Math.round((width - line.width) / 2) })))
-    .png()
-    .toBuffer();
-  return { data, width, height };
+  return svg.replace(/color\(display-p3 ([\d.]+) ([\d.]+) ([\d.]+)\)/g, (_, r, g, b) => {
+    const rgb = [r, g, b].map((c) => linear(Number(c)));
+    const hex = P3_TO_SRGB.map((row) => row.reduce((sum, m, i) => sum + m * rgb[i], 0)).map((c) =>
+      Math.round(Math.min(1, Math.max(0, encode(c))) * 255)
+        .toString(16)
+        .padStart(2, "0"),
+    );
+    return `#${hex.join("")}`;
+  });
 }
 
-/**
- * The page's text shadow (0 2px 0 black at 18%, then 0 10px 30px navy at
- * 45%), as two tinted copies of the text's alpha under it.
- */
-async function shadowed(glyphs) {
-  const pad = 60;
-  const alpha = await sharp(glyphs.data).extractChannel("alpha").toBuffer();
-  const tint = async (rgb, opacity, blur, dy) => {
-    let shadow = sharp({ create: { width: glyphs.width, height: glyphs.height, channels: 3, background: rgb } })
-      .joinChannel(alpha)
-      .linear([1, 1, 1, opacity], [0, 0, 0, 0])
-      .extend({ top: pad, bottom: pad, left: pad, right: pad, background: "#0000" });
-    if (blur) shadow = sharp(await shadow.png().toBuffer()).blur(blur);
-    return { input: await shadow.png().toBuffer(), top: dy, left: 0 };
-  };
-  const layers = [await tint("#080e2d", 0.45, 15, 10), await tint("#000000", 0.18, 0, 2)];
-  const canvas = { width: glyphs.width + pad * 2, height: glyphs.height + pad * 2 };
-  const data = await sharp({ create: { ...canvas, channels: 4, background: "#0000" } })
-    .composite([...layers, { input: glyphs.data, top: pad, left: pad }])
-    .png()
-    .toBuffer();
-  return { data, ...canvas, pad };
-}
+/** JPEG, well under the ~300 KB above which WhatsApp drops preview images. */
+const jpeg = (png) => sharp(png).jpeg({ quality: 86, mozjpeg: true }).toBuffer();
 
-/** The five wide layers flattened into one 2400×1600 image. */
-async function flatScene() {
-  const [sky, ...rest] = LAYER_FILES.map((file) => path.join(LAYERS, file));
-  return sharp(sky)
-    .composite(rest.map((input) => ({ input })))
-    .png()
-    .toBuffer();
-}
-
-/**
- * 1200×630: the scene scaled to 1200 wide and cropped like the page crops it
- * on wide screens, but lower (60% of the overflow off the top) so more of
- * Pesto's face shows, with the tagline centred in the sky above him.
- */
-async function shareCard() {
-  const width = 1200;
-  const height = 630;
-  const scaledHeight = 800;
-  const scene = await sharp(await flatScene())
-    .resize({ width, kernel: "lanczos3" })
-    .extract({ left: 0, top: Math.round((scaledHeight - height) * 0.6), width, height })
-    .png()
-    .toBuffer();
-
-  const headline = await shadowed(await taglineGlyphs(104));
-  const png = await sharp(scene)
-    .composite([{ input: headline.data, left: Math.round((width - headline.width) / 2), top: 44 - headline.pad }])
-    .png()
-    .toBuffer();
-  // JPEG: the felt texture makes a PNG over 500 KB, and WhatsApp drops
-  // preview images over about 300 KB.
-  const out = await sharp(png).jpeg({ quality: 86, mozjpeg: true }).toBuffer();
+async function writeShareCard(png) {
+  const out = await jpeg(png);
   const name = `card-${createHash("sha256").update(out).digest("hex").slice(0, 8)}.jpg`;
   await rm(SHARE_DIR, { recursive: true, force: true });
   await mkdir(SHARE_DIR, { recursive: true });
@@ -147,8 +126,8 @@ async function shareCard() {
 /** The share card in public/. Its alt text is meta.shareAlt in content/landing.ts. */
 export const shareCard = {
   url: "/share/${name}",
-  width: ${width},
-  height: ${height},
+  width: ${WIDTH},
+  height: ${HEIGHT},
   type: "image/jpeg",
 } as const;
 `,
@@ -222,5 +201,5 @@ async function icons() {
   console.log(`icon.png: ${kb(size)}, apple-icon.png: ${kb(apple.length)}, favicon.ico: ${kb(favicon.length)}`);
 }
 
-await shareCard();
+await writeShareCard(await brandCard());
 await icons();

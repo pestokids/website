@@ -9,9 +9,6 @@ export const SITE_URL = "https://pestokids.com";
 /** In sitemap.xml, in this order. Add /team and /faq when they ship. */
 export const INDEXED_ROUTES = ["/", "/privacy", "/terms"] as const;
 
-/** Never indexed: blocked in robots.txt and marked noindex on the page. */
-export const PRIVATE_ROUTES = ["/apply"] as const;
-
 /** `/privacy` → `https://pestokids.com/privacy`, `/` → `https://pestokids.com/`. */
 export function absoluteUrl(route: string): string {
   return new URL(route, SITE_URL).href;

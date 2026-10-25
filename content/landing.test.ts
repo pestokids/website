@@ -14,9 +14,9 @@ describe("landing copy", () => {
     expect(meta.description).toContain("Pesto Kids");
   });
 
-  it("has alt text for the share card that reads the tagline", () => {
-    expect(meta.shareAlt).toMatch(/Pesto/);
-    expect(meta.shareAlt).toContain([...tagline.lines, tagline.highlight].join(" "));
+  it("has alt text for the share card that reads the wordmark and names Pesto", () => {
+    expect(meta.shareAlt).toContain("“pesto”");
+    expect(meta.shareAlt).toMatch(/\bPesto\b/);
   });
 
   it("reads the tagline as one sentence", () => {

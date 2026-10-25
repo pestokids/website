@@ -2,7 +2,7 @@
 
 /** The share card in public/. Its alt text is meta.shareAlt in content/landing.ts. */
 export const shareCard = {
-  url: "/share/card-7c0a8bcc.jpg",
+  url: "/share/card-8dbfc7c5.jpg",
   width: 1200,
   height: 630,
   type: "image/jpeg",

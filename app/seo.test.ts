@@ -16,8 +16,10 @@ import sitemap from "./sitemap";
 describe("/robots.txt", () => {
   const text = resolveRobots(robots());
 
-  it("allows everything but /apply, and points to the sitemap", () => {
-    expect(text).toMatch(/^User-Agent: \*\nAllow: \/\nDisallow: \/apply\n\n/);
+  it("allows everything, and points to the sitemap", () => {
+    expect(text).toMatch(/^User-Agent: \*\nAllow: \/\n\n/);
+    // /apply stays crawlable so search engines can read its noindex tag.
+    expect(text).not.toContain("Disallow");
     expect(text).toMatch(/\nSitemap: https:\/\/pestokids\.com\/sitemap\.xml\n$/);
   });
 
@@ -32,7 +34,7 @@ describe("/robots.txt", () => {
       "Google-Extended",
     ];
     const group = agents.map((agent) => `User-Agent: ${agent}\n`).join("");
-    expect(text).toContain(`\n${group}Allow: /\nDisallow: /apply\n\n`);
+    expect(text).toContain(`\n${group}Allow: /\n\n`);
   });
 });
 

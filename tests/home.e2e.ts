@@ -52,7 +52,7 @@ describe('home', () => {
       card: 'summary_large_image',
     });
     expect(head.image).toMatch(/^https:\/\/pestokids\.com\/share\/card-\w+\.jpg$/);
-    expect(head.alt).toMatch(/For kids who ask why\?/);
+    expect(head.alt).toContain('“pesto”');
 
     // The tag points at production; fetch the same path from the app under test.
     const served = await browser.evaluate(async (image: string) => {
