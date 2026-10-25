@@ -3,8 +3,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { resolveRobots, resolveSitemap } from "next/dist/build/webpack/loaders/metadata/resolve-route-data";
 import sharp from "sharp";
-import { describe, expect, it } from "vitest";
-import { meta } from "@/content/landing";
+import { describe, expect, it, vi } from "vitest";
+import { meta as landing } from "@/content/landing";
 import { shareCard } from "./(marketing)/_components/share-card";
 import HomePage, { metadata as homeMetadata } from "./(marketing)/page";
 import { metadata as privacyMetadata } from "./(marketing)/privacy/page";
@@ -12,6 +12,9 @@ import { metadata as termsMetadata } from "./(marketing)/terms/page";
 import { GET as llms } from "./llms.txt/route";
 import robots from "./robots";
 import sitemap from "./sitemap";
+
+// The home page's events go through lib/analytics, which reads the env config.
+vi.mock("@/lib/config", () => ({ config: { analytics: { enabled: false } } }));
 
 describe("/robots.txt", () => {
   const text = resolveRobots(robots());
@@ -60,7 +63,7 @@ describe("/llms.txt", () => {
 
   it("starts with both names and the one-line description", () => {
     expect(llmsText).toMatch(/^# Pesto \(Pesto Kids\)\n\n> /);
-    expect(llmsText).toContain(`> ${meta.description}\n`);
+    expect(llmsText).toContain(`> ${landing.description}\n`);
   });
 
   it("says who it's for and where it stands", () => {
@@ -102,7 +105,7 @@ describe("structured data on /", () => {
       email: "hello@pestokids.com",
       contactPoint: { "@type": "ContactPoint", email: "hello@pestokids.com" },
       sameAs: ["https://www.instagram.com/pesto.kids"],
-      description: meta.description,
+      description: landing.description,
     });
   });
 
@@ -123,7 +126,7 @@ describe("page metadata", () => {
   ];
 
   it("gives / the title and description from the copy file", () => {
-    expect(homeMetadata).toMatchObject({ title: meta.title, description: meta.description });
+    expect(homeMetadata).toMatchObject({ title: landing.title, description: landing.description });
   });
 
   it("gives /privacy and /terms their own titles and descriptions", () => {
@@ -136,7 +139,7 @@ describe("page metadata", () => {
   });
 
   it.each(pages)("gives $path a canonical URL and the share card, with its alt text", ({ path, metadata }) => {
-    const image = { ...shareCard, alt: meta.shareAlt };
+    const image = { ...shareCard, alt: landing.shareAlt };
     expect(metadata).toMatchObject({
       alternates: { canonical: path },
       openGraph: { url: path, title: metadata.title, images: [image] },

@@ -5,6 +5,7 @@
 // BYPASS, sent as x-vercel-protection-bypass on every request, and WARM_UP=1
 // for one uncounted run per route (the next collect clears it).
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- Lighthouse CI loads this file with require().
 const ROUTES = require("./lighthouse-routes.json");
 
 const { PREVIEW_URL, PRESET, BYPASS, WARM_UP } = process.env;

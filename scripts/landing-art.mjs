@@ -70,7 +70,7 @@ async function buildSet(set) {
     for (const width of set.widths) {
       const resized = sharp(source).resize({ width, kernel: "lanczos3" });
       const base = path.join(dir, `${layer.name}-${width}`);
-      await resized.clone().avif({ quality: 52, effort: 7, chromaSubsampling: "4:4:4" }).toFile(`${base}.avif`);
+      await resized.clone().avif({ quality: 40, effort: 7, chromaSubsampling: "4:4:4" }).toFile(`${base}.avif`);
       await resized.clone().webp({ quality: 78, alphaQuality: 90, effort: 6 }).toFile(`${base}.webp`);
       const [avif, webp] = await Promise.all([stat(`${base}.avif`), stat(`${base}.webp`)]);
       console.log(`${set.name}/${layer.name}-${width}: avif ${kb(avif.size)}, webp ${kb(webp.size)}`);
