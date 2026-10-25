@@ -8,11 +8,14 @@ export const baloo = Baloo_2({
   display: "swap",
 });
 
-/** Body fallback for platforms without ui-rounded / SF Pro Rounded. */
+/**
+ * Body fallback for platforms without ui-rounded / SF Pro Rounded (Chrome,
+ * Android). Preloaded, so it's in before first paint and the swap never shifts
+ * the text.
+ */
 export const nunito = Nunito({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-nunito",
   display: "swap",
-  preload: false,
 });

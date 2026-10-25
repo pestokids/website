@@ -66,6 +66,22 @@ PREVIEW_URL=https://… VERCEL_AUTOMATION_BYPASS_SECRET=… pnpm test:e2e   # a 
 - `.e2e/cache/` is committed: passing `agent.act` steps replay from it with no model call. Review its changes like test data. Never commit `.e2e/results` or logs.
 - CI (`.github/workflows/e2e.yml`) runs the suite on every pull request against its Vercel Preview and comments the results on the PR. `e2e-smoke.yml` runs the read-only `smoke` tests (welcome, desktop) against Production after each deploy to `main`.
 
+## Lighthouse
+
+`.github/workflows/lighthouse.yml` runs Lighthouse on every pull request's Vercel Preview: `/`, `/privacy`, `/terms` and `/apply`, mobile and desktop, 3 runs each. It comments the medians on the PR and fails it when a route is over budget. The budgets are at the top of `.github/scripts/lighthouse-report.mjs`.
+
+To run it locally against a production build (`pnpm build && pnpm start`):
+
+```bash
+for preset in mobile desktop; do
+  (mkdir -p /tmp/lh/$preset && cd /tmp/lh/$preset &&
+    PRESET=$preset PREVIEW_URL=http://localhost:3000 npx @lhci/cli@0.15.1 collect --config="$OLDPWD/.github/lighthouserc.cjs")
+done
+node .github/scripts/lighthouse-report.mjs /tmp/lh /tmp/lh/report.md
+```
+
+`pnpm start` serves gzip and Vercel serves brotli, so local JavaScript and total sizes come out about 10% higher.
+
 ## Layout
 
 ```
@@ -76,7 +92,7 @@ app/(apply)/_components flow UI (shared controls in _components/ui)
 app/(apply)/_lib        flow state, persistence, personalisation
 content/apply.ts        all flow copy and option lists
 content/landing.ts      all landing page copy
-public/landing/         landing art: AVIF + WebP per layer and width (scripts/landing-art.mjs)
+public/landing/         landing art: AVIF + WebP per layer and width, content-hashed and cached for a year (scripts/landing-art.mjs)
 lib/                    shared: config, attribution, fonts
 styles/                 shared: design tokens, globals
 convex/                 schema, functions and tests

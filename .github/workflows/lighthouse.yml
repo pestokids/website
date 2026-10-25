@@ -1,0 +1,115 @@
+name: lighthouse
+
+# Lighthouse on the pull request's Vercel Preview: /, /privacy, /terms and
+# /apply, mobile and desktop, 3 runs each. The report job comments the medians
+# on the PR and fails it when anything is over budget (budgets in
+# .github/scripts/lighthouse-report.mjs).
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lighthouse-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: lighthouse (${{ matrix.preset }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [mobile, desktop]
+    permissions:
+      contents: read
+      deployments: read
+    steps:
+      # Check out the head commit, not the merge ref, so the scripts match the Preview's code.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      - name: Wait for the Preview of ${{ github.event.pull_request.head.sha }}
+        id: preview
+        run: node .github/scripts/wait-for-deployment.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          ENVIRONMENT: preview
+          CHECK_PATH: /
+          BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+
+      # The runner's Chrome; Lighthouse CI only collects here (no upload server).
+      - name: Run Lighthouse
+        run: npx --yes @lhci/cli@0.15.1 collect --config=.github/lighthouserc.cjs
+        env:
+          PRESET: ${{ matrix.preset }}
+          PREVIEW_URL: ${{ steps.preview.outputs.url }}
+          BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse-${{ matrix.preset }}
+          path: .lighthouseci/
+          include-hidden-files: true
+          if-no-files-found: error
+
+  report:
+    name: lighthouse
+    needs: audit
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      # A failed audit job leaves no runs; the report marks those routes.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        continue-on-error: true
+        with:
+          pattern: lighthouse-*
+          path: lighthouse
+
+      - name: Check the budgets
+        id: report
+        run: node .github/scripts/lighthouse-report.mjs lighthouse lighthouse.md || echo "failed=true" >> "$GITHUB_OUTPUT"
+        env:
+          SHA: ${{ github.event.pull_request.head.sha }}
+
+      # One comment per PR, updated on every run.
+      - name: Comment on the PR
+        run: |
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq '.[] | select(.body | startswith("<!-- lighthouse -->")) | .id' | head -n 1)
+          if [ -n "$id" ]; then
+            gh api --method PATCH "repos/$REPO/issues/comments/$id" -F body=@lighthouse.md > /dev/null
+          else
+            gh api --method POST "repos/$REPO/issues/$PR/comments" -F body=@lighthouse.md > /dev/null
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+
+      - name: Fail when over budget
+        if: ${{ steps.report.outputs.failed == 'true' }}
+        run: |
+          echo "::error::Lighthouse is over budget on the Preview. See the PR comment or the job summary."
+          exit 1

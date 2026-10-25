@@ -1,10 +1,12 @@
 import type { CSSProperties } from "react";
 import { preload } from "react-dom";
+import { LayerFade } from "./layer-fade";
 import { TALL_MEDIA } from "./media";
 import { sceneArt, sceneLayers } from "./scene-art";
 
 type SetName = keyof typeof sceneArt;
 type LayerName = (typeof sceneLayers)[number];
+type Format = "avif" | "webp";
 
 const WIDE_MEDIA = `not all and ${TALL_MEDIA}`;
 
@@ -17,8 +19,20 @@ const SIZES: Record<SetName, string> = {
   tall: "(max-aspect-ratio: 3/5) 61vh, 102vw",
 };
 
-/** Fetched first: the opaque sky and Pesto make the scene. The rest follow. */
-const PRELOADED: readonly LayerName[] = ["sky", "pesto"];
+/**
+ * Load order. First, preloaded: the stars (on phones their layer sits lower
+ * than the others, so it shows the most and is the page's largest paint; a
+ * few KB) and Pesto. Next, from the HTML at low priority: the sky. The meadow
+ * and the flowers load once the page is laid out. The blurred placeholder
+ * covers the scene until each layer arrives; <LayerFade> fades in the late ones.
+ */
+const LOAD: Record<LayerName, "first" | "next" | "after-layout"> = {
+  sky: "next",
+  stars: "first",
+  back: "after-layout",
+  pesto: "first",
+  front: "after-layout",
+};
 
 /** Felt-yellow stars that twinkle over the art, in % of the stage. */
 const TWINKLES = [
@@ -32,12 +46,18 @@ const TWINKLES = [
   { left: 41, top: 44, size: 5, time: 4.4, delay: -0.3 },
 ];
 
-function srcSet(set: SetName, layer: LayerName, format: "avif" | "webp") {
-  return sceneArt[set].widths.map((w) => `/landing/${set}/${layer}-${w}.${format} ${w}w`).join(", ");
+/** The content-hashed URL of one file (scene-art.ts). */
+function file(set: SetName, layer: LayerName, width: number, format: Format): string {
+  const files: Record<string, string> = sceneArt[set].files;
+  return files[`${layer}-${width}.${format}`];
 }
 
-function largest(set: SetName, layer: LayerName, format: "avif" | "webp") {
-  return `/landing/${set}/${layer}-${sceneArt[set].widths.at(-1)}.${format}`;
+function srcSet(set: SetName, layer: LayerName, format: Format) {
+  return sceneArt[set].widths.map((w) => `${file(set, layer, w, format)} ${w}w`).join(", ");
+}
+
+function largest(set: SetName, layer: LayerName, format: Format) {
+  return file(set, layer, sceneArt[set].widths.at(-1)!, format);
 }
 
 function preloadLayer(set: SetName, layer: LayerName) {
@@ -53,7 +73,7 @@ function preloadLayer(set: SetName, layer: LayerName) {
 
 /** One layer. Each screen downloads only its own art set, AVIF where supported. */
 function Layer({ name, children }: { name: LayerName; children?: React.ReactNode }) {
-  const first = PRELOADED.includes(name);
+  const load = LOAD[name];
   const { width, height } = sceneArt.wide;
   return (
     <div className={`layer ${name}`}>
@@ -69,7 +89,8 @@ function Layer({ name, children }: { name: LayerName; children?: React.ReactNode
           height={height}
           alt=""
           decoding="async"
-          fetchPriority={first ? "high" : "auto"}
+          fetchPriority={load === "first" ? "high" : "low"}
+          loading={load === "after-layout" ? "lazy" : "eager"}
         />
       </picture>
       {children}
@@ -79,7 +100,7 @@ function Layer({ name, children }: { name: LayerName; children?: React.ReactNode
 
 /** The felt night scene: five layers, bottom to top. Decorative. */
 export function Scene() {
-  for (const layer of PRELOADED) {
+  for (const layer of sceneLayers.filter((l) => LOAD[l] === "first")) {
     preloadLayer("tall", layer);
     preloadLayer("wide", layer);
   }
@@ -113,6 +134,7 @@ export function Scene() {
       <Layer name="back" />
       <Layer name="pesto" />
       <Layer name="front" />
+      <LayerFade />
     </div>
   );
 }
