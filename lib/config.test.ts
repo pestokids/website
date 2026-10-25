@@ -60,13 +60,12 @@ describe("parsePublicEnv", () => {
 
   it("requires the analytics keys only when analytics is enabled", () => {
     expect(() => parsePublicEnv({ ...valid, NEXT_PUBLIC_ANALYTICS_ENABLED: "true" })).toThrow(
-      /NEXT_PUBLIC_POSTHOG_KEY[\s\S]*NEXT_PUBLIC_POSTHOG_HOST[\s\S]*NEXT_PUBLIC_LINKRUNNER_TOKEN/,
+      /NEXT_PUBLIC_POSTHOG_KEY[\s\S]*NEXT_PUBLIC_LINKRUNNER_TOKEN/,
     );
     const config = parsePublicEnv({
       ...valid,
       NEXT_PUBLIC_ANALYTICS_ENABLED: "true",
       NEXT_PUBLIC_POSTHOG_KEY: "phc_test",
-      NEXT_PUBLIC_POSTHOG_HOST: "https://us.i.posthog.com",
       NEXT_PUBLIC_LINKRUNNER_TOKEN: "lr_test",
     });
     expect(config.analytics.enabled).toBe(true);

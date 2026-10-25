@@ -19,7 +19,6 @@ vi.mock("@/lib/config", () => ({
     analytics: {
       enabled: true,
       posthogKey: "phc_test",
-      posthogHost: "https://test.posthog.example",
       linkrunnerToken: "lr_test",
     },
   },

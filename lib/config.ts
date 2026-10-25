@@ -16,7 +16,6 @@ export type RawPublicEnv = {
   NEXT_PUBLIC_WHATSAPP_NUMBER?: string;
   NEXT_PUBLIC_ANALYTICS_ENABLED?: string;
   NEXT_PUBLIC_POSTHOG_KEY?: string;
-  NEXT_PUBLIC_POSTHOG_HOST?: string;
   NEXT_PUBLIC_LINKRUNNER_TOKEN?: string;
   NEXT_PUBLIC_CONVEX_URL?: string;
 };
@@ -32,7 +31,6 @@ export type PublicConfig = {
     | {
         enabled: true;
         posthogKey: string;
-        posthogHost: string;
         linkrunnerToken: string;
       };
 };
@@ -96,15 +94,12 @@ export function parsePublicEnv(env: RawPublicEnv): PublicConfig {
   let analytics: PublicConfig["analytics"] = { enabled: false };
   if (analyticsEnabled) {
     const posthogKey = get("NEXT_PUBLIC_POSTHOG_KEY");
-    const posthogHost = get("NEXT_PUBLIC_POSTHOG_HOST");
     const linkrunnerToken = get("NEXT_PUBLIC_LINKRUNNER_TOKEN");
     if (!posthogKey) problems.push("NEXT_PUBLIC_POSTHOG_KEY is required when analytics is enabled");
-    if (!posthogHost) problems.push("NEXT_PUBLIC_POSTHOG_HOST is required when analytics is enabled");
-    else if (!isUrl(posthogHost)) problems.push("NEXT_PUBLIC_POSTHOG_HOST must be a URL");
     if (!linkrunnerToken) {
       problems.push("NEXT_PUBLIC_LINKRUNNER_TOKEN is required when analytics is enabled");
     }
-    analytics = { enabled: true, posthogKey, posthogHost, linkrunnerToken };
+    analytics = { enabled: true, posthogKey, linkrunnerToken };
   }
 
   if (problems.length > 0) throw new ConfigError(problems);
@@ -118,7 +113,6 @@ export const config: PublicConfig = parsePublicEnv({
   NEXT_PUBLIC_WHATSAPP_NUMBER: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
   NEXT_PUBLIC_ANALYTICS_ENABLED: process.env.NEXT_PUBLIC_ANALYTICS_ENABLED,
   NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
-  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   NEXT_PUBLIC_LINKRUNNER_TOKEN: process.env.NEXT_PUBLIC_LINKRUNNER_TOKEN,
   NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL,
 });

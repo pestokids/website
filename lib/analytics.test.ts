@@ -27,7 +27,6 @@ vi.mock("./config", () => ({ config: sdk.config }));
 const ENABLED = {
   enabled: true,
   posthogKey: "phc_test",
-  posthogHost: "https://test.posthog.example",
   linkrunnerToken: "lr_test",
 };
 
@@ -77,7 +76,7 @@ describe("with analytics on", () => {
     sdk.config.analytics = ENABLED;
   });
 
-  it("inits PostHog once, without pageviews or autocapture, masking replay inputs, capturing exceptions and web vitals", async () => {
+  it("inits PostHog once, through our own origin, without pageviews or autocapture, masking replay inputs, capturing exceptions and web vitals", async () => {
     const a = await freshAnalytics();
     a.initAnalytics();
     a.initAnalytics();
@@ -85,7 +84,8 @@ describe("with analytics on", () => {
 
     expect(sdk.posthog.init).toHaveBeenCalledTimes(1);
     expect(sdk.posthog.init).toHaveBeenCalledWith("phc_test", {
-      api_host: "https://test.posthog.example",
+      api_host: "/sprig",
+      ui_host: "https://us.posthog.com",
       capture_pageview: false,
       persistence: "localStorage+cookie",
       autocapture: false,

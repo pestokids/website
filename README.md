@@ -36,6 +36,8 @@ Convex env vars (set per deployment with `npx convex env set KEY value`, or in t
 
 Uncaught browser errors go to PostHog error tracking (`capture_exceptions`), only when analytics is on.
 
+PostHog and Linkrunner go through pestokids.com, so ad blockers don't drop them: the browser loads and posts to `/sprig/*` (PostHog) and `/twig/*` (Linkrunner), and `next.config.ts` forwards those to the real hosts (`lib/relay.ts`). Keep the paths meaningless; anything that reads as analytics ends up on a block list.
+
 ## Scripts
 
 | Script | What |
