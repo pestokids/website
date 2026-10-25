@@ -49,14 +49,13 @@ jobs:
           CHECK_PATH: /
           BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 
-      # A fresh deployment's first request per page misses Vercel's edge cache;
-      # keep that out of the scores.
-      - name: Warm the edge cache
-        run: |
-          for route in $(jq -r '.[]' .github/lighthouse-routes.json); do
-            curl -s -o /dev/null -w "%{http_code} $route\n" -H "x-vercel-protection-bypass: $BYPASS" "$PREVIEW_URL$route"
-          done
+      # The first page load on a fresh runner and deployment is much slower
+      # (cold Chrome, cold edge cache), so one run per route goes uncounted.
+      - name: Warm up
+        run: npx --yes @lhci/cli@0.15.1 collect --config=.github/lighthouserc.cjs
         env:
+          WARM_UP: '1'
+          PRESET: ${{ matrix.preset }}
           PREVIEW_URL: ${{ steps.preview.outputs.url }}
           BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 

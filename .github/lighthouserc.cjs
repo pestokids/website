@@ -1,18 +1,19 @@
 // Lighthouse CI settings for .github/workflows/lighthouse.yml. Collect only:
 // the budgets and the PR comment live in .github/scripts/lighthouse-report.mjs.
 //
-// env: PREVIEW_URL (no trailing slash), PRESET ("mobile" or "desktop") and
-// BYPASS, sent as x-vercel-protection-bypass on every request.
+// env: PREVIEW_URL (no trailing slash), PRESET ("mobile" or "desktop"),
+// BYPASS, sent as x-vercel-protection-bypass on every request, and WARM_UP=1
+// for one uncounted run per route (the next collect clears it).
 
 const ROUTES = require("./lighthouse-routes.json");
 
-const { PREVIEW_URL, PRESET, BYPASS } = process.env;
+const { PREVIEW_URL, PRESET, BYPASS, WARM_UP } = process.env;
 
 module.exports = {
   ci: {
     collect: {
       url: ROUTES.map((route) => PREVIEW_URL + route),
-      numberOfRuns: 3,
+      numberOfRuns: WARM_UP ? 1 : 3,
       settings: {
         // Mobile is Lighthouse's default (Moto G Power on slow 4G).
         ...(PRESET === "desktop" ? { preset: "desktop" } : {}),
