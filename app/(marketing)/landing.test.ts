@@ -1,7 +1,10 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import HomePage, { viewport } from "./page";
+
+// The page's events go through lib/analytics, which reads the env config.
+vi.mock("@/lib/config", () => ({ config: { analytics: { enabled: false } } }));
 
 const html = renderToStaticMarkup(createElement(HomePage));
 

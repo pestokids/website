@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Family } from "@/content/apply";
+import { loadFirstTouch } from "@/lib/first-touch";
 import {
   captureAttribution,
   clampStep,
@@ -157,7 +158,9 @@ export function ApplyFlow() {
     const urlStepNow = getUrlStep();
     const submitted = loadSubmitted();
     let draft = loadDraft() ?? createDraft(Date.now());
-    if (!submitted) draft = captureAttribution(draft, window.location.href, document.referrer);
+    if (!submitted) {
+      draft = captureAttribution(draft, window.location.href, document.referrer, loadFirstTouch());
+    }
     const step = initialStep(draft, urlStepNow, submitted);
     if (step !== "received") draft = reducer(draft, { type: "setStep", step });
     if (!submitted) saveDraft(draft);

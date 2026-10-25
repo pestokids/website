@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { onIdle } from "@/lib/idle";
 
 type NetworkInformation = { saveData?: boolean };
 
@@ -24,15 +25,7 @@ export function ParallaxLoader() {
         if (!cancelled) stop = startParallax(scene);
       });
 
-    // Safari has no requestIdleCallback.
-    let cancelIdle: () => void;
-    if ("requestIdleCallback" in window) {
-      const id = requestIdleCallback(start, { timeout: 3000 });
-      cancelIdle = () => cancelIdleCallback(id);
-    } else {
-      const id = setTimeout(start, 1500);
-      cancelIdle = () => clearTimeout(id);
-    }
+    const cancelIdle = onIdle(start, 3000);
 
     return () => {
       cancelled = true;

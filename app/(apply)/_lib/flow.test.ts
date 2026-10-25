@@ -415,6 +415,42 @@ describe("attribution capture", () => {
     saveDraft(d, storage);
     expect(loadDraft(storage)).toEqual(d);
   });
+
+  it("takes the landing page's first touch over /apply's own URL", () => {
+    const landing = {
+      utm_source: "meta",
+      utm_medium: "paid_social",
+      utm_campaign: "test_campaign",
+      fbclid: "test-fbclid",
+      landing_url: "https://pestokids.com/?utm_source=meta",
+    };
+    const d = captureAttribution(empty, "https://pestokids.com/apply", "https://pestokids.com/", landing);
+    expect(d).toMatchObject({
+      sourceType: "paid",
+      source: "meta",
+      campaign: "test_campaign",
+      attribution: landing,
+    });
+  });
+
+  it("reads /apply's URL when there's no saved first touch", () => {
+    const d = captureAttribution(empty, "https://pestokids.com/apply?utm_source=whatsapp", "", null);
+    expect(d).toMatchObject({ sourceType: "organic", source: "whatsapp" });
+  });
+
+  it("an existing draft's source beats a first touch saved later", () => {
+    const first = captureAttribution(empty, "https://pestokids.com/apply?utm_source=whatsapp", "");
+    const later = captureAttribution(first, "https://pestokids.com/apply", "", { fbclid: "test-fbclid" });
+    expect(later).toBe(first);
+  });
+
+  it("keeps an ai source through a storage round trip", () => {
+    const storage = memoryStorage();
+    const d = captureAttribution(empty, "https://pestokids.com/apply", "https://chatgpt.com/");
+    expect(d).toMatchObject({ sourceType: "ai", source: "chatgpt" });
+    saveDraft(d, storage);
+    expect(loadDraft(storage)).toEqual(d);
+  });
 });
 
 describe("personalisation · 1 vs 2 kids", () => {

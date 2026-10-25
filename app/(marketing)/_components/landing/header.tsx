@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type FocusEvent } from "react";
 import { header, logo, type HeaderLink } from "@/content/landing";
+import { track } from "../../_lib/track";
 
 const NAV_ID = "landing-links";
 
@@ -13,10 +14,18 @@ function NavLink({ link }: { link: HeaderLink }) {
       {link.detail && <span className="detail">{link.detail}</span>}
     </>
   );
-  if (link.href.startsWith("/")) return <Link href={link.href}>{content}</Link>;
+  const onClick = () => track.linkClicked(link.id);
+  if (link.href.startsWith("/")) {
+    return (
+      <Link href={link.href} onClick={onClick}>
+        {content}
+      </Link>
+    );
+  }
   return (
     <a
       href={link.href}
+      onClick={onClick}
       {...(link.external ? { target: "_blank", rel: "me noopener" } : {})}
     >
       {content}
@@ -68,7 +77,10 @@ export function Header() {
         aria-expanded={open}
         aria-controls={NAV_ID}
         aria-label={header.menuLabel}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          if (!open) track.menuOpened();
+          setOpen(!open);
+        }}
       >
         <svg
           viewBox="0 0 24 24"

@@ -4,13 +4,15 @@ import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { cta } from "@/content/landing";
 import { withAttribution } from "@/lib/attribution";
+import { track } from "../../_lib/track";
 
 // The query string never changes while the page is open.
 const subscribe = () => () => {};
 
 /**
  * The one button: /apply, carrying the visit's UTMs, click IDs and `via`.
- * The prerendered HTML links to plain /apply; hydration adds the query.
+ * The prerendered HTML links to plain /apply; hydration adds the query (and
+ * the saved first touch covers a tap before that).
  */
 export function GetInEarly() {
   const search = useSyncExternalStore(
@@ -19,7 +21,11 @@ export function GetInEarly() {
     () => "",
   );
   return (
-    <Link className="cta" href={withAttribution(cta.href, search)}>
+    <Link
+      className="cta"
+      href={withAttribution(cta.href, search)}
+      onClick={() => track.ctaClicked("hero", window.location.href, document.referrer)}
+    >
       {cta.label}
       <svg
         viewBox="0 0 24 24"

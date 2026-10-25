@@ -60,12 +60,14 @@ describe("summarize", () => {
         { sourceType: "paid", source: "meta" },
         { sourceType: "paid", source: "meta" },
         { sourceType: "direct", source: "direct" },
+        { sourceType: "ai", source: "chatgpt" },
       ]),
     ).toEqual({
-      total: 4,
-      bySourceType: { paid: 2, organic: 1, direct: 1 },
+      total: 5,
+      bySourceType: { paid: 2, organic: 1, ai: 1, direct: 1 },
       bySource: [
         { source: "meta", count: 2 },
+        { source: "chatgpt", count: 1 },
         { source: "direct", count: 1 },
         { source: "whatsapp", count: 1 },
       ],
@@ -85,7 +87,7 @@ describe("digestEmail", () => {
     expect(digestEmail.subject(data)).toBe("Founding Families: 2 new applications on Oct 23");
     const text = digestEmail.text(data);
     expect(text).toContain("2 new applications on Oct 23 (Pacific time).");
-    expect(text).toMatch(/paid\s+1\n\s+organic\s+1\n\s+direct\s+0/);
+    expect(text).toMatch(/paid\s+1\n\s+organic\s+1\n\s+ai\s+0\n\s+direct\s+0/);
     expect(text).toMatch(/meta\s+1\n\s+whatsapp\s+1/);
   });
 
@@ -179,7 +181,7 @@ describe("digest.sendDaily", () => {
       to: [env.DIGEST_EMAIL],
       subject: "Founding Families: 3 new applications on Oct 23",
     });
-    expect(body.text).toMatch(/paid\s+2\n\s+organic\s+0\n\s+direct\s+1/);
+    expect(body.text).toMatch(/paid\s+2\n\s+organic\s+0\n\s+ai\s+0\n\s+direct\s+1/);
     expect(body.text).toMatch(/meta\s+2\n\s+direct\s+1/);
     expect(body.text).not.toMatch(/Test Kid|test\.parent/i);
   });

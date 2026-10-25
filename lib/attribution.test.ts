@@ -111,6 +111,68 @@ describe("classifyAttribution · §11.1 table", () => {
     });
   });
 
+  describe("AI assistants", () => {
+    it.each([
+      ["https://chatgpt.com/", "chatgpt"],
+      ["https://chat.openai.com/", "chatgpt"],
+      ["https://www.perplexity.ai/", "perplexity"],
+      ["https://claude.ai/", "claude"],
+      ["https://gemini.google.com/", "gemini"],
+      ["https://copilot.microsoft.com/", "copilot"],
+      ["android-app://com.openai.chatgpt/", "chatgpt"],
+      ["android-app://ai.perplexity.app.android/", "perplexity"],
+      ["android-app://com.anthropic.claude/", "claude"],
+      ["android-app://com.google.android.apps.bard/", "gemini"],
+      ["android-app://com.microsoft.copilot/", "copilot"],
+    ])("referrer %s → ai/%s", (referrer, source) => {
+      expect(classify("", referrer)).toEqual({ sourceType: "ai", source, campaign: null });
+    });
+
+    it.each([
+      ["chatgpt.com", "chatgpt"],
+      ["ChatGPT.com", "chatgpt"],
+      ["perplexity", "perplexity"],
+      ["claude.ai", "claude"],
+    ])("utm_source=%s → ai/%s", (utmSource, source) => {
+      expect(classify(`?utm_source=${utmSource}`)).toEqual({ sourceType: "ai", source, campaign: null });
+    });
+
+    it("an organic utm_source wins over an AI referrer", () => {
+      expect(classify("?utm_source=whatsapp", "https://chatgpt.com/")).toEqual({
+        sourceType: "organic",
+        source: "whatsapp",
+        campaign: null,
+      });
+    });
+
+    it("a paid link stays paid, even from an AI referrer", () => {
+      expect(classify("?gclid=abc", "https://chatgpt.com/").sourceType).toBe("paid");
+      expect(classify("?utm_medium=cpc", "https://chatgpt.com/")).toEqual({
+        sourceType: "paid",
+        source: "chatgpt",
+        campaign: null,
+      });
+    });
+
+    it("Google search and other Google hosts stay organic/google", () => {
+      expect(classify("", "https://www.google.com/")).toEqual({
+        sourceType: "organic",
+        source: "google",
+        campaign: null,
+      });
+      expect(classify("", "android-app://com.google.android.gm/").source).toBe("google");
+    });
+
+    it("doesn't match lookalike hosts", () => {
+      expect(classify("", "https://notchatgpt.com/")).toEqual({
+        sourceType: "organic",
+        source: "notchatgpt.com",
+        campaign: null,
+      });
+      expect(classify("", "https://claude.ai.example.com/").sourceType).toBe("organic");
+    });
+  });
+
   describe("row 3: organic from an external referrer", () => {
     it.each([
       ["https://l.instagram.com/?u=x", "instagram"],

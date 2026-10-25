@@ -61,7 +61,7 @@ function captured(fn: () => void) {
 }
 
 beforeAll(async () => {
-  vi.stubGlobal("window", {});
+  vi.stubGlobal("window", { location: new URL("https://pestokids.com/apply") });
   initAnalytics();
   await vi.waitFor(() => expect(sdk.posthog.init).toHaveBeenCalled());
 });

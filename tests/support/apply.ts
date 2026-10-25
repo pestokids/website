@@ -80,6 +80,8 @@ export async function openApply(app: App, browser: Browser, path = '/apply') {
 
 export const DRAFT_KEY = 'pesto_ff_draft_v1';
 export const SUBMITTED_KEY = 'pesto_ff_submitted_v1';
+/** lib/first-touch: the landing page's saved first touch. */
+export const FIRST_TOUCH_KEY = 'pesto_first_touch_v1';
 
 export type StoredDraft = {
   step: string;

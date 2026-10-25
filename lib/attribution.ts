@@ -5,6 +5,8 @@
  * Rules (first match wins):
  *   paid     click ID (fbclid/gclid/ttclid) or a paid utm_medium
  *            → utm_source, else meta/google/tiktok from the click ID
+ *   ai       utm_source or external referrer is an AI assistant
+ *            → chatgpt/perplexity/claude/gemini/copilot
  *   organic  utm_source present → utm_source
  *   organic  external referrer  → instagram/facebook/whatsapp/google/linkedin/x, else the host
  *   direct   nothing            → "direct"
@@ -30,7 +32,7 @@ export type AttributionParam = (typeof ATTRIBUTION_PARAMS)[number];
 /** Raw first touch. All fields optional; empty values are dropped. */
 export type Attribution = Partial<Record<AttributionParam | "landing_url" | "referrer", string>>;
 
-export type SourceType = "paid" | "organic" | "direct";
+export type SourceType = "paid" | "organic" | "ai" | "direct";
 
 export type Classification = {
   sourceType: SourceType;
@@ -62,6 +64,29 @@ const REFERRER_SOURCES: Record<string, string> = {
   "twitter.com": "x",
   "t.co": "x",
 };
+
+/**
+ * AI assistants, by host (and its subdomains) and by Android app. ChatGPT
+ * also tags the links it cites with utm_source=chatgpt.com.
+ */
+const AI_HOSTS: Record<string, string> = {
+  "chatgpt.com": "chatgpt",
+  "chat.openai.com": "chatgpt",
+  "perplexity.ai": "perplexity",
+  "claude.ai": "claude",
+  "gemini.google.com": "gemini",
+  "copilot.microsoft.com": "copilot",
+};
+
+const AI_APPS = [
+  ["com.openai.chatgpt", "chatgpt"],
+  ["ai.perplexity.app", "perplexity"],
+  ["com.anthropic.claude", "claude"],
+  ["com.google.android.apps.bard", "gemini"],
+  ["com.microsoft.copilot", "copilot"],
+] as const;
+
+const AI_SOURCES = new Set(Object.values(AI_HOSTS));
 
 // google.com, google.co.in, google.com.au, …
 const GOOGLE_HOST = /(^|\.)google\.(com|[a-z]{2}|com?\.[a-z]{2})$/;
@@ -119,8 +144,30 @@ export function withAttribution(path: string, search: string): string {
   return query ? `${path}?${query}` : path;
 }
 
-/** Maps a referrer host to a source name: a known network, else the bare host. */
+/** Looks `host` and each parent domain up in `table`. */
+function lookupHost(table: Record<string, string>, host: string): string | undefined {
+  const labels = host.split(".");
+  for (let i = 0; i < labels.length - 1; i++) {
+    const match = table[labels.slice(i).join(".")];
+    if (match) return match;
+  }
+  return undefined;
+}
+
+/**
+ * The AI assistant a host, Android app or utm_source value stands for
+ * (chatgpt, perplexity, claude, gemini, copilot), else undefined.
+ */
+export function aiSource(value: string): string | undefined {
+  const v = value.toLowerCase();
+  if (AI_SOURCES.has(v)) return v;
+  return AI_APPS.find(([app]) => v.startsWith(app))?.[1] ?? lookupHost(AI_HOSTS, v);
+}
+
+/** Maps a referrer host to a source name: a known network or AI assistant, else the bare host. */
 export function sourceFromReferrerHost(host: string): string {
+  const ai = aiSource(host);
+  if (ai) return ai;
   if (GOOGLE_HOST.test(host)) return "google";
   // Android app referrers: android-app://com.instagram.android etc.
   if (host.startsWith("com.instagram.")) return "instagram";
@@ -130,12 +177,7 @@ export function sourceFromReferrerHost(host: string): string {
   if (host.startsWith("com.linkedin.")) return "linkedin";
   if (host.startsWith("com.twitter.")) return "x";
 
-  const labels = host.split(".");
-  for (let i = 0; i < labels.length - 1; i++) {
-    const match = REFERRER_SOURCES[labels.slice(i).join(".")];
-    if (match) return match;
-  }
-  return host;
+  return lookupHost(REFERRER_SOURCES, host) ?? host;
 }
 
 /** Referrer host if it's external to the landing page's site, else null. */
@@ -160,9 +202,16 @@ export function classifyAttribution(a: Attribution): Classification {
     return { sourceType: "paid", source, campaign };
   }
 
-  if (utmSource) return { sourceType: "organic", source: utmSource, campaign };
+  if (utmSource) {
+    const ai = aiSource(utmSource);
+    if (ai) return { sourceType: "ai", source: ai, campaign };
+    return { sourceType: "organic", source: utmSource, campaign };
+  }
 
-  if (refHost) return { sourceType: "organic", source: sourceFromReferrerHost(refHost), campaign };
+  if (refHost) {
+    const source = sourceFromReferrerHost(refHost);
+    return { sourceType: AI_SOURCES.has(source) ? "ai" : "organic", source, campaign };
+  }
 
   return { sourceType: "direct", source: "direct", campaign };
 }
