@@ -1,6 +1,9 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
+import { sceneArt, sceneLayers } from "./_components/landing/scene-art";
 import HomePage, { viewport } from "./page";
 
 // The page's events go through lib/analytics, which reads the env config.
@@ -49,12 +52,46 @@ describe("/", () => {
       const sources = [...picture!.matchAll(/<source ([^>]*)\/?>/g)].map(([, attrs]) => attrs);
       expect(sources[0]).toContain('media="(max-aspect-ratio: 17/20)"');
       expect(sources[0]).toContain('type="image/avif"');
-      expect(sources[0]).toContain(`/landing/tall/${layer}-960.avif 960w`);
+      expect(sources[0]).toMatch(new RegExp(`/landing/tall/${layer}-1200\\.[0-9a-f]{10}\\.avif 1200w`));
       expect(sources[1]).toContain('media="(max-aspect-ratio: 17/20)"');
       expect(sources[1]).toContain('type="image/webp"');
       expect(sources[2]).not.toContain("media=");
-      expect(sources[2]).toContain(`/landing/wide/${layer}-2400.avif 2400w`);
-      expect(picture).toMatch(new RegExp(`<img src="/landing/wide/${layer}-2400.webp"[^>]* alt=""`));
+      expect(sources[2]).toMatch(new RegExp(`/landing/wide/${layer}-2400\\.[0-9a-f]{10}\\.avif 2400w`));
+      expect(picture).toMatch(new RegExp(`<img src="/landing/wide/${layer}-2400\\.[0-9a-f]{10}\\.webp"[^>]* alt=""`));
+    }
+  });
+
+  it("has a content-hashed file for every layer, width and format", () => {
+    for (const set of Object.values(sceneArt)) {
+      const files: Record<string, string> = set.files;
+      for (const layer of sceneLayers) {
+        for (const width of set.widths) {
+          for (const format of ["avif", "webp"]) {
+            const url = files[`${layer}-${width}.${format}`];
+            expect(url, `${layer}-${width}.${format}`).toMatch(/\.[0-9a-f]{10}\.(avif|webp)$/);
+            expect(existsSync(path.join("public", url)), url).toBe(true);
+          }
+        }
+      }
+    }
+  });
+
+  it("keeps the 648 and 960 tall files and adds the 1200 source width", () => {
+    expect(sceneArt.tall.widths).toEqual([648, 960, 1200]);
+  });
+
+  it("loads the stars and Pesto first, the sky next, and the meadow and flowers after layout", () => {
+    const img = (layer: string) =>
+      html.match(new RegExp(`<div class="layer ${layer}"><picture>.*?(<img [^>]*>)`))?.[1] ?? "";
+    for (const layer of ["stars", "pesto"]) {
+      expect(img(layer), layer).toContain('fetchPriority="high"');
+      expect(img(layer), layer).not.toContain('loading="lazy"');
+    }
+    expect(img("sky")).toContain('fetchPriority="low"');
+    expect(img("sky")).not.toContain('loading="lazy"');
+    for (const layer of ["back", "front"]) {
+      expect(img(layer), layer).toContain('fetchPriority="low"');
+      expect(img(layer), layer).toContain('loading="lazy"');
     }
   });
 

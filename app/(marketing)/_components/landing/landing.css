@@ -88,6 +88,14 @@ html:has(.landing) {
     max-width: none;
   }
 
+  /* A layer still loading when the page hydrates fades in as it arrives (layer-fade.tsx). */
+  & .layer img {
+    transition: opacity 0.5s ease;
+  }
+  & .layer img[data-loading] {
+    opacity: 0;
+  }
+
   /* --d: parallax depth, px per unit of pointer offset. */
   & .sky {
     --d: 0;
@@ -120,7 +128,9 @@ html:has(.landing) {
     animation:
       landing-peek-in 1.6s cubic-bezier(0.2, 0.9, 0.25, 1.15) 0.3s both,
       landing-tilt 6.5s ease-in-out 2s infinite;
-    transition: scale 0.6s cubic-bezier(0.2, 0.9, 0.25, 1.2);
+    transition:
+      scale 0.6s cubic-bezier(0.2, 0.9, 0.25, 1.2),
+      opacity 0.5s ease;
   }
   &:has(.cta:hover, .cta:focus-visible) .pesto img {
     scale: 1.045;
