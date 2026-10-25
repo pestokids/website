@@ -1,0 +1,516 @@
+/*
+ * The landing page (/): one screen. A felt night scene fills the viewport and
+ * the tagline and one button sit in the empty sky.
+ *
+ * Two layouts, switched at 17:20:
+ *   wide  (wider than 17:20): 2400×1600 art, header links inline, button under the tagline.
+ *   tall  (17:20 and narrower): 1200×2000 art lifted so Pesto sits mid-screen, a night band
+ *         at the bottom holding the pinned button. Under 700px the links fold into a menu.
+ *
+ * Everything is scoped under .landing: the stylesheet stays loaded after a
+ * client-side navigation to /apply.
+ */
+
+html:has(.landing) {
+  overflow: hidden;
+  /* --night: shows behind the page while it loads and in overscroll. */
+  background: #13235f;
+}
+
+.landing {
+  --night: #13235f;
+  --night-deep: #0c1740;
+  --link: #c8cff0;
+  --star: #f6d36b;
+  --lime-shadow: #6ea300;
+  --ease-rise: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ar: 1.5; /* wide art, 2400×1600 */
+  --pesto-x: 57.5%; /* base of Pesto in the art */
+
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  container-type: size;
+  isolation: isolate;
+  background: var(--night);
+  color: var(--color-cream);
+  color-scheme: dark;
+  font-family: var(--font-nunito), ui-rounded, system-ui, sans-serif;
+  /* The font's own line height, not the site's 1.5: the header is sized by it. */
+  line-height: normal;
+
+  & :focus-visible {
+    outline: 3px solid var(--color-cream);
+    outline-offset: 2px;
+  }
+
+  /* ── Scene ─────────────────────────────────────────────────────────────── */
+
+  /* Cover the screen at the art's own ratio. */
+  & .stage {
+    position: absolute;
+    left: 50%;
+    top: calc((100cqh - max(100cqh, calc(100cqw / var(--ar)))) * 0.4);
+    width: max(100cqw, calc(100cqh * var(--ar)));
+    height: max(100cqh, calc(100cqw / var(--ar)));
+    transform: translateX(-50%) scale(1.04);
+    transform-origin: 50% 60%;
+  }
+
+  /* The whole scene as a tiny blurred image, so the first frame is never empty. */
+  & .placeholder {
+    position: absolute;
+    inset: 0;
+    background: var(--placeholder-wide) center / cover no-repeat;
+    filter: blur(14px);
+  }
+
+  & .layer {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+    transform: translate3d(
+      calc(var(--mx, 0) * var(--d) * 1px),
+      calc(var(--my, 0) * var(--d) * 0.6px),
+      0
+    );
+    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  & .layer picture,
+  & .layer img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+  }
+
+  /* --d: parallax depth, px per unit of pointer offset. */
+  & .sky {
+    --d: 0;
+  }
+  & .stars {
+    --d: 6;
+    /* Keeps the moon clear of the header. */
+    top: 52px;
+    bottom: -52px;
+  }
+  & .back {
+    --d: 14;
+  }
+  & .pesto {
+    --d: 22;
+  }
+  & .front {
+    --d: 34;
+  }
+
+  & .stars img {
+    animation: landing-drift 9s ease-in-out infinite alternate;
+  }
+
+  /* Pesto rises out of the meadow, then tilts his head every 6.5s. Every
+     transform pivots on his base, and the hover only grows him from there:
+     never move him up, or the straight cut edge of his layer shows. */
+  & .pesto img {
+    transform-origin: var(--pesto-x) 100%;
+    animation:
+      landing-peek-in 1.6s cubic-bezier(0.2, 0.9, 0.25, 1.15) 0.3s both,
+      landing-tilt 6.5s ease-in-out 2s infinite;
+    transition: scale 0.6s cubic-bezier(0.2, 0.9, 0.25, 1.2);
+  }
+  &:has(.cta:hover, .cta:focus-visible) .pesto img {
+    scale: 1.045;
+  }
+
+  & .front img {
+    transform-origin: 50% 100%;
+    animation: landing-sway 5.5s ease-in-out infinite alternate;
+  }
+  & .back img {
+    transform-origin: 50% 100%;
+    animation: landing-sway 7s ease-in-out -2s infinite alternate-reverse;
+  }
+
+  & .twinkle {
+    position: absolute;
+    width: var(--s, 10px);
+    aspect-ratio: 1;
+    background: var(--star);
+    clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+    filter: drop-shadow(0 0 4px rgb(246 211 107 / 0.55));
+    opacity: 0.25;
+    animation: landing-twinkle var(--t, 4s) ease-in-out var(--delay, 0s) infinite;
+  }
+
+  /* Night band behind the pinned button (tall layout only). */
+  & .shade {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: 1;
+    height: 22%;
+    pointer-events: none;
+    background: linear-gradient(to top, rgb(12 23 64 / 0.78), rgb(12 23 64 / 0));
+  }
+
+  /* ── UI ────────────────────────────────────────────────────────────────── */
+
+  & .ui {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    padding-left: max(24px, env(safe-area-inset-left, 0px));
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
+    padding-block: max(20px, env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-bottom, 0px));
+    pointer-events: none;
+  }
+  & .ui a,
+  & .ui button {
+    pointer-events: auto;
+  }
+
+  & .top {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  & .logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    color: var(--color-cream);
+    text-decoration: none;
+  }
+
+  & .links {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  & .links a {
+    color: var(--link);
+    text-decoration: none;
+  }
+  & .links a:hover,
+  & .links a:focus-visible {
+    color: var(--color-cream);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  & .links a:focus-visible {
+    border-radius: 4px;
+    outline-offset: 4px;
+  }
+  & .links .detail {
+    display: none;
+  }
+
+  & .menu-btn {
+    display: none;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(255 251 235 / 0.12);
+    color: var(--color-cream);
+    cursor: pointer;
+  }
+  & .menu-btn svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  & .copy {
+    margin-top: clamp(28px, 7cqh, 110px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(22px, 4cqh, 36px);
+    text-align: center;
+  }
+
+  & h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(46px, min(8.6cqw, 11.5cqh), 118px);
+    line-height: 0.9;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    color: var(--color-cream);
+    text-shadow:
+      0 2px 0 rgb(0 0 0 / 0.18),
+      0 10px 30px rgb(8 14 45 / 0.45);
+    animation: landing-rise 0.9s var(--ease-rise) both;
+  }
+  & h1 span {
+    display: block;
+  }
+  & h1 .why {
+    color: var(--color-orange);
+  }
+
+  & .cta {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 60px;
+    padding: 0 34px;
+    border-radius: 999px;
+    background: var(--gradient-lime);
+    color: var(--color-forest);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 21px;
+    text-decoration: none;
+    box-shadow:
+      0 4px 0 var(--lime-shadow),
+      0 14px 30px rgb(0 0 0 / 0.3);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+    animation: landing-rise 0.9s var(--ease-rise) 0.15s both;
+  }
+  & .cta:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 6px 0 var(--lime-shadow),
+      0 18px 34px rgb(0 0 0 / 0.32);
+  }
+  & .cta:active {
+    transform: translateY(2px);
+    box-shadow:
+      0 2px 0 var(--lime-shadow),
+      0 8px 20px rgb(0 0 0 / 0.3);
+  }
+  & .cta:focus-visible {
+    outline-offset: 4px;
+  }
+  & .cta svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (min-aspect-ratio: 17/20) {
+  .landing .shade {
+    display: none;
+  }
+}
+
+/* Tall: headline up top, the scene lifted so Pesto sits mid-screen, and a
+   night band at the bottom holding the pinned button (like /apply). */
+@media (max-aspect-ratio: 17/20) {
+  .landing {
+    --ar: 0.6; /* tall art, 1200×2000 */
+    --pesto-x: 52.4%;
+    --band: calc(104px + env(safe-area-inset-bottom, 0px));
+    /* How far the art moves up so its bottom ends just inside the button band.
+       On tall phones the art fits the height; on upright tablets it is wider,
+       so extra sky is cropped from the top. */
+    --lift: calc(max(100cqh, calc(100cqw / var(--ar))) - 100cqh + var(--band) * 0.85);
+
+    & .stage {
+      top: calc(-1 * var(--lift));
+      transform: translateX(-50%) scale(1.015);
+    }
+    & .placeholder {
+      background-image: var(--placeholder-tall);
+    }
+    & .layer.stars {
+      top: calc(var(--lift) + 46px);
+      bottom: calc(-1 * var(--lift) - 46px);
+    }
+    & .shade {
+      height: calc(var(--band) + 110px);
+      background: linear-gradient(
+        to top,
+        var(--night-deep) 0,
+        var(--night-deep) calc(var(--band) * 0.7),
+        rgb(12 23 64 / 0) 100%
+      );
+    }
+    & .copy {
+      display: contents;
+    }
+    & h1 {
+      margin-top: clamp(36px, 8cqh, 100px);
+      align-self: center;
+      text-align: center;
+      font-size: clamp(50px, min(15cqw, 8cqh), 100px);
+    }
+    & .cta {
+      margin-top: auto;
+      margin-bottom: 10px;
+      width: 100%;
+      max-width: 420px;
+      align-self: center;
+    }
+  }
+}
+
+/* Phones: the links fold into a menu. Upright tablets keep them inline. */
+@media (max-aspect-ratio: 17/20) and (max-width: 699px) {
+  .landing {
+    & .menu-btn {
+      display: inline-flex;
+    }
+    & .links {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      z-index: 5;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      box-sizing: content-box;
+      min-width: 220px;
+      padding: 8px;
+      border-radius: 18px;
+      background: rgb(12 23 64 / 0.94);
+      box-shadow:
+        0 16px 40px rgb(0 0 0 / 0.4),
+        inset 0 0 0 1px rgb(255 251 235 / 0.1);
+      font-size: 16px;
+      opacity: 0;
+      transform: translateY(-6px) scale(0.98);
+      transform-origin: top right;
+      visibility: hidden;
+      transition:
+        opacity 0.18s ease,
+        transform 0.18s ease,
+        visibility 0s 0.18s;
+    }
+    & .links a {
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: var(--color-cream);
+      text-decoration: none;
+    }
+    & .links a:hover,
+    & .links a:focus-visible {
+      background: rgb(255 251 235 / 0.08);
+      text-decoration: none;
+    }
+    & .links a:focus-visible {
+      outline-offset: -3px;
+    }
+    & .links .detail {
+      display: block;
+      margin-top: 2px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--link);
+    }
+    & .top.open .links {
+      opacity: 1;
+      transform: none;
+      visibility: visible;
+      transition:
+        opacity 0.18s ease,
+        transform 0.18s ease;
+    }
+  }
+}
+
+/* The still scene: no animation, no parallax, everything in its final place. */
+@media (prefers-reduced-motion: reduce) {
+  .landing {
+    & *,
+    & *::before,
+    & *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    & .layer {
+      transform: none !important;
+    }
+    &:has(.cta:hover, .cta:focus-visible) .pesto img {
+      scale: none;
+    }
+    & .twinkle {
+      opacity: 0.8;
+    }
+  }
+}
+
+@keyframes landing-drift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-0.6%);
+  }
+}
+
+@keyframes landing-peek-in {
+  from {
+    transform: translateY(22%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Head tilt: rotate plus a tiny scale, never a translate. */
+@keyframes landing-tilt {
+  0%,
+  62%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  70%,
+  80% {
+    transform: rotate(-3.5deg) scale(1.02);
+  }
+  90% {
+    transform: rotate(1.2deg) scale(1.005);
+  }
+}
+
+@keyframes landing-sway {
+  from {
+    transform: rotate(-0.5deg);
+  }
+  to {
+    transform: rotate(0.6deg);
+  }
+}
+
+@keyframes landing-twinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.7) rotate(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(20deg);
+  }
+}
+
+@keyframes landing-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
