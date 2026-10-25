@@ -1,6 +1,6 @@
 import { describe, test } from '@e2e-dev/web';
 import { expect } from 'e2e';
-import { DRAFT_KEY, openApply, readStored, runOnlyOn, type StoredDraft } from './support/apply';
+import { DRAFT_KEY, FIRST_TOUCH_KEY, openApply, readStored, runOnlyOn, type StoredDraft } from './support/apply';
 
 // A shared-link visit with made-up values, plus a param /apply must not get.
 const visit = {
@@ -76,6 +76,25 @@ describe('home', () => {
     const draft = await readStored<StoredDraft>(browser, DRAFT_KEY);
     expect(draft!.attribution).toMatchObject(visit);
     expect(draft!.attribution).not.toHaveProperty('step');
+  });
+
+  test('/apply opened later without the query keeps the landing visit as first touch', async ({
+    app,
+    browser,
+    screen,
+  }) => {
+    await runOnlyOn(browser, ['phone-chromium']);
+    await openApply(app, browser, visitPath);
+    // Hydrated: the button has the query, and the visit is saved.
+    await expect(screen.getByRole('link', 'Get in early')).toHaveAttribute('href', applyPath);
+    expect(await readStored(browser, FIRST_TOUCH_KEY)).toMatchObject(visit);
+
+    await app.open('/apply');
+    await expect(screen.getByRole('button', 'Count us in')).toBeVisible();
+    const draft = await readStored<StoredDraft>(browser, DRAFT_KEY);
+    expect(draft).toMatchObject({ sourceType: 'paid', source: 'e2e', campaign: 'e2e_landing' });
+    expect(draft!.attribution).toMatchObject(visit);
+    expect(draft!.attribution!.landing_url).toContain(visitPath);
   });
 
   test('the phone menu opens and closes', async ({ app, browser, screen }) => {

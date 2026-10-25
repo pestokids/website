@@ -5,6 +5,7 @@ import { Header } from "./_components/landing/header";
 import { ParallaxLoader } from "./_components/landing/parallax-loader";
 import { Scene } from "./_components/landing/scene";
 import { StructuredData } from "./_components/landing/structured-data";
+import { LandingVisit } from "./_components/landing/visit";
 import { pageMetadata } from "./_components/page-metadata";
 import "./_components/landing/landing.css";
 
@@ -39,6 +40,7 @@ export default function HomePage() {
         </section>
       </div>
       <ParallaxLoader />
+      <LandingVisit />
       <StructuredData />
     </main>
   );

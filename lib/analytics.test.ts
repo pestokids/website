@@ -43,7 +43,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   sdk.imported.posthog = false;
   sdk.imported.linkrunner = false;
-  vi.stubGlobal("window", {});
+  vi.stubGlobal("window", { location: new URL("https://pestokids.com/") });
 });
 
 afterEach(() => {
@@ -77,7 +77,7 @@ describe("with analytics on", () => {
     sdk.config.analytics = ENABLED;
   });
 
-  it("inits PostHog once, without pageviews or autocapture, masking replay inputs, capturing exceptions", async () => {
+  it("inits PostHog once, without pageviews or autocapture, masking replay inputs, capturing exceptions and web vitals", async () => {
     const a = await freshAnalytics();
     a.initAnalytics();
     a.initAnalytics();
@@ -93,7 +93,22 @@ describe("with analytics on", () => {
       capture_dead_clicks: false,
       session_recording: { maskAllInputs: true },
       capture_exceptions: { capture_unhandled_errors: true, capture_unhandled_rejections: true },
+      capture_performance: { web_vitals: true, web_vitals_allowed_metrics: ["LCP", "CLS", "INP"] },
     });
+  });
+
+  it("loads nothing until initAnalytics (called when the page is idle)", async () => {
+    const a = await freshAnalytics();
+    a.capture("landing_viewed", { layout: "tall" });
+    a.trackConversion("flow_started");
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(sdk.posthog.init).not.toHaveBeenCalled();
+    expect(sdk.posthog.capture).not.toHaveBeenCalled();
+    expect(sdk.lr.track).not.toHaveBeenCalled();
+    a.initAnalytics();
+    await loaded();
+    await vi.waitFor(() => expect(sdk.lr.track).toHaveBeenCalledWith("flow_started", undefined));
+    expect(sdk.posthog.capture.mock.calls[0][0]).toBe("landing_viewed");
   });
 
   it("queues calls made before the SDKs load and replays them in order", async () => {
@@ -102,6 +117,7 @@ describe("with analytics on", () => {
     a.capture("ff_step_viewed", { step: "welcome" });
     a.capture("ff_started", { step: "welcome" });
     expect(sdk.posthog.capture).not.toHaveBeenCalled();
+    a.initAnalytics();
     await loaded();
     await vi.waitFor(() => expect(sdk.posthog.capture).toHaveBeenCalledTimes(2));
 
@@ -109,6 +125,47 @@ describe("with analytics on", () => {
     expect(order(sdk.posthog.init)[0]).toBeLessThan(order(sdk.posthog.register)[0]);
     expect(order(sdk.posthog.register)[0]).toBeLessThan(order(sdk.posthog.capture)[0]);
     expect(sdk.posthog.capture.mock.calls.map((c) => c[0])).toEqual(["ff_step_viewed", "ff_started"]);
+  });
+
+  it("a queued event keeps the page and time it happened on, not those of the replay", async () => {
+    vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-10-25T10:00:00Z") });
+    const a = await freshAnalytics();
+    a.capture("landing_cta_clicked", { location: "hero" }, { transport: "sendBeacon" });
+    // A client-side navigation to /apply, then the page goes idle.
+    vi.stubGlobal("window", { location: new URL("https://pestokids.com/apply?utm_source=test") });
+    vi.setSystemTime(new Date("2026-10-25T10:00:05Z"));
+    a.initAnalytics();
+    await vi.waitFor(() => expect(sdk.posthog.capture).toHaveBeenCalledTimes(1));
+    vi.useRealTimers();
+
+    expect(sdk.posthog.capture).toHaveBeenCalledWith(
+      "landing_cta_clicked",
+      { $current_url: "https://pestokids.com/", $pathname: "/", location: "hero" },
+      { timestamp: new Date("2026-10-25T10:00:00Z"), transport: "sendBeacon" },
+    );
+  });
+
+  it("registers via from the arrival URL before replaying, so every event carries it", async () => {
+    vi.stubGlobal("window", { location: new URL("https://pestokids.com/?via=inv-test&utm_source=x") });
+    const a = await freshAnalytics();
+    a.capture("landing_viewed", {});
+    // The visitor moves on before the SDKs load; via still comes from where they arrived.
+    vi.stubGlobal("window", { location: new URL("https://pestokids.com/privacy") });
+    a.initAnalytics();
+    await vi.waitFor(() => expect(sdk.posthog.capture).toHaveBeenCalled());
+
+    expect(sdk.posthog.register).toHaveBeenCalledTimes(1);
+    expect(sdk.posthog.register).toHaveBeenCalledWith({ via: "inv-test" });
+    expect(sdk.posthog.register.mock.invocationCallOrder[0]).toBeLessThan(
+      sdk.posthog.capture.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("registers nothing without via, so an earlier visit's via is kept", async () => {
+    const a = await freshAnalytics();
+    a.initAnalytics();
+    await loaded();
+    expect(sdk.posthog.register).not.toHaveBeenCalled();
   });
 
   it("captures synchronously once loaded, passing capture options through", async () => {
@@ -142,6 +199,7 @@ describe("with analytics on", () => {
   it("sends Linkrunner conversions", async () => {
     const a = await freshAnalytics();
     a.trackConversion("flow_started");
+    a.initAnalytics();
     await vi.waitFor(() => expect(sdk.lr.track).toHaveBeenCalledWith("flow_started", undefined));
   });
 

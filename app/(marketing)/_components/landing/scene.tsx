@@ -1,12 +1,11 @@
 import type { CSSProperties } from "react";
 import { preload } from "react-dom";
+import { TALL_MEDIA } from "./media";
 import { sceneArt, sceneLayers } from "./scene-art";
 
 type SetName = keyof typeof sceneArt;
 type LayerName = (typeof sceneLayers)[number];
 
-/** Screens at 17:20 or narrower get the tall art; the rest the wide art. */
-export const TALL_MEDIA = "(max-aspect-ratio: 17/20)";
 const WIDE_MEDIA = `not all and ${TALL_MEDIA}`;
 
 /**

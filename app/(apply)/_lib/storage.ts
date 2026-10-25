@@ -3,6 +3,7 @@
  * Every call tolerates storage being unavailable (private modes, in-app
  * browsers with storage blocked): reads return null, writes are dropped.
  */
+import { FIRST_TOUCH_KEY } from "@/lib/first-touch";
 import { sanitizeDraft, sanitizeSubmitted, type Draft, type Submitted } from "./flow";
 
 export const DRAFT_KEY = "pesto_ff_draft_v1";
@@ -49,7 +50,8 @@ export function loadSubmitted(storage = browserStorage()): Submitted | null {
 
 /**
  * Development only (the caller checks NODE_ENV): if the URL has `?reset=1`,
- * clears the draft and the submitted record, then drops the param so a
+ * clears the draft, the submitted record and the saved first touch
+ * (lib/first-touch), then drops the param so a
  * reload doesn't reset again and it isn't captured as the landing URL.
  */
 export function consumeDevReset(storage = browserStorage()) {
@@ -58,6 +60,7 @@ export function consumeDevReset(storage = browserStorage()) {
   try {
     storage?.removeItem(DRAFT_KEY);
     storage?.removeItem(SUBMITTED_KEY);
+    storage?.removeItem(FIRST_TOUCH_KEY);
   } catch {
     // ignore
   }
