@@ -43,7 +43,7 @@ export const confirmationEmail = {
 
 export type DigestCounts = {
   total: number;
-  bySourceType: { paid: number; organic: number; direct: number };
+  bySourceType: { paid: number; organic: number; ai: number; direct: number };
   /** Most first. */
   bySource: { source: string; count: number }[];
 };
@@ -80,6 +80,7 @@ export const digestEmail = {
       ...table([
         ["paid", bySourceType.paid],
         ["organic", bySourceType.organic],
+        ["ai", bySourceType.ai],
         ["direct", bySourceType.direct],
       ]),
       "",

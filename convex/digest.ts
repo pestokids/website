@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { digestEmail, type DigestCounts } from "../content/email";
 import { isValidEmail, normaliseEmail } from "../lib/application";
+import type { SourceType } from "../lib/attribution";
 import { internal } from "./_generated/api";
 import { internalAction, internalQuery } from "./_generated/server";
 import { RESEND_URL } from "./email";
@@ -67,9 +68,9 @@ export function previousDay(now: number): { date: string; start: number; end: nu
 
 /** Totals by sourceType and source. Takes only those two fields, so nothing personal gets in. */
 export function summarize(
-  rows: { sourceType: "paid" | "organic" | "direct"; source: string }[],
+  rows: { sourceType: SourceType; source: string }[],
 ): DigestCounts {
-  const bySourceType = { paid: 0, organic: 0, direct: 0 };
+  const bySourceType = { paid: 0, organic: 0, ai: 0, direct: 0 };
   const bySource = new Map<string, number>();
   for (const { sourceType, source } of rows) {
     bySourceType[sourceType]++;
@@ -86,7 +87,12 @@ export function summarize(
 
 const countsValidator = v.object({
   total: v.number(),
-  bySourceType: v.object({ paid: v.number(), organic: v.number(), direct: v.number() }),
+  bySourceType: v.object({
+    paid: v.number(),
+    organic: v.number(),
+    ai: v.number(),
+    direct: v.number(),
+  }),
   bySource: v.array(v.object({ source: v.string(), count: v.number() })),
 });
 

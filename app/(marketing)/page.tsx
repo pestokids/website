@@ -4,6 +4,7 @@ import { GetInEarly } from "./_components/landing/get-in-early";
 import { Header } from "./_components/landing/header";
 import { ParallaxLoader } from "./_components/landing/parallax-loader";
 import { Scene } from "./_components/landing/scene";
+import { LandingVisit } from "./_components/landing/visit";
 import "./_components/landing/landing.css";
 
 // Prerendered at build time; nothing here may read the request.
@@ -49,6 +50,7 @@ export default function HomePage() {
         </section>
       </div>
       <ParallaxLoader />
+      <LandingVisit />
     </main>
   );
 }

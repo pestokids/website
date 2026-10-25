@@ -27,7 +27,12 @@ export default defineSchema({
     goals: v.array(v.string()), // 1–3 slugs
     afterSchool: v.array(v.string()), // ≥1 slugs
     refCode: v.string(), // unique, used in the WhatsApp prefill
-    sourceType: v.union(v.literal("paid"), v.literal("organic"), v.literal("direct")),
+    sourceType: v.union(
+      v.literal("paid"),
+      v.literal("organic"),
+      v.literal("ai"),
+      v.literal("direct"),
+    ),
     source: v.string(),
     campaign: v.optional(v.string()),
     attribution,

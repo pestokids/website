@@ -70,12 +70,19 @@ export function createDraft(now: number): Draft {
 }
 
 /**
- * Records first-touch attribution on the draft. A no-op if the draft already
- * has one. Kept separate from createDraft so the desktop screen can skip it.
+ * Records first-touch attribution on the draft: the site-wide first touch
+ * (saved by the landing page) if there is one, else this page's URL and
+ * referrer. A no-op if the draft already has one. Kept separate from
+ * createDraft so the desktop screen can skip it.
  */
-export function captureAttribution(draft: Draft, landingUrl: string, referrer: string): Draft {
+export function captureAttribution(
+  draft: Draft,
+  landingUrl: string,
+  referrer: string,
+  firstTouch?: Attribution | null,
+): Draft {
   if (draft.attribution) return draft;
-  const attribution = readAttribution(landingUrl, referrer);
+  const attribution = firstTouch ?? readAttribution(landingUrl, referrer);
   return reducer(draft, {
     type: "setAttribution",
     attribution,
@@ -378,6 +385,7 @@ export function sanitizeDraft(value: unknown): Draft | null {
     if (
       value.sourceType === "paid" ||
       value.sourceType === "organic" ||
+      value.sourceType === "ai" ||
       value.sourceType === "direct"
     ) {
       draft.sourceType = value.sourceType;

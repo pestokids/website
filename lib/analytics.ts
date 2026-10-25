@@ -4,22 +4,46 @@
  * Both SDKs are loaded with `import()` only when NEXT_PUBLIC_ANALYTICS_ENABLED
  * is true, so with it off (local, Preview) no SDK code is fetched and nothing
  * is sent: every function here is a no-op. The same goes for exception
- * capture, which is part of the PostHog init. Calls made before the SDKs finish
- * loading are queued and replayed in order. Analytics never throws into the UI.
+ * capture and web vitals, which are part of the PostHog init.
+ *
+ * Nothing is fetched until initAnalytics(), which the root layout calls once
+ * the page is idle, after first paint. Calls made before the SDKs are ready
+ * are queued and replayed in order; a queued event keeps the page and time it
+ * happened on. Analytics never throws into the UI.
  */
 import type { Linkrunner } from "@linkrunner/web";
 import type { CaptureOptions, PostHog, Properties } from "posthog-js";
 import { config } from "./config";
 
 type Sdks = { posthog: PostHog; lr: Linkrunner };
+type Call = (sdks: Sdks) => void;
 
-let loading: Promise<Sdks> | null = null;
+let started = false;
 let ready: Sdks | null = null;
+let queue: Call[] = [];
+/** `via` on the URL the visitor arrived with, read before any client-side navigation. */
+let entryVia: string | null | undefined;
 
-function load(): Promise<Sdks> | null {
+function active() {
+  return config.analytics.enabled && typeof window !== "undefined";
+}
+
+function readEntry() {
+  entryVia ??= new URLSearchParams(window.location.search).get("via")?.trim() || null;
+}
+
+function safe(fn: Call, sdks: Sdks) {
+  try {
+    fn(sdks);
+  } catch (error) {
+    console.warn("Analytics call failed", error);
+  }
+}
+
+function load() {
   const { analytics } = config;
-  if (!analytics.enabled || typeof window === "undefined") return null;
-  loading ??= Promise.all([import("posthog-js"), import("@linkrunner/web")]).then(
+  if (!analytics.enabled) return;
+  Promise.all([import("posthog-js"), import("@linkrunner/web")]).then(
     ([{ default: posthog }, { lr }]) => {
       posthog.init(analytics.posthogKey, {
         api_host: analytics.posthogHost,
@@ -36,34 +60,47 @@ function load(): Promise<Sdks> | null {
         // Uncaught errors and unhandled rejections go to PostHog error
         // tracking. Console errors stay out: they can echo form values.
         capture_exceptions: { capture_unhandled_errors: true, capture_unhandled_rejections: true },
+        // LCP, CLS and INP from real visitors, as $web_vitals events.
+        capture_performance: { web_vitals: true, web_vitals_allowed_metrics: ["LCP", "CLS", "INP"] },
       });
+      // Investor links carry ?via=inv-<name>. Registered before the queue
+      // replays, so every event has it, the first one too; persisted, so a
+      // later visit without it is still tagged.
+      if (entryVia) posthog.register({ via: entryVia });
       ready = { posthog, lr };
-      return ready;
+      for (const call of queue) safe(call, ready);
+      queue = [];
     },
+    (error) => console.warn("Analytics failed to load", error),
   );
-  return loading;
 }
 
-function run(fn: (sdks: Sdks) => void) {
-  const safe = (sdks: Sdks) => {
-    try {
-      fn(sdks);
-    } catch (error) {
-      console.warn("Analytics call failed", error);
-    }
-  };
+function run(fn: Call) {
   // Synchronous once loaded, so a capture just before a same-tab navigation is queued in time.
-  if (ready) return safe(ready);
-  load()?.then(safe, (error) => console.warn("Analytics failed to load", error));
+  if (ready) return safe(fn, ready);
+  if (!active()) return;
+  readEntry();
+  queue.push(fn);
 }
 
-/** Starts loading the SDKs. Called once from the root layout; safe to call again. */
+/**
+ * Starts loading the SDKs and replays the queue. Called once from the root
+ * layout when the page is idle; safe to call again.
+ */
 export function initAnalytics() {
-  run(() => {});
+  if (started || !active()) return;
+  started = true;
+  readEntry();
+  load();
 }
 
 export function capture(event: string, properties: Properties, options?: CaptureOptions) {
-  run(({ posthog }) => posthog.capture(event, properties, options));
+  if (ready || !active()) return run(({ posthog }) => posthog.capture(event, properties, options));
+  // Queued: replayed later, maybe after a client-side navigation, so keep the
+  // page and time of the call rather than of the replay.
+  const page = { $current_url: window.location.href, $pathname: window.location.pathname };
+  const timestamp = new Date();
+  run(({ posthog }) => posthog.capture(event, { ...page, ...properties }, { timestamp, ...options }));
 }
 
 /** Super properties: added to every later PostHog event, and kept across visits. */
