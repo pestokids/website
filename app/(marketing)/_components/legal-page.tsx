@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { legalPages, type LegalPageName } from "@/content/legal";
 import { renderLegal } from "@/lib/legal";
+import { pageMetadata } from "./page-metadata";
 import "./legal-page.css";
 
 export function legalMetadata(name: LegalPageName): Metadata {
   const { title, description } = legalPages[name];
-  return { title, description, openGraph: { title, description } };
+  return pageMetadata({ title, description, path: `/${name}` });
 }
 
 /**

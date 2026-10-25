@@ -5,17 +5,27 @@
  * Placeholder text until the copy session; the structure stays.
  */
 
+/** The facts every search engine, link preview and AI assistant should agree on. */
+export const brand = {
+  name: "Pesto",
+  /** Also known as. Search should find the site under both names. */
+  alternateName: "Pesto Kids",
+  email: "hello@pestokids.com",
+  instagram: "https://www.instagram.com/pesto.kids",
+};
+
 export const meta = {
   /** Under 60 characters, contains "Pesto". */
-  title: "Pesto · For kids who ask why?",
-  /** Under 155 characters, contains "Pesto Kids". */
+  title: "Pesto Kids · For kids who ask why?",
+  /**
+   * Under 155 characters, contains "Pesto" and "Pesto Kids". Also the one-line
+   * description in the structured data and /llms.txt.
+   */
   description:
-    "Pesto Kids is a warm, beautifully made app for curious kids who ask why. Join the Founding Families waitlist.",
-  url: "https://pestokids.com/",
+    "Pesto, also known as Pesto Kids, is a warm, beautifully made learning app for curious kids aged 3 to 8. Join the Founding Families waitlist.",
   siteName: "Pesto",
-  /** Describes the felt scene, for the share image. The page itself hides the scene from screen readers. */
-  sceneAlt:
-    "Pesto the green parrot peeks out of a felt meadow of flowers under a starry night sky with a crescent moon.",
+  /** Alt text for the share card (scripts/share-art.mjs): the wordmark next to flat Pesto. */
+  shareAlt: "The word “pesto” next to Pesto, a cartoon green parrot with a big orange beak, on dark green.",
 };
 
 /** The h1, one line per entry. The highlight is the last line, in orange. */
@@ -54,13 +64,13 @@ export const header = {
     {
       id: "contact",
       label: "Contact",
-      href: "mailto:hello@pestokids.com",
-      detail: "hello@pestokids.com",
+      href: `mailto:${brand.email}`,
+      detail: brand.email,
     },
     {
       id: "instagram",
       label: "Instagram",
-      href: "https://www.instagram.com/pesto.kids",
+      href: brand.instagram,
       detail: "@pesto.kids",
       external: true,
     },
