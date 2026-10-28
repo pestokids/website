@@ -8,14 +8,13 @@
  *         at the bottom holding the pinned button. Under 700px the links fold into a menu.
  *
  * Everything is scoped under .landing: the stylesheet stays loaded after a
- * client-side navigation to /apply.
+ * client-side navigation, and Next keeps this page in the DOM (hidden) so Back
+ * can restore it. So nothing here may style html or body, not even through
+ * :has(.landing): it would follow the visitor to /privacy, /terms and /apply.
+ * The page is a fixed layer over the viewport instead, so the document has
+ * nothing to scroll and nothing needs locking. The theme colour (page.tsx)
+ * tints the browser's bars.
  */
-
-html:has(.landing) {
-  overflow: hidden;
-  /* --night: shows behind the page while it loads and in overscroll. */
-  background: #13235f;
-}
 
 .landing {
   --night: #13235f;
@@ -27,9 +26,8 @@ html:has(.landing) {
   --ar: 1.5; /* wide art, 2400×1600 */
   --pesto-x: 57.5%; /* base of Pesto in the art */
 
-  position: relative;
-  height: 100vh;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
   container-type: size;
   isolation: isolate;
