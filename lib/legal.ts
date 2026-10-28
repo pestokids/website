@@ -6,9 +6,18 @@ import { LAST_UPDATED, legalPages, type LegalPageName } from "@/content/legal";
 /** An italic paragraph that starts like this is a plain-words summary, not binding text. */
 const NOTE_PREFIX = "What this means";
 
+/** `## Deleting your account {#delete-account}` → an h2 with that id, for links like /privacy#delete-account. */
+const HEADING_ID = /\s*\{#([a-z0-9-]+)\}$/;
+
 const marked = new Marked({
   gfm: true,
   renderer: {
+    heading(token) {
+      const html = this.parser.parseInline(token.tokens);
+      const id = html.match(HEADING_ID)?.[1];
+      if (!id) return false;
+      return `<h${token.depth} id="${id}">${html.replace(HEADING_ID, "")}</h${token.depth}>\n`;
+    },
     paragraph(token) {
       const [only] = token.tokens;
       const isNote = token.tokens.length === 1 && only.type === "em" && only.text.startsWith(NOTE_PREFIX);

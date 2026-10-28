@@ -22,6 +22,7 @@
     line-height: 28px;
     font-weight: 700;
     text-wrap: balance;
+    scroll-margin-top: 24px;
   }
 
   & h1 + p {
