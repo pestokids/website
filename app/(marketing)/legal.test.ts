@@ -35,6 +35,28 @@ it("wraps tables in their own scroll box", () => {
   const html = renderToStaticMarkup(createElement(PrivacyPage));
   const tables = html.match(/<table>/g) ?? [];
   const boxes = html.match(/<div class="legal-table"[^>]*><table>/g) ?? [];
-  expect(tables).toHaveLength(2);
-  expect(boxes).toHaveLength(2);
+  expect(tables).toHaveLength(3);
+  expect(boxes).toHaveLength(3);
+});
+
+describe("deleting an app account", () => {
+  const privacy = renderToStaticMarkup(createElement(PrivacyPage));
+  const terms = renderToStaticMarkup(createElement(TermsPage));
+
+  it("has its own heading at /privacy#delete-account, for Google Play", () => {
+    expect(privacy).toContain('<h2 id="delete-account">8. Deleting your account</h2>');
+    expect(privacy).not.toContain("{#");
+  });
+
+  it("says how, and that it takes 14 days", () => {
+    const section = privacy.slice(privacy.indexOf('id="delete-account"'), privacy.indexOf("<h2>9."));
+    expect(section).toContain("Parents&#39; corner");
+    expect(section).toContain('<a href="mailto:privacy@pestokids.com">privacy@pestokids.com</a>');
+    expect(section).toContain("within 14 days");
+  });
+
+  it("is linked from the short version and from the terms", () => {
+    expect(privacy).toContain('<a href="#delete-account">');
+    expect(terms).toContain('<a href="/privacy#delete-account">');
+  });
 });
