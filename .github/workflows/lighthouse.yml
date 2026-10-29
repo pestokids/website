@@ -1,9 +1,9 @@
 name: lighthouse
 
-# Lighthouse on the pull request's Vercel Preview: /, /privacy, /terms and
-# /apply, mobile and desktop, 3 runs each. The report job comments the medians
-# on the PR and fails it when anything is over budget (budgets in
-# .github/scripts/lighthouse-report.mjs).
+# Lighthouse on the pull request's Vercel Preview: /, /privacy, /terms,
+# /contact and /apply, mobile and desktop, 3 runs each. The report job
+# comments the medians on the PR and fails it when anything is over budget
+# (budgets in .github/scripts/lighthouse-report.mjs).
 
 on:
   pull_request:

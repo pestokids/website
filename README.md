@@ -70,7 +70,7 @@ PREVIEW_URL=https://… VERCEL_AUTOMATION_BYPASS_SECRET=… pnpm test:e2e   # a 
 
 ## Lighthouse
 
-`.github/workflows/lighthouse.yml` runs Lighthouse on every pull request's Vercel Preview: `/`, `/privacy`, `/terms` and `/apply`, mobile and desktop, 3 runs each. It comments the medians on the PR and fails it when a route is over budget. The routes are in `.github/lighthouse-routes.json` and the budgets at the top of `.github/scripts/lighthouse-report.mjs`.
+`.github/workflows/lighthouse.yml` runs Lighthouse on every pull request's Vercel Preview: `/`, `/privacy`, `/terms`, `/contact` and `/apply`, mobile and desktop, 3 runs each. It comments the medians on the PR and fails it when a route is over budget. The routes are in `.github/lighthouse-routes.json` and the budgets at the top of `.github/scripts/lighthouse-report.mjs`.
 
 To run it locally against a production build (`pnpm build && pnpm start`):
 
@@ -87,7 +87,7 @@ node .github/scripts/lighthouse-report.mjs /tmp/lh /tmp/lh/report.md
 ## Layout
 
 ```
-app/(marketing)/        the landing page (/), /privacy and /terms
+app/(marketing)/        the landing page (/), /privacy, /terms and /contact
 app/(apply)/            flow-only layout (theme colour, viewport, soft-wash background)
 app/(apply)/apply/      /apply
 app/(apply)/_components flow UI (shared controls in _components/ui)
