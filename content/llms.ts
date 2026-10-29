@@ -34,9 +34,11 @@ export const llmsTxt = `# ${brand.name} (${brand.alternateName})
 - [Apply](${absoluteUrl("/apply")}): join Founding Families, the private beta
 - [Privacy policy](${absoluteUrl("/privacy")}): what Pesto collects and why, on the site and in the app
 - [Terms of use](${absoluteUrl("/terms")}): the rules for using the site and the app
+- [Contact](${absoluteUrl("/contact")}): how to reach the Pesto team, including app support
 
 ## Contact
 
 - Email: ${brand.email}
+- Contact page: ${absoluteUrl("/contact")}
 - Instagram: ${brand.instagram}
 `;

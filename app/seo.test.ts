@@ -4,8 +4,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { resolveRobots, resolveSitemap } from "next/dist/build/webpack/loaders/metadata/resolve-route-data";
 import sharp from "sharp";
 import { describe, expect, it, vi } from "vitest";
+import { contact } from "@/content/contact";
 import { meta as landing } from "@/content/landing";
 import { shareCard } from "./(marketing)/_components/share-card";
+import { metadata as contactMetadata } from "./(marketing)/contact/page";
 import HomePage, { metadata as homeMetadata } from "./(marketing)/page";
 import { metadata as privacyMetadata } from "./(marketing)/privacy/page";
 import { metadata as termsMetadata } from "./(marketing)/terms/page";
@@ -49,6 +51,7 @@ describe("/sitemap.xml", () => {
       "https://pestokids.com/",
       "https://pestokids.com/privacy",
       "https://pestokids.com/terms",
+      "https://pestokids.com/contact",
     ]);
   });
 });
@@ -79,6 +82,7 @@ describe("/llms.txt", () => {
       "https://pestokids.com/apply",
       "https://pestokids.com/privacy",
       "https://pestokids.com/terms",
+      "https://pestokids.com/contact",
     ]) {
       expect(llmsText).toContain(`](${url})`);
     }
@@ -123,19 +127,26 @@ describe("page metadata", () => {
     { path: "/", metadata: homeMetadata },
     { path: "/privacy", metadata: privacyMetadata },
     { path: "/terms", metadata: termsMetadata },
+    { path: "/contact", metadata: contactMetadata },
   ];
 
   it("gives / the title and description from the copy file", () => {
     expect(homeMetadata).toMatchObject({ title: landing.title, description: landing.description });
   });
 
-  it("gives /privacy and /terms their own titles and descriptions", () => {
+  it("gives /privacy, /terms and /contact their own titles and descriptions", () => {
     const titles = pages.map(({ metadata }) => metadata.title);
     const descriptions = pages.map(({ metadata }) => metadata.description);
-    expect(new Set(titles).size).toBe(3);
-    expect(new Set(descriptions).size).toBe(3);
+    expect(new Set(titles).size).toBe(4);
+    expect(new Set(descriptions).size).toBe(4);
     expect(privacyMetadata.title).toBe("Privacy policy · Pesto");
     expect(termsMetadata.title).toBe("Terms of use · Pesto");
+    expect(contactMetadata.title).toBe("Contact · Pesto");
+  });
+
+  it("keeps /contact's description under 155 characters", () => {
+    expect(contact.description.length).toBeLessThan(155);
+    expect(contactMetadata.description).toBe(contact.description);
   });
 
   it.each(pages)("gives $path a canonical URL and the share card, with its alt text", ({ path, metadata }) => {

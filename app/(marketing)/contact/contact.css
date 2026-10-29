@@ -1,0 +1,208 @@
+/*
+ * /contact: the landing page's night sky (colours, fonts, stars, the lime
+ * button) without the art layers. One column, centred, scrolling like any
+ * page when the screen is short.
+ *
+ * Everything is scoped under .contact: the stylesheet stays loaded after a
+ * client-side navigation, so nothing here may style html or body.
+ */
+
+.contact {
+  /* The landing page's night (landing.css). */
+  --night: #13235f;
+  --night-deep: #0c1740;
+  --link: #c8cff0;
+  --star: #f6d36b;
+  --lime-shadow: #6ea300;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+  padding-block: max(20px, env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-bottom, 0px));
+  /* A felt moon glowing top right, over the night fading deeper to the ground. */
+  background:
+    radial-gradient(circle at 84% 14%, #f8e7a6 0 30px, rgb(246 211 107 / 0.16) 31px, rgb(246 211 107 / 0) 120px),
+    linear-gradient(to bottom, var(--night) 40%, var(--night-deep));
+  color: var(--color-cream);
+  color-scheme: dark;
+  font-family: var(--font-nunito), ui-rounded, system-ui, sans-serif;
+  line-height: normal;
+
+  & :focus-visible {
+    outline: 3px solid var(--color-cream);
+    outline-offset: 2px;
+  }
+
+  /* ── Sky ───────────────────────────────────────────────────────────────── */
+
+  & .sky {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  & .twinkle {
+    position: absolute;
+    width: var(--s, 10px);
+    aspect-ratio: 1;
+    background: var(--star);
+    clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+    filter: drop-shadow(0 0 4px rgb(246 211 107 / 0.55));
+    opacity: 0.25;
+    animation: contact-twinkle var(--t, 4s) ease-in-out var(--delay, 0s) infinite;
+  }
+
+  /* ── Page ──────────────────────────────────────────────────────────────── */
+
+  & .logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    color: var(--color-cream);
+    text-decoration: none;
+  }
+  & .logo:focus-visible {
+    border-radius: 4px;
+    outline-offset: 4px;
+  }
+
+  & .copy {
+    margin-block: auto;
+    padding-block: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  & h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(46px, 11vw, 84px);
+    line-height: 0.95;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    text-shadow:
+      0 2px 0 rgb(0 0 0 / 0.18),
+      0 10px 30px rgb(8 14 45 / 0.45);
+  }
+
+  & .cta {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: clamp(28px, 5vh, 40px);
+    width: 100%;
+    max-width: 360px;
+    min-height: 64px;
+    padding: 0 34px;
+    border-radius: 999px;
+    background: var(--gradient-lime);
+    color: var(--color-forest);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 22px;
+    text-decoration: none;
+    box-shadow:
+      0 4px 0 var(--lime-shadow),
+      0 14px 30px rgb(0 0 0 / 0.3);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  & .cta:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 6px 0 var(--lime-shadow),
+      0 18px 34px rgb(0 0 0 / 0.32);
+  }
+  & .cta:active {
+    transform: translateY(2px);
+    box-shadow:
+      0 2px 0 var(--lime-shadow),
+      0 8px 20px rgb(0 0 0 / 0.3);
+  }
+  & .cta:focus-visible {
+    outline-offset: 4px;
+  }
+  & .cta svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  & .address {
+    margin: 18px 0 0;
+    font-size: 18px;
+    font-weight: 700;
+    /* Easy to copy when there's no mail app. */
+    user-select: all;
+    overflow-wrap: anywhere;
+  }
+
+  & .reply {
+    margin: 10px 0 0;
+    font-size: 16px;
+    color: var(--link);
+  }
+
+  & .links {
+    display: flex;
+    justify-content: center;
+    gap: 8px 16px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  & .links a {
+    padding: 8px 6px;
+    color: var(--link);
+    text-decoration: none;
+  }
+  & .links a:hover,
+  & .links a:focus-visible {
+    color: var(--color-cream);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  & .links a:focus-visible {
+    border-radius: 4px;
+    outline-offset: 0;
+  }
+}
+
+/* Still: no twinkling. */
+@media (prefers-reduced-motion: reduce) {
+  .contact {
+    & *,
+    & *::before,
+    & *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    & .twinkle {
+      opacity: 0.8;
+    }
+  }
+}
+
+@keyframes contact-twinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.7) rotate(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(20deg);
+  }
+}
+

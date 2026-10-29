@@ -7,7 +7,7 @@
 export const SITE_URL = "https://pestokids.com";
 
 /** In sitemap.xml, in this order. Add /team and /faq when they ship. */
-export const INDEXED_ROUTES = ["/", "/privacy", "/terms"] as const;
+export const INDEXED_ROUTES = ["/", "/privacy", "/terms", "/contact"] as const;
 
 /** `/privacy` → `https://pestokids.com/privacy`, `/` → `https://pestokids.com/`. */
 export function absoluteUrl(route: string): string {
