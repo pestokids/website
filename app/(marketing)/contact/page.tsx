@@ -1,6 +1,5 @@
 import type { CSSProperties } from "react";
 import type { Viewport } from "next";
-import Link from "next/link";
 import { contact } from "@/content/contact";
 import { logo } from "@/content/landing";
 import { pageMetadata } from "../_components/page-metadata";
@@ -32,7 +31,8 @@ const TWINKLES = [
 /**
  * /contact: the support URL for the app stores. The landing page's night sky
  * without the art, one button that opens an email, and the address in plain
- * text for devices with no mail app.
+ * text for devices with no mail app. Plain links, not next/link: the page
+ * ships no navigation code of its own.
  */
 export default function ContactPage() {
   return (
@@ -55,9 +55,9 @@ export default function ContactPage() {
         ))}
       </div>
       <header>
-        <Link className="logo" href={logo.href}>
+        <a className="logo" href={logo.href}>
           {logo.text}
-        </Link>
+        </a>
       </header>
       <section className="copy">
         <h1>{contact.heading}</h1>
@@ -81,9 +81,9 @@ export default function ContactPage() {
       </section>
       <nav className="links" aria-label={contact.linksLabel}>
         {contact.links.map((link) => (
-          <Link key={link.href} href={link.href}>
+          <a key={link.href} href={link.href}>
             {link.label}
-          </Link>
+          </a>
         ))}
       </nav>
     </main>
