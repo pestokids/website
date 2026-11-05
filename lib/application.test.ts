@@ -114,6 +114,33 @@ describe("validateApplication", () => {
     expect(withInput({ afterSchool: ["mostly_school"] })).toMatchObject({ ok: true });
   });
 
+  it("offers the app's options and still accepts the retired ones", () => {
+    // The options the app offers (pestokids/app TOPICS and AFTER_SCHOOL).
+    expect(withInput({ goals: ["space", "art", "animals"] })).toMatchObject({ ok: true });
+    expect(withInput({ goals: ["our_stories", "new_words"] })).toMatchObject({ ok: true });
+    expect(
+      withInput({ afterSchool: ["culture_classes", "playing_outside", "learning_apps"] }),
+    ).toMatchObject({ ok: true });
+
+    // No longer offered, but saved drafts and applications may hold them.
+    for (const goal of ["being_kind", "the_world", "making_things"]) {
+      expect(withInput({ goals: [goal] })).toMatchObject({ ok: true, value: { goals: [goal] } });
+    }
+    expect(withInput({ goals: ["being_kind", "space", "the_world"] })).toMatchObject({ ok: true });
+    expect(withInput({ afterSchool: ["bal_vihar"] })).toMatchObject({
+      ok: true,
+      value: { afterSchool: ["bal_vihar"] },
+    });
+    expect(withInput({ afterSchool: ["bal_vihar", "tutors"] })).toMatchObject({ ok: true });
+
+    // The usual rules still apply to them.
+    expect(withInput({ goals: ["the_world", "the_world"] })).toMatchObject({ ok: false });
+    expect(withInput({ afterSchool: ["bal_vihar", "mostly_school"] })).toMatchObject({
+      ok: false,
+      field: "afterSchool",
+    });
+  });
+
   it("rejects 'mostly just school' combined with other options", () => {
     for (const afterSchool of [["mostly_school", "tutors"], ["tutors", "mostly_school"]]) {
       expect(withInput({ afterSchool })).toEqual({

@@ -32,19 +32,19 @@ test('reload resumes mid-flow; after submit the form stays closed', async ({
 
   // Goals, half answered, then a reload: same step, same picks.
   await agent.act('drop {first} and {second} into the sentence', {
-    params: { first: 'being kind', second: 'the world' },
+    params: { first: 'space', second: 'animals' },
   });
   await expect(screen.getByText('2 OF 3')).toBeVisible();
   await browser.reload();
   await expect(browser).toHaveURL(/\/apply\?step=goals$/);
   await expect(screen.getByRole('heading', `I want ${KID_A} to fall in love with…`)).toBeVisible();
-  await expect(screen.getByRole('button', 'being kind')).toHaveAttribute('aria-pressed', 'true');
-  await expect(screen.getByRole('button', 'the world')).toHaveAttribute('aria-pressed', 'true');
+  await expect(screen.getByRole('button', 'space')).toHaveAttribute('aria-pressed', 'true');
+  await expect(screen.getByRole('button', 'animals')).toHaveAttribute('aria-pressed', 'true');
   await expect(screen.getByText('2 OF 3')).toBeVisible();
 
   const draft = await readStored<StoredDraft>(browser, DRAFT_KEY);
   expect(draft).toMatchObject({ step: 'goals', kids: [{ name: KID_A, age: '6' }] });
-  expect([...draft!.goals].sort()).toEqual(['being_kind', 'the_world']);
+  expect([...draft!.goals].sort()).toEqual(['animals', 'space']);
 
   // The browser back button walks the flow too.
   await browser.back();

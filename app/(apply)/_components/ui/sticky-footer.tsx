@@ -38,7 +38,7 @@ export function StickyFooter({
       style={{ "--keyboard-inset": `${inset}px` } as CSSProperties}
       className={`sticky bottom-[max(var(--keyboard-inset),env(safe-area-inset-bottom))] z-10 flex flex-col gap-3 ${
         placement === "end"
-          ? "mt-auto mb-[var(--footer-lift,0px)] bg-linear-to-t from-cream/85 from-40% to-transparent pt-6 pb-6 data-[keyboard=open]:mb-0 data-[keyboard=open]:pb-3"
+          ? "mt-auto mb-[var(--footer-lift,0px)] bg-linear-to-t from-white from-60% to-white/0 pt-5 pb-6 min-[600px]:from-cream/85 min-[600px]:from-40% min-[600px]:to-transparent data-[keyboard=open]:mb-0 data-[keyboard=open]:pb-3"
           : "py-3"
       } ${className}`}
     >

@@ -20,7 +20,7 @@ import {
 } from "@/content/apply";
 import {
   PrimaryButton,
-  RoundSubmitButton,
+  SubmitButton,
   SecondaryButton,
 } from "../../_components/ui/button";
 import { AgeTile, Chip, SuggestionChip } from "../../_components/ui/chip";
@@ -157,9 +157,11 @@ function RoundSubmitDemo() {
 
   return (
     <div className="flex items-center gap-4">
-      <RoundSubmitButton aria-label={email.submitLabel} busy={busy} onClick={submit} />
-      <RoundSubmitButton aria-label={email.submitLabel} disabled />
-      <RoundSubmitButton aria-label={email.submitLabel} busy />
+      <SubmitButton busy={busy} onClick={submit}>
+        {email.submitLabel}
+      </SubmitButton>
+      <SubmitButton disabled>{email.submitLabel}</SubmitButton>
+      <SubmitButton busy>{email.submitLabel}</SubmitButton>
       <p className="text-[13px] text-muted">Submits: {count}</p>
     </div>
   );
@@ -196,7 +198,7 @@ function AgeDemo() {
   return (
     <div role="group" aria-label={ages.question("Meera")} className="grid grid-cols-3 gap-3">
       {ageOptions.map((a) => (
-        <AgeTile key={a} unit={ages.unit} pressed={age === a} onClick={() => setAge(a)}>
+        <AgeTile key={a} unit={ages.unit} color="#13235f" pressed={age === a} onClick={() => setAge(a)}>
           {a}
         </AgeTile>
       ))}

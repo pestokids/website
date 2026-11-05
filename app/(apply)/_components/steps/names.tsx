@@ -1,17 +1,38 @@
 "use client";
 
-import { useRef, useState, type MouseEvent } from "react";
-import { errors, names as copy } from "@/content/apply";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { errors, names as copy, pesto as lines, pestoCheckInLine } from "@/content/apply";
 import { checkName } from "@/lib/name-check";
 import { validateName, type Kid } from "../../_lib/flow";
 import { useFlow } from "../apply-flow";
-import { Headline } from "../placeholder";
+import { PestoSays } from "../pesto/pesto";
+import { useIdleCheckIn } from "../pesto/use-idle-check-in";
+import { usePesto, type PestoController } from "../pesto/use-pesto";
+import { QuestionScreen } from "../step-screen";
 import { PrimaryButton, SecondaryButton } from "../ui/button";
 import { SuggestionChip } from "../ui/chip";
 import { CheckIcon, CloseIcon } from "../ui/icons";
-import { StepScreen } from "../step-screen";
-import { StickyFooter } from "../ui/sticky-footer";
 import { TextField } from "../ui/text-field";
+
+/** How long typing has to pause before Pesto reads the name back. */
+const READ_BACK_MS = 800;
+
+let measure: CanvasRenderingContext2D | null | undefined;
+
+/** Points Pesto's eyes at the text cursor in `input`. */
+function followCaret(pesto: PestoController, input: HTMLInputElement) {
+  measure ??= document.createElement("canvas").getContext("2d");
+  if (!measure) return;
+  const cs = getComputedStyle(input);
+  measure.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const caret = input.selectionStart ?? input.value.length;
+  const x = Math.min(
+    input.clientWidth - 8,
+    parseFloat(cs.paddingLeft) + measure.measureText(input.value.slice(0, caret)).width,
+  );
+  const r = input.getBoundingClientRect();
+  pesto.lookAtPoint(r.left + x, r.top + r.height / 2);
+}
 
 const errorCopy = {
   invalid: errors.nameInvalid,
@@ -69,6 +90,27 @@ export function NamesStep() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Pesto: says hello, watches the cursor and reads a name back after a pause.
+  const pesto = usePesto();
+  useIdleCheckIn(pesto, pestoCheckInLine("names"));
+  useEffect(() => {
+    pesto.say(lines.names.intro);
+  }, [pesto]);
+  const readBack = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const lastHeard = useRef("");
+  useEffect(() => () => clearTimeout(readBack.current), []);
+  const watch = (input: HTMLInputElement) => {
+    followCaret(pesto, input);
+    clearTimeout(readBack.current);
+    readBack.current = setTimeout(() => {
+      const heard = validateName(input.value, mode === "second" ? [kids[0].name] : []);
+      if (heard.ok && [...heard.name].length >= 2 && heard.name !== lastHeard.current) {
+        lastHeard.current = heard.name;
+        pesto.say(lines.names.heard(heard.name));
+      }
+    }, READ_BACK_MS);
+  };
+
   const next = () => {
     if (!canNext) return;
     if (mode === "review" || secondEmpty) advance();
@@ -102,38 +144,64 @@ export function NamesStep() {
     setMode("first");
   };
 
-  return (
-    <StepScreen
-      name="names"
-      footer={mode === "review" && <PrimaryButton onClick={next}>{copy.next}</PrimaryButton>}
-    >
-      <Headline lines={copy.headline} />
+  const actions =
+    mode === "review" ? (
+      <PrimaryButton onClick={next}>{copy.next}</PrimaryButton>
+    ) : (
+      <div className="flex gap-3">
+        {mode === "first" && (
+          <SecondaryButton className="w-auto" onMouseDown={keepFocus} onClick={addAnother}>
+            {copy.addAnother}
+          </SecondaryButton>
+        )}
+        <PrimaryButton
+          className="min-w-0 flex-1"
+          disabled={!canNext}
+          onMouseDown={keepFocus}
+          onClick={next}
+        >
+          {copy.next}
+        </PrimaryButton>
+      </div>
+    );
 
+  return (
+    <QuestionScreen
+      name="names"
+      says={<PestoSays pesto={pesto} />}
+      question={copy.headline.join(" ")}
+      sub={copy.sub}
+      footer={actions}
+    >
       {mode === "review" ? (
         <ReviewList kids={kids} onRemove={remove} />
       ) : (
         <>
           {mode === "second" && (
-            <p className="mt-5 flex">
-              <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-lime-deep bg-lime/20 pr-3.5 pl-2.5 text-[16px] font-medium">
-                <CheckIcon size={15} />
+            <p className="mb-3 flex">
+              <span className="inline-flex h-9 items-center gap-1.5 rounded-full border-2 border-day-lime-edge bg-day-tint pr-3.5 pl-2.5 text-[15px] font-extrabold">
+                <CheckIcon size={14} />
                 {kids[0].name}
               </span>
             </p>
           )}
           <TextField
             ref={inputRef}
-            className={mode === "second" ? "mt-3.5" : "mt-6"}
             label={mode === "first" ? copy.labelFirst : copy.labelSecond}
             value={input}
             onChange={(e) => {
               setInput(e.target.value);
               // Editing dismisses the nudge; a different name gets its own on Next.
               setNudge(null);
+              watch(e.target);
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter") next();
             }}
+            onKeyUp={(e) => followCaret(pesto, e.currentTarget)}
+            onClick={(e) => followCaret(pesto, e.currentTarget)}
+            onFocus={(e) => followCaret(pesto, e.currentTarget)}
+            onBlur={() => pesto.later(() => pesto.look(0, 0), 300)}
             onClear={() => {
               setInput("");
               setNudge(null);
@@ -160,30 +228,13 @@ export function NamesStep() {
             enterKeyHint="next"
             autoFocus
           />
-          <StickyFooter placement="inline" className="mt-2.5">
-            <div className="flex justify-between gap-3">
-              {mode === "first" && (
-                <SecondaryButton className="w-auto" onMouseDown={keepFocus} onClick={addAnother}>
-                  {copy.addAnother}
-                </SecondaryButton>
-              )}
-              <PrimaryButton
-                className={mode === "first" ? "w-[120px]" : "w-full"}
-                disabled={!canNext}
-                onMouseDown={keepFocus}
-                onClick={next}
-              >
-                {copy.next}
-              </PrimaryButton>
-            </div>
-          </StickyFooter>
         </>
       )}
-    </StepScreen>
+    </QuestionScreen>
   );
 }
 
-const avatarTints = ["bg-lime/20", "bg-orange/15"] as const;
+const avatarTints = ["bg-day-tint", "bg-day-peach"] as const;
 
 /** First letter as the user sees it (one grapheme, so accents and matras stay whole). */
 function initial(name: string): string {
@@ -193,13 +244,13 @@ function initial(name: string): string {
 
 function ReviewList({ kids, onRemove }: { kids: Kid[]; onRemove: (index: number) => void }) {
   return (
-    <div className="mt-6 flex flex-col gap-1.5">
-      <h2 className="text-sm leading-[18px] font-semibold">{copy.reviewLabel}</h2>
+    <div className="mt-1 flex flex-col gap-1.5">
+      <h2 className="text-[13px] leading-[18px] font-extrabold text-day-sub">{copy.reviewLabel}</h2>
       <ul className="flex flex-col gap-3">
         {kids.map((kid, i) => (
           <li
             key={kid.name}
-            className="flex h-14 items-center gap-3 rounded-field border-[1.5px] border-field-rest bg-white pl-3.5"
+            className="flex h-14 items-center gap-3 rounded-[13px] border-2 border-day-border bg-white pl-3 shadow-[0_3px_0_var(--color-day-border)]"
           >
             <span
               aria-hidden="true"
@@ -207,21 +258,21 @@ function ReviewList({ kids, onRemove }: { kids: Kid[]; onRemove: (index: number)
             >
               {initial(kid.name)}
             </span>
-            <span className="min-w-0 flex-1 truncate text-lg leading-6 font-medium">{kid.name}</span>
+            <span className="min-w-0 flex-1 truncate text-lg leading-6 font-bold">{kid.name}</span>
             <button
               type="button"
               aria-label={copy.remove(kid.name)}
               onClick={() => onRemove(i)}
               className="mr-1.5 grid size-11 shrink-0 place-items-center rounded-full"
             >
-              <span className="grid size-6 place-items-center rounded-full bg-forest/8">
+              <span className="grid size-6 place-items-center rounded-full bg-day-tile">
                 <CloseIcon size={12} strokeWidth={2.4} />
               </span>
             </button>
           </li>
         ))}
       </ul>
-      <p className="mt-5 text-[13px] leading-[18px] text-muted">{copy.capNote}</p>
+      <p className="mt-4 text-[13px] leading-[18px] text-day-sub">{copy.capNote}</p>
     </div>
   );
 }

@@ -80,7 +80,7 @@ test('desktop: continue on your phone', { tags: ['smoke'] }, async ({ app, brows
 test('fold: the 984px-wide screen gets the flow', { tags: ['smoke'] }, async ({ app, browser, screen }) => {
   await runOnlyOn(browser, ['fold']);
   await openApply(app, browser, visitPath);
-  await expect(screen.getByRole('heading', 'For kids who ask why?')).toBeVisible();
+  await expect(screen.getByRole('heading', 'Interactive storybook for young kids')).toBeVisible();
   await expect(screen.getByRole('button', 'Count us in')).toBeVisible();
   await expect(screen.getByRole('heading', 'Let’s continue on your phone.')).toHaveCount(0);
 });

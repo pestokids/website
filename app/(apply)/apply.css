@@ -1,0 +1,607 @@
+/*
+ * Styles for the /apply flow that Tailwind classes can't express: Pesto's rig
+ * (pz-*, driven by _components/pesto/use-pesto.ts) and the screens' motion
+ * (day-*). Loaded by the (apply) layout only. Class names live in
+ * _components/classes.ts. Everything that moves is off under reduced motion.
+ */
+
+/* A layer, so Tailwind utilities on the same elements (position, size) win. */
+@layer components {
+  /*
+   * Pesto's rig: plain CSS transforms on the parts of the inlined SVG
+   * (pesto-svg.ts), matched by their class (.gaze, .jaw, …). The controller
+   * (use-pesto.ts) toggles the state classes. Under reduced motion nothing
+   * loops; states still change, without motion.
+   */
+
+  .pz-face {
+    position: relative;
+    display: block;
+    flex: none;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--color-forest);
+    box-shadow:
+      0 0 0 3px #fff,
+      0 4px 0 3px var(--color-day-border);
+  }
+
+  .pz-face svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .pz-face :is([class~="lid-top"], [class~="lid-bot"], [class~="cheek"], [class~="jaw"], [class~="gaze"], [class~="brow"]) {
+    transform-box: fill-box;
+    transition: transform 0.14s ease-out;
+  }
+  .pz-face [class~="lid-top"] {
+    transform-origin: 50% 0%;
+    transform: scaleY(0);
+  }
+  .pz-face :is([class~="lid-bot"], [class~="cheek"]) {
+    transform-origin: 50% 100%;
+    transform: scaleY(0);
+  }
+  .pz-face [class~="cheek"] {
+    transition-duration: 0.25s;
+  }
+  .pz-face [class~="jaw"] {
+    transform-origin: 0% 0%;
+  }
+  .pz-face [class~="gaze"] {
+    transition: transform 0.22s cubic-bezier(0.3, 0.7, 0.3, 1);
+  }
+
+  .pz-blink :is([class~="lid-top"], [class~="lid-bot"]),
+  .pz-wink [class~="eye-near"] :is([class~="lid-top"], [class~="lid-bot"]) {
+    transform: scaleY(1);
+    transition-duration: 0.07s;
+  }
+  .pz-happy [class~="cheek"] {
+    transform: scaleY(1);
+  }
+  .pz-surprised [class~="brow"] {
+    transform: translateY(-64px);
+  }
+  .pz-puzzled [class~="brow-left"] {
+    transform: translateY(-80px) rotate(-10deg);
+  }
+  .pz-puzzled [class~="brow-right"] {
+    transform: translateY(26px) rotate(8deg);
+  }
+  .pz-talking [class~="jaw"] {
+    animation: pz-talk 0.19s ease-in-out infinite alternate;
+  }
+  @keyframes pz-talk {
+    from {
+      transform: rotate(-5deg);
+    }
+    to {
+      transform: rotate(10deg);
+    }
+  }
+
+  /* The holder carries whole-body moves: lean, tilt, pz-hop, breathing, check-in. */
+  .pz-holder {
+    position: relative;
+    flex: none;
+    transition: transform 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .pz-lean {
+    transform: translate(6px, 6px) rotate(7deg) scale(1.08);
+  }
+  .pz-tilt {
+    transform: rotate(-12deg);
+  }
+  .pz-bob {
+    animation: pz-bob 3s ease-in-out infinite;
+  }
+  @keyframes pz-bob {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-1.5deg);
+    }
+    50% {
+      transform: translateY(-6px) rotate(1.5deg);
+    }
+  }
+  .pz-hop {
+    animation: pz-hop 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+  }
+  @keyframes pz-hop {
+    40% {
+      transform: translateY(-16px) scale(1.04);
+    }
+    100% {
+      transform: none;
+    }
+  }
+  .pz-checkin {
+    animation: pz-checkin 1.3s ease-in-out;
+  }
+  @keyframes pz-checkin {
+    15%,
+    70% {
+      transform: rotate(-12deg) translateY(-2px);
+    }
+    100% {
+      transform: none;
+    }
+  }
+  .pz-pop-in {
+    animation: pz-pop-in 0.7s cubic-bezier(0.3, 1.6, 0.45, 1) both;
+  }
+  @keyframes pz-pop-in {
+    from {
+      transform: scale(0.3);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  /* Thumbs-up and "?" badges on the holder. */
+  .pz-badge {
+    position: absolute;
+    z-index: 2;
+    transform: scale(0);
+    transition: transform 0.3s cubic-bezier(0.3, 1.8, 0.5, 1);
+    pointer-events: none;
+  }
+  .pz-thumb {
+    right: -8px;
+    bottom: -6px;
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-day-lime-deep);
+    box-shadow: 0 0 0 3px #fff;
+  }
+  .pz-thumb svg {
+    width: 16px;
+    height: 16px;
+  }
+  .pz-qmark {
+    top: -10px;
+    right: -6px;
+    font: 800 22px/1 var(--font-display);
+    color: var(--color-orange);
+  }
+  .pz-thumbs-up .pz-thumb {
+    transform: scale(1) rotate(-8deg);
+  }
+  .pz-puzzled-holder .pz-qmark {
+    transform: scale(1) rotate(12deg);
+  }
+
+  /* Tappable Pesto (welcome, received): a round button with a visible focus ring. */
+  .pz-tap {
+    display: block;
+    border-radius: 50%;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pz-tap:focus-visible {
+    outline: 3px solid var(--color-forest);
+    outline-offset: 6px;
+  }
+
+  /* ── Speech bubbles ──────────────────────────────────────────────────────── */
+
+  .pz-bubble {
+    position: relative;
+    border-radius: 14px;
+    padding: 9px 13px;
+    font: 800 14px/1.3 var(--font-nunito), system-ui, sans-serif;
+    overflow-wrap: anywhere;
+  }
+  .pz-bubble::after {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background: inherit;
+    content: "";
+    transform: rotate(45deg);
+  }
+  .pz-pop {
+    animation: pz-bubble-pop 0.3s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  @keyframes pz-bubble-pop {
+    from {
+      transform: scale(0.94);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  /* Beside Pesto, tail on the left (question screens). */
+  .pz-side {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    background: var(--color-day-bubble);
+    color: var(--color-forest);
+  }
+  .pz-side::after {
+    top: calc(50% - 6px);
+    left: -5px;
+  }
+
+  /* Dark bubbles that come and go (welcome, received, how, why). */
+  .pz-dark {
+    background: var(--color-forest);
+    color: #fff;
+    opacity: 0;
+    transform: translateY(6px) scale(0.9);
+    transition:
+      opacity 0.18s,
+      transform 0.22s cubic-bezier(0.3, 1.6, 0.5, 1);
+    pointer-events: none;
+  }
+  .pz-dark.pz-shown {
+    opacity: 1;
+    transform: none;
+  }
+  .pz-tail-down::after {
+    bottom: -5px;
+    left: calc(50% - 6px);
+  }
+  .pz-tail-down-left::after {
+    bottom: -5px;
+    left: 14px;
+  }
+  .pz-tail-down-right::after {
+    right: 14px;
+    bottom: -5px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pz-bob,
+    .pz-hop,
+    .pz-checkin,
+    .pz-pop-in,
+    .pz-pop {
+      animation: none !important;
+    }
+    .pz-talking [class~="jaw"] {
+      animation: none;
+    }
+    .pz-holder,
+    .pz-dark,
+    .pz-badge {
+      transition: none;
+    }
+  }
+
+  /*
+   * Motion for the screens. Plain CSS keyframes, restarted from handlers with
+   * replayClass() (ui/replay.ts). All of it is off under reduced motion (the
+   * end of this section).
+   */
+
+  /* ── Screen entrance ─────────────────────────────────────────────────────── */
+  .day-enter {
+    animation: day-enter 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  @keyframes day-enter {
+    from {
+      opacity: 0;
+      transform: translateX(28px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ── Tiles ───────────────────────────────────────────────────────────────── */
+  .day-squish {
+    animation: day-squish 0.38s cubic-bezier(0.3, 1.5, 0.5, 1);
+  }
+  @keyframes day-squish {
+    0% {
+      transform: scale(0.9, 0.86);
+    }
+    55% {
+      transform: scale(1.04, 1.06);
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  /* A cleared pick wiggling away ("Mostly just school"). */
+  .day-out {
+    animation: day-out 0.35s ease-in both;
+  }
+  @keyframes day-out {
+    30% {
+      transform: translateX(-4px) rotate(-2deg);
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  /* A goal dropping into the sentence. */
+  .day-drop {
+    animation: day-drop 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  @keyframes day-drop {
+    from {
+      opacity: 0;
+      transform: translateY(-26px) scale(0.6);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* The check badge on a picked tile pops in. */
+  .day-check {
+    transform: scale(0);
+    transition: transform 0.28s cubic-bezier(0.3, 1.9, 0.5, 1);
+  }
+  [aria-pressed="true"] > .day-check {
+    transform: scale(1);
+  }
+
+  /* ── The marker behind "storybook" and kids' names ───────────────────────── */
+  /*
+   * Drawn as backgrounds on the name itself (no extra node or pseudo-element,
+   * which would put a space in the heading's accessible name): a rounded cap
+   * at each end and a band between them that grows with --day-sweep (0 → 1).
+   * 4px wider than the word on each side, on the lower 42%, 6px corners.
+   */
+  .day-marker {
+    --day-ink: var(--color-day-highlight);
+    --day-cap: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 12' preserveAspectRatio='none'%3E%3Cpath d='M6 0H6A6 6 0 0 0 0 6v0a6 6 0 0 0 6 6Z' fill='%23d9f78a'/%3E%3C/svg%3E");
+    --day-cap-end: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 12' preserveAspectRatio='none'%3E%3Cpath d='M0 0A6 6 0 0 1 6 6v0a6 6 0 0 1-6 6Z' fill='%23d9f78a'/%3E%3C/svg%3E");
+    margin-inline: -4px;
+    padding-inline: 4px;
+    white-space: nowrap;
+    background-image: var(--day-cap), linear-gradient(var(--day-ink), var(--day-ink)), var(--day-cap-end);
+    background-repeat: no-repeat;
+    background-position:
+      left 0 bottom 3px,
+      left 6px bottom 3px,
+      left calc(6px + var(--day-sweep) * (100% - 6px)) bottom 3px;
+    background-size:
+      6px 42%,
+      calc(var(--day-sweep) * (100% - 12px)) 42%,
+      6px 42%;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    animation: day-sweep 0.55s var(--marker-delay, 0.35s) cubic-bezier(0.6, 0, 0.2, 1) both;
+  }
+  @keyframes day-sweep {
+    from {
+      --day-sweep: 0;
+    }
+    to {
+      --day-sweep: 1;
+    }
+  }
+
+  /* ── Welcome ─────────────────────────────────────────────────────────────── */
+  .day-float {
+    animation: day-float 4s ease-in-out infinite;
+  }
+  @keyframes day-float {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -7px;
+    }
+  }
+  .day-twinkle {
+    animation: day-twinkle 2.4s ease-in-out infinite;
+  }
+  @keyframes day-twinkle {
+    0%,
+    100% {
+      transform: scale(1) rotate(0);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(0.4) rotate(45deg);
+      opacity: 0.5;
+    }
+  }
+  /* The "25 spots left" tile: a small day-wiggle every few seconds. */
+  .day-nudge {
+    animation: day-nudge 3.2s 1.4s ease-in-out infinite;
+  }
+  @keyframes day-nudge {
+    0%,
+    86%,
+    100% {
+      transform: none;
+    }
+    90% {
+      transform: rotate(-3deg);
+    }
+    94% {
+      transform: rotate(3deg);
+    }
+  }
+
+  /* ── How it works ────────────────────────────────────────────────────────── */
+  .day-slide-in {
+    animation: day-slide-in 0.4s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  }
+  @keyframes day-slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ── Why it works ────────────────────────────────────────────────────────── */
+  .day-bar {
+    transition: height 0.7s cubic-bezier(0.3, 1.3, 0.5, 1);
+  }
+  .day-lands {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 0.4s 0.8s cubic-bezier(0.3, 1.6, 0.5, 1),
+      transform 0.4s 0.8s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .day-grown .day-lands {
+    opacity: 1;
+    transform: none;
+  }
+  .day-seal {
+    transform: scale(0) rotate(-30deg);
+    transition: transform 0.45s 1.1s cubic-bezier(0.3, 1.8, 0.5, 1);
+  }
+  .day-grown .day-seal {
+    transform: rotate(10deg);
+  }
+
+  /* ── Received ────────────────────────────────────────────────────────────── */
+  .day-stamp {
+    animation: day-stamp 0.5s 0.55s cubic-bezier(0.3, 1.8, 0.5, 1) both;
+  }
+  @keyframes day-stamp {
+    from {
+      transform: scale(0) rotate(-40deg);
+    }
+    to {
+      transform: none;
+    }
+  }
+  .day-pulse {
+    animation: day-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes day-pulse {
+    50% {
+      transform: scale(0.6);
+      opacity: 0.6;
+    }
+  }
+  .day-wiggle {
+    animation: day-wiggle 0.7s ease-in-out;
+  }
+  @keyframes day-wiggle {
+    15% {
+      transform: rotate(-2.5deg);
+    }
+    35% {
+      transform: rotate(2.5deg);
+    }
+    55% {
+      transform: rotate(-1.5deg);
+    }
+    75% {
+      transform: rotate(1deg);
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  /* ── Progress star ───────────────────────────────────────────────────────── */
+  .day-knob {
+    transition: left 0.45s cubic-bezier(0.3, 0.8, 0.3, 1);
+  }
+  .day-hopping {
+    animation: day-knob-hop 0.45s ease-out;
+  }
+  @keyframes day-knob-hop {
+    40% {
+      transform: translateY(-8px) scale(1.12);
+    }
+    100% {
+      transform: none;
+    }
+  }
+  .day-star {
+    transition: transform 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+  .day-hopping .day-star {
+    transform: rotate(180deg) scale(1.15);
+  }
+  .day-pop-out {
+    animation: day-knob-pop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) forwards;
+  }
+  @keyframes day-knob-pop {
+    40% {
+      transform: scale(1.5);
+    }
+    100% {
+      transform: scale(0);
+      opacity: 0;
+    }
+  }
+  .day-spark {
+    position: absolute;
+    z-index: 30;
+    pointer-events: none;
+    animation: day-fly 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+  }
+  @keyframes day-fly {
+    0% {
+      transform: translate(-50%, -50%) scale(0.4) rotate(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1) rotate(160deg);
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .day-enter,
+    .day-squish,
+    .day-out,
+    .day-drop,
+    .day-float,
+    .day-twinkle,
+    .day-nudge,
+    .day-slide-in,
+    .day-stamp,
+    .day-pulse,
+    .day-wiggle,
+    .day-hopping,
+    .day-pop-out,
+    .day-spark {
+      animation: none !important;
+    }
+    .day-check,
+    .day-bar,
+    .day-lands,
+    .day-seal,
+    .day-knob,
+    .day-star {
+      transition: none !important;
+    }
+    /* Highlights show already drawn. */
+    .day-marker {
+      animation: none;
+    }
+  }
+}
+
+/* The marker's sweep, animatable because it's a registered number. */
+@property --day-sweep {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}

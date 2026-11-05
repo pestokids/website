@@ -7,7 +7,12 @@ test('welcome screen', { tags: ['smoke'] }, async ({ app, browser, screen, agent
   await runOnlyOn(browser, ['phone-webkit', 'phone-chromium', 'fold']);
   await openApply(app, browser);
 
-  await expect(screen.getByRole('heading', 'For kids who ask why?', { level: 1 })).toBeVisible();
+  await expect(
+    screen.getByRole('heading', 'Interactive storybook for young kids', { level: 1 }),
+  ).toBeVisible();
+  await expect(
+    screen.getByText('Stories your kids talk back to. Only 25 Founding Family spots left.'),
+  ).toBeVisible();
   await expect(screen.getByRole('button', 'Count us in')).toBeEnabled();
 
   const closes = process.env.NEXT_PUBLIC_ADMISSIONS_CLOSE_DATE;
@@ -17,28 +22,18 @@ test('welcome screen', { tags: ['smoke'] }, async ({ app, browser, screen, agent
       )
     : null;
 
-  // The top strip repeats "3 minutes ✦ 100 families ✦ Admissions close …" to
-  // fill the width. Screen readers get it once: every other copy and every
-  // star is aria-hidden. Collect the text a screen reader can reach (not
-  // aria-hidden, and not inside the page's inline scripts).
-  const spoken = await browser.evaluate(() => {
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    const parts: string[] = [];
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-      const hidden = node.parentElement?.closest('[aria-hidden="true"], script, style, noscript, template');
-      if (!hidden) parts.push(node.textContent ?? '');
-    }
-    return parts.join('');
-  });
-  expect(spoken.split('3 minutes').length - 1).toBe(1);
-  expect(spoken).not.toContain('✦');
-  expect(spoken).toMatch(
-    closesShort
-      ? `3 minutes, 100 families, Admissions close ${closesShort}`
-      : /3 minutes, 100 families, Admissions close [A-Z][a-z]{2} \d{1,2}/,
+  // The facts: 3 min to apply, 25 spots left, and the close date (from config).
+  const facts = (await browser.evaluate(() =>
+    [...document.querySelectorAll('dl > div')].map(
+      (fact) => `${fact.querySelector('dd')?.textContent} ${fact.querySelector('dt')?.textContent}`,
+    ),
+  )) as string[];
+  expect(facts.slice(0, 2)).toEqual(['3 min to apply', '25 spots left']);
+  expect(facts[2]).toMatch(
+    closesShort ? `${closesShort} closes` : /^[A-Z][a-z]{2} \d{1,2} closes$/,
   );
 
-  // The consent line under the button links the legal pages, each in a new tab.
+  // The consent line right above the button links the legal pages, each in a new tab.
   await expect(
     screen.getByText('By continuing, you agree to our Terms and Privacy Policy.'),
   ).toBeVisible();
@@ -56,7 +51,7 @@ test('welcome screen', { tags: ['smoke'] }, async ({ app, browser, screen, agent
   await expect(screen.getByRole('progressbar')).toHaveCount(0);
 
   await agent.assert(
-    'Under the headline there is a row of four tilted icon stickers, and a green mascot sticker sits above the headline',
+    'A round green parrot mascot sits above the headline, with four small icon tiles around him, and three fact tiles sit under the headline',
     { vision: true },
   );
 });

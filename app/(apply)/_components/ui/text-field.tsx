@@ -25,10 +25,11 @@ export type TextFieldProps = InputProps & {
 };
 
 /**
- * 56px text field with the label above. States: rest (1.5px hairline),
- * focus (2px forest + lime ring), error (orange border + ring, message
- * announced politely), valid (check badge), clear (×), ghost completion.
- * Read-only drops back to the rest look (e.g. while submitting).
+ * 56px text field with the label above, in the tiles' style: a 2px border
+ * and a 3px bottom edge. States: rest (grey), focus (lime border and edge on
+ * a pale lime fill), error (peach border and fill; the message shows in a
+ * peach note, announced politely), valid (check badge), clear (×), ghost
+ * completion. Read-only drops back to the rest look (e.g. while submitting).
  *
  * The message slot is always mounted (and never display:none), so screen
  * readers pick up the error the moment it appears.
@@ -64,26 +65,26 @@ export function TextField({
     else if (ref) ref.current = node;
   };
 
-  // Border and ring. Error wins; read-only never shows focus.
+  // Border, edge and fill. Error wins; read-only never shows focus.
   const frame = hasError
-    ? "border-2 border-error-border shadow-error-ring"
+    ? "border-day-error-edge bg-day-error-fill shadow-[0_3px_0_var(--color-day-error-edge)]"
     : readOnly
-      ? "border-[1.5px] border-field-rest"
-      : "border-[1.5px] border-field-rest focus-within:border-2 focus-within:border-forest focus-within:shadow-focus-ring";
+      ? "border-day-border bg-white shadow-[0_3px_0_var(--color-day-border)]"
+      : "border-day-border bg-white shadow-[0_3px_0_var(--color-day-border)] focus-within:border-day-lime-edge focus-within:bg-day-tint focus-within:shadow-[0_3px_0_var(--color-day-lime-edge)]";
 
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
-      <label htmlFor={inputId} className="text-sm leading-[18px] font-semibold">
+      <label htmlFor={inputId} className="text-[13px] leading-[18px] font-extrabold text-day-sub">
         {label}
       </label>
 
       <div
-        className={`relative flex h-14 items-center rounded-field bg-white transition-shadow duration-150 ${frame}`}
+        className={`relative flex h-14 items-center rounded-[13px] border-2 transition-[background-color,border-color,box-shadow] duration-150 ${frame}`}
       >
         {ghost && (
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0 flex items-center overflow-hidden pl-4 text-lg font-medium whitespace-pre"
+            className="pointer-events-none absolute inset-y-0 left-0 flex items-center overflow-hidden pl-3.5 text-lg font-bold whitespace-pre"
           >
             <span className="invisible">{value}</span>
             <span className="text-forest/35">{ghost}</span>
@@ -96,11 +97,11 @@ export function TextField({
           readOnly={readOnly}
           aria-invalid={hasError || undefined}
           aria-describedby={messageId}
-          className="h-full min-w-0 flex-1 rounded-field bg-transparent px-4 text-lg leading-6 font-medium text-forest outline-none placeholder:text-forest/35"
+          className="h-full min-w-0 flex-1 rounded-[11px] bg-transparent px-3.5 text-lg leading-6 font-bold text-forest outline-none placeholder:font-semibold placeholder:text-forest/35"
           {...inputProps}
         />
         {showValid && (
-          <span className="mr-3.5 grid size-7 shrink-0 place-items-center rounded-full bg-lime text-forest">
+          <span className="mr-3 grid size-7 shrink-0 place-items-center rounded-full bg-day-lime-deep text-white">
             <CheckIcon size={15} />
           </span>
         )}
@@ -124,7 +125,11 @@ export function TextField({
       <p
         id={messageId}
         aria-live="polite"
-        className={`text-[13px] leading-[18px] empty:-mt-1.5 ${hasError ? "text-error-text" : "font-medium text-muted"}`}
+        className={`text-[13px] leading-[18px] empty:-mt-1.5 ${
+          hasError
+            ? "mt-1 rounded-xl bg-day-peach px-3 py-2.5 font-bold text-day-orange-text"
+            : "font-semibold text-day-sub"
+        }`}
       >
         {message}
       </p>

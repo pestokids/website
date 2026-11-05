@@ -56,7 +56,7 @@ test('goals stop at three', async ({ app, browser, screen, agent }) => {
     await expect(screen.getByRole('button', goal)).toHaveAttribute('aria-pressed', 'true');
   }
   // The other five are disabled, and the empty slot is gone.
-  for (const goal of ['our stories', 'being kind', 'music', 'the world', 'making things']) {
+  for (const goal of ['our stories', 'space', 'music', 'art', 'animals']) {
     await expect(screen.getByRole('button', goal)).toBeDisabled();
   }
   await expect(screen.getByText('one more?')).toHaveCount(0);

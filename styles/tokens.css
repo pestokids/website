@@ -37,6 +37,30 @@
   --color-sticker-butter: #ffe7a3;
   --color-sticker-lime: #d7f38e;
 
+  /* Daylight (the /apply flow on phones): white screens, chunky lime. */
+  --color-day-lime: #a6e81f;
+  /* The 4px bottom edge under lime buttons and picked tiles' border. */
+  --color-day-lime-edge: #7cbf1e;
+  --color-day-lime-deep: #6ea300;
+  /* Picked tile and focused field fill. */
+  --color-day-tint: #f4fde3;
+  /* Tile and field border, and their 4px bottom edge. */
+  --color-day-border: #e3e8e5;
+  /* Back button, domain chips, privacy note. */
+  --color-day-tile: #f3f6f4;
+  --color-day-bubble: #f1f7e8;
+  --color-day-sub: #5f6f69;
+  --color-day-ring: #cfd7d3;
+  --color-day-track: #edf1ef;
+  /* The marker behind "storybook" and kids' names. */
+  --color-day-highlight: #d9f78a;
+  --color-day-star: #f6b82b;
+  --color-day-peach: #fff1ea;
+  --color-day-orange-text: #c2410c;
+  --color-day-error-edge: #f2a37f;
+  --color-day-error-fill: #fff7f2;
+  --color-day-whatsapp-edge: #169c49;
+
   /* Radius */
   --radius-field: 16px;
   --radius-card: 24px;
@@ -81,6 +105,8 @@
 @theme inline {
   --font-display: var(--font-baloo), ui-rounded, system-ui, sans-serif;
   --font-body: ui-rounded, "SF Pro Rounded", var(--font-nunito), system-ui, sans-serif;
+  /* The /apply flow uses Nunito everywhere, as designed. */
+  --font-flow: var(--font-nunito), system-ui, sans-serif;
 }
 
 :root {
