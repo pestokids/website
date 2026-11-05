@@ -23,6 +23,7 @@ export const pz = {
   bubble: "pz-bubble",
   pop: "pz-pop",
   side: "pz-side",
+  cream: "pz-cream",
   dark: "pz-dark",
   shown: "pz-shown",
   tailDown: "pz-tail-down",
@@ -55,7 +56,7 @@ export const day = {
   spark: "day-spark",
 } as const;
 
-/** Forest night, the backdrop around the card on tablets (forest-night.tsx). */
+/** Forest night, the backdrop on tablets and computers (forest-night.tsx). */
 export const forest = {
   root: "pz-forest",
   glow: "pz-forest-glow",
@@ -68,4 +69,31 @@ export const forest = {
 export const card = {
   stage: "pz-card-stage",
   card: "pz-card",
+} as const;
+
+/** The computer screen, "Let's continue on your phone." (desktop-screen.tsx). */
+export const desk = {
+  screen: "pz-desk",
+  frame: "pz-desk-frame",
+  copy: "pz-desk-copy",
+  pill: "pz-desk-pill",
+  headline: "pz-desk-headline",
+  highlight: "pz-desk-highlight",
+  sub: "pz-desk-sub",
+  link: "pz-desk-link",
+  field: "pz-desk-field",
+  button: "pz-desk-button",
+  consent: "pz-desk-consent",
+  art: "pz-desk-art",
+  pesto: "pz-desk-pesto",
+  bubble: "pz-desk-bubble",
+  card: "pz-desk-card",
+  qr: "pz-desk-qr",
+  qrFace: "pz-desk-qr-face",
+  caption: "pz-desk-caption",
+  path: "pz-desk-path",
+  pathDraw: "pz-desk-path-draw",
+  phone: "pz-desk-phone",
+  phoneFace: "pz-desk-phone-face",
+  sticker: "pz-desk-sticker",
 } as const;

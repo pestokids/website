@@ -48,8 +48,6 @@ export const MAX_GOALS = 3;
 export const NAME_MAX_LENGTH = 30;
 export const PROGRESS_SEGMENTS = 7;
 
-export const familyCountCopy = "100 families";
-
 export const ageOptions = ["3", "4", "5", "6", "7", "8+"] as const;
 export type Age = (typeof ageOptions)[number];
 
@@ -186,9 +184,6 @@ export const welcome = {
     { value: admissionsCloseShort, label: "closes" },
   ],
   cta: "Count us in",
-  /** The desktop screen's footer line. */
-  footer: (admissionsCloseShort: string) =>
-    `3 minutes · ${familyCountCopy} · Admissions close ${admissionsCloseShort}`,
   /** Fine print right above the button: "By continuing, you agree to our Terms and Privacy Policy." Links open in a new tab. */
   consent: {
     before: "By continuing, you agree to our ",
@@ -336,16 +331,17 @@ export const received = {
 } as const;
 
 export const desktop = {
-  eyebrow: "FOUNDING FAMILIES",
-  headline: ["Let’s continue on", "your phone."],
-  sub: "Pesto is built for the screens your kids play on. Scan the code and you’ll be done in about 3 minutes.",
+  /** The lime pill. The close date comes from config. */
+  pill: (admissionsCloseShort: string) =>
+    `Only ${FOUNDING_SPOTS_LEFT} spots left · Closes ${admissionsCloseShort}`,
+  /** Two lines; the second line's `highlight` is lime. */
+  headline: { lines: ["Let’s continue", "on your phone."], highlight: "your phone." },
+  sub: "Scan the code. You’ll be done in 3 minutes.",
   linkLabel: "pestokids.com/apply",
   copy: "Copy link",
   copied: "Copied!",
-  qrCaption: "Point your phone camera here",
-  qrSub: "Opens in your phone’s browser",
+  qrCaption: "Point your camera here",
   qrLabel: "QR code for this page",
-  stickers: ["diya", "moon", "bow", "deer"] satisfies IconName[],
 } as const;
 
 // ── Pesto's lines ────────────────────────────────────────────────────────────
@@ -444,6 +440,17 @@ export const pesto = {
     ],
     /** The second WhatsApp nudge, at about 12 s. */
     nudge: "Psst! Say hi down there.",
+  },
+  /** The computer screen ("Let's continue on your phone."). */
+  desktop: {
+    /** His resting line over the QR code. */
+    scanMe: "Scan me!",
+    /** Hovering the QR code. */
+    qrHover: "Yes, that one!",
+    /** Copy link, with a thumbs-up. */
+    copied: "Copied!",
+    /** Once, after 20 quiet seconds. */
+    checkIn: "Still there? Grab your phone!",
   },
   /** Said once per screen after 10 quiet seconds. */
   checkIn: {
