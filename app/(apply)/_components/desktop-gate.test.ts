@@ -78,6 +78,7 @@ afterEach(async () => {
   await act(async () => root?.unmount());
   root = undefined;
   container.remove();
+  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
@@ -130,5 +131,31 @@ describe("DesktopGate", () => {
     await vi.waitFor(() => expect(container.querySelector("main")).not.toBeNull());
     expect(container.querySelector("#flow")).toBeNull();
     expect(gateViews()).toHaveLength(1);
+  });
+
+  it("retries a failed load after about a second, then shows the screen", async () => {
+    const gate = await loadGate(laptop);
+    let attempts = 0;
+    vi.doMock("./desktop-screen", async (importOriginal) => {
+      attempts++;
+      if (attempts === 1) throw new Error("Failed to load chunk");
+      return importOriginal();
+    });
+    const warn = vi.spyOn(console, "warn");
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+
+    await render(withChildren(gate, flow));
+    await vi.waitFor(() => expect(attempts).toBe(1), { interval: 1 });
+    // Still blank, and no second try before the first delay is up.
+    await act(() => vi.advanceTimersByTimeAsync(990));
+    expect(attempts).toBe(1);
+    expect(container.innerHTML).toBe("");
+
+    await act(() => vi.advanceTimersByTimeAsync(20));
+    await vi.waitFor(() => expect(container.querySelector("main")).not.toBeNull());
+    expect(attempts).toBe(2);
+    expect(container.querySelector("#flow")).toBeNull();
+    expect(gateViews()).toHaveLength(1);
+    expect(warn).not.toHaveBeenCalled();
   });
 });

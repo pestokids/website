@@ -17,8 +17,23 @@ let DesktopScreen: ComponentType | undefined;
 let loading: Promise<void> | undefined;
 const listeners = new Set<() => void>();
 
+/** Waits before each retry when the code fails to load, so a flaky connection doesn't leave a blank page. */
+const RETRY_DELAYS_MS = [1000, 3000];
+
+async function importDesktopScreen() {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await import("./desktop-screen");
+    } catch (error) {
+      const delay = RETRY_DELAYS_MS[attempt];
+      if (delay === undefined) throw error;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+}
+
 function loadDesktopScreen() {
-  loading ??= import("./desktop-screen").then(
+  loading ??= importDesktopScreen().then(
     (module) => {
       DesktopScreen = module.DesktopScreen;
       listeners.forEach((listener) => listener());
