@@ -11,8 +11,7 @@ import {
   isEmailFormatValid,
   normaliseEmail,
 } from "../../_lib/email";
-import { buzz, burstStar, chirp } from "../../_lib/feel";
-import { submitApplication } from "../../_lib/submit";
+import { buzz, burstStar, chirp, preloadCelebration } from "../../_lib/feel";
 import { track, type SuggestionKind } from "../../_lib/track";
 import { useFlow } from "../apply-flow";
 import { PestoSays } from "../pesto/pesto";
@@ -30,6 +29,20 @@ const SETTLE_MS = 750;
 const BURST_MS = 650;
 
 let measure: CanvasRenderingContext2D | null | undefined;
+
+/**
+ * The submit code and its Convex client, only needed on this screen: fetched
+ * when it mounts, so it's loaded long before the tap. A failed fetch is tried
+ * again on the tap.
+ */
+let submitModule: Promise<typeof import("../../_lib/submit")> | undefined;
+function loadSubmit() {
+  submitModule ??= import("../../_lib/submit").catch((error: unknown) => {
+    submitModule = undefined;
+    throw error;
+  });
+  return submitModule;
+}
 
 /** Points Pesto's eyes at the end of the typed address. */
 function followTyping(pesto: PestoController, input: HTMLInputElement) {
@@ -147,7 +160,10 @@ export function EmailStep() {
     buzz();
     burstStar();
     const sentAt = Date.now();
-    const result = await submitApplication(draft, normaliseEmail(value), trapValue);
+    const result = await loadSubmit().then(
+      ({ submitApplication }) => submitApplication(draft, normaliseEmail(value), trapValue),
+      () => ({ ok: false, reason: "network" }) as const,
+    );
 
     if (result.ok) {
       // A filled trap means a bot: the server saved nothing, so record no conversion.
@@ -214,6 +230,11 @@ export function EmailStep() {
   useEffect(() => {
     pesto.say(lines.email.intro);
   }, [pesto]);
+  // The submit and the celebration after it, fetched while the address is typed.
+  useEffect(() => {
+    loadSubmit().catch(() => {});
+    preloadCelebration();
+  }, []);
   const praised = useRef("");
   const puzzledBy = useRef("");
   const typo = !submitting && fix ? fix : null;
