@@ -597,6 +597,136 @@
       animation: none;
     }
   }
+
+  /*
+   * Forest night (_components/forest-night.tsx): the backdrop around the
+   * card on tablets and open foldables. Deep green, a soft lime glow, lime
+   * doodles drifting over 90 s, six twinkling sparkles and the cream
+   * wordmark. The drift moves a layer one tile further than the screen, so
+   * it's a compositor-only transform. Still under reduced motion.
+   */
+  .pz-forest {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background: var(--color-forest);
+    pointer-events: none;
+    user-select: none;
+  }
+  .pz-forest-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1000px;
+    height: 1320px;
+    border-radius: 50%;
+    translate: -50% -50%;
+    background: radial-gradient(
+      closest-side,
+      rgb(166 232 31 / 0.24),
+      rgb(166 232 31 / 0.13) 72%,
+      rgb(166 232 31 / 0.07) 97%,
+      transparent
+    );
+  }
+  .pz-forest-doodles {
+    position: absolute;
+    /* One 220px tile (TILE in forest-night.tsx) past the right and bottom edges. */
+    inset: 0 -220px -220px 0;
+    background-size: 220px 220px;
+    opacity: 0.2;
+    animation: pz-forest-drift 90s linear infinite;
+    will-change: transform;
+  }
+  @keyframes pz-forest-drift {
+    to {
+      transform: translate(-220px, -220px);
+    }
+  }
+  .pz-forest-sparkle {
+    position: absolute;
+    display: block;
+    translate: -50% -50%;
+    animation: pz-forest-twinkle 3.2s ease-in-out infinite;
+  }
+  .pz-forest-sparkle svg {
+    display: block;
+  }
+  @keyframes pz-forest-twinkle {
+    0%,
+    100% {
+      transform: scale(1) rotate(0);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(0.45) rotate(45deg);
+      opacity: 0.45;
+    }
+  }
+  .pz-forest-logo {
+    position: absolute;
+    top: calc(env(safe-area-inset-top) + 24px);
+    left: calc(env(safe-area-inset-left) + 24px);
+    font: 800 26px/1 var(--font-display);
+    letter-spacing: -0.4px;
+    color: var(--color-cream);
+  }
+  @media (width >= 768px) {
+    .pz-forest-logo {
+      top: calc(env(safe-area-inset-top) + 32px);
+      left: calc(env(safe-area-inset-left) + 40px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pz-forest-doodles,
+    .pz-forest-sparkle {
+      animation: none;
+    }
+  }
+
+  /*
+   * The card (_components/flow-column.tsx). Wide touch screens (>= 600px)
+   * show the 402px column as a white card over Forest night: 32px corners, a
+   * soft 6px translucent white ring and a deep shadow, centred when there's
+   * room. It's as tall as a phone's view, at most 860px, with a 44px
+   * status-bar gap on top (less on very short cards), and its screens
+   * scroll inside it. The footer lift keeps the column's rule, measured
+   * from the card's top: the footer's bottom edge sits at most 830px down,
+   * and at least 16px off the card's bottom. Phones (< 600px) get none of
+   * this.
+   */
+  @media (width >= 600px) {
+    .pz-card-stage {
+      position: relative;
+      display: grid;
+      min-height: 100dvh;
+      place-items: center;
+      padding: max(32px, env(safe-area-inset-top)) 32px max(32px, env(safe-area-inset-bottom));
+    }
+    .pz-card {
+      --pz-card-h: clamp(
+        520px,
+        100dvh - max(32px, env(safe-area-inset-top)) - max(32px, env(safe-area-inset-bottom)),
+        860px
+      );
+      --footer-lift: max(16px, calc(var(--pz-card-h) - 830px));
+      position: relative;
+      z-index: 1;
+      width: 402px;
+      height: var(--pz-card-h);
+      /* Narrows on very short cards (landscape with the browser bars), down to 16px. */
+      padding-top: clamp(16px, var(--pz-card-h) - 600px, 44px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      border-radius: 32px;
+      background: #fff;
+      box-shadow:
+        0 0 0 6px rgb(255 255 255 / 0.14),
+        0 18px 36px -12px rgb(0 18 12 / 0.4),
+        0 44px 100px -24px rgb(0 18 12 / 0.7);
+    }
+  }
 }
 
 /* The marker's sweep, animatable because it's a registered number. */

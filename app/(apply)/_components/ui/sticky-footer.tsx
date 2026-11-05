@@ -16,21 +16,19 @@ import { useKeyboardInset } from "./use-keyboard-inset";
  *   only lifts when the keyboard would cover it.
  *
  * Wide screens: `--footer-lift` on an ancestor raises an `end` footer off
- * the bottom of the step while the keyboard is closed. <FlowColumn> sets it
- * for every step. Ignored while the keyboard is open, so it behaves exactly
- * as on a phone.
+ * the bottom of the step while the keyboard is closed. <FlowColumn>'s card
+ * sets it for every step. Ignored while the keyboard is open, so it behaves
+ * exactly as on a phone.
  */
 /**
- * Phones: solid white, so the screen's content scrolls up behind the
- * footer's top edge and never shows through it; a white strip below covers
- * the safe area under it. Being sticky in the flow, the footer always sits
- * after the content once it's scrolled to the end.
+ * Solid white, on phones and in the tablet card alike, so the screen's
+ * content scrolls up behind the footer's top edge and never shows through
+ * it; a white strip below covers the safe area under it. Being sticky in
+ * the flow, the footer always sits after the content once it's scrolled to
+ * the end.
  */
-const phoneSurface =
+const surface =
   "bg-white after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-[env(safe-area-inset-bottom)] after:bg-white after:content-['']";
-/** Wide screens (tablets, foldables) keep the soft fade over the page wash. */
-const wideSurface =
-  "min-[600px]:bg-transparent min-[600px]:bg-linear-to-t min-[600px]:from-cream/85 min-[600px]:from-40% min-[600px]:to-transparent min-[600px]:pt-6 min-[600px]:after:hidden";
 
 export function StickyFooter({
   children,
@@ -50,7 +48,7 @@ export function StickyFooter({
       style={{ "--keyboard-inset": `${inset}px` } as CSSProperties}
       className={`sticky bottom-[max(var(--keyboard-inset),env(safe-area-inset-bottom))] z-10 flex flex-col gap-3 ${
         placement === "end"
-          ? `mt-auto mb-[var(--footer-lift,0px)] pt-4 pb-6 data-[keyboard=open]:mb-0 data-[keyboard=open]:pb-3 ${phoneSurface} ${wideSurface}`
+          ? `mt-auto mb-[var(--footer-lift,0px)] pt-4 pb-6 data-[keyboard=open]:mb-0 data-[keyboard=open]:pb-3 ${surface}`
           : "py-3"
       } ${className}`}
     >

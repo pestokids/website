@@ -82,9 +82,13 @@ export function WelcomeStep() {
         {welcome.brand}
       </p>
 
-      {/* The hero is drawn at 252px and scaled down on short screens. */}
-      <div className="relative mt-2.5 h-[252px] w-full max-w-[320px] shrink-0 [@media(max-height:700px)]:h-[176px]">
-        <div className="absolute inset-x-0 top-0 grid h-[252px] origin-top place-items-center [@media(max-height:700px)]:scale-[0.7]">
+      {/*
+        The hero is drawn at 252px and scaled down on short screens: to 70% on
+        short phones, and to 75% in the shorter tablet card (iPad landscape),
+        so the facts, the consent line and the button fit without scrolling.
+      */}
+      <div className="relative mt-2.5 h-[252px] w-full max-w-[320px] shrink-0 [@media(max-height:700px)]:h-[176px] [@media(min-width:600px)_and_(700px<height<900px)]:h-[189px]">
+        <div className="absolute inset-x-0 top-0 grid h-[252px] origin-top place-items-center [@media(max-height:700px)]:scale-[0.7] [@media(min-width:600px)_and_(700px<height<900px)]:scale-[0.75]">
           <div aria-hidden="true" className="absolute size-[238px] rounded-full bg-day-tint" />
           {stickers.map((s) => (
             <span

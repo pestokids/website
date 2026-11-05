@@ -54,3 +54,18 @@ export const day = {
   popOut: "day-pop-out",
   spark: "day-spark",
 } as const;
+
+/** Forest night, the backdrop around the card on tablets (forest-night.tsx). */
+export const forest = {
+  root: "pz-forest",
+  glow: "pz-forest-glow",
+  doodles: "pz-forest-doodles",
+  sparkle: "pz-forest-sparkle",
+  logo: "pz-forest-logo",
+} as const;
+
+/** The flow as a white card on wide touch screens (flow-column.tsx). */
+export const card = {
+  stage: "pz-card-stage",
+  card: "pz-card",
+} as const;
