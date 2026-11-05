@@ -22,9 +22,9 @@ function modulesFromPath(d: string): string[] {
   return dark.sort();
 }
 
-/** Dark modules of the QR code that encodes `value`, as the app generates it. */
+/** Dark modules of the QR code that encodes `value`, as the app generates it (High error correction, for the face in the middle). */
 function modulesFor(value: string): string[] {
-  const { modules } = QRCode.create(value, { errorCorrectionLevel: 'M' });
+  const { modules } = QRCode.create(value, { errorCorrectionLevel: 'H' });
   const dark: string[] = [];
   for (let row = 0; row < modules.size; row++) {
     for (let col = 0; col < modules.size; col++) if (modules.get(row, col)) dark.push(`${row},${col}`);
@@ -48,10 +48,11 @@ test('desktop: continue on your phone', { tags: ['smoke'] }, async ({ app, brows
   await openApply(app, browser, visitPath);
 
   await expect(screen.getByRole('heading', 'Let’s continue on your phone.')).toBeVisible();
-  await expect(screen.getByText('FOUNDING FAMILIES')).toBeVisible();
+  await expect(screen.getByText(/^Only 25 spots left · Closes /)).toBeVisible();
+  await expect(screen.getByText('Scan the code. You’ll be done in 3 minutes.')).toBeVisible();
   await expect(screen.getByText('pestokids.com/apply')).toBeVisible();
-  await expect(screen.getByText('Point your phone camera here')).toBeVisible();
-  await expect(screen.getByText(/^3 minutes · 100 families · Admissions close /)).toBeVisible();
+  await expect(screen.getByText('Point your camera here')).toBeVisible();
+  await expect(screen.getByText(/^By continuing, you agree to our Terms and Privacy Policy\.$/)).toBeVisible();
   // The flow isn't mounted: no welcome screen and no draft.
   await expect(screen.getByRole('button', 'Count us in')).toHaveCount(0);
   expect(await readStored(browser, DRAFT_KEY)).toBeNull();
@@ -72,7 +73,7 @@ test('desktop: continue on your phone', { tags: ['smoke'] }, async ({ app, brows
   expect(modulesFromPath(d!)).toEqual(modulesFor(copied!));
 
   await agent.assert(
-    'A card shows the headline "Let’s continue on your phone." on the left and a large QR code on the right',
+    'On a dark green background, the headline "Let’s continue on your phone." is on the left and a white card with a large QR code is on the right, with a round parrot face peeking over its top-left corner',
     { vision: true },
   );
 });

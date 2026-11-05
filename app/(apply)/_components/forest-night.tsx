@@ -67,11 +67,23 @@ const sparkles: { x: number; y: number; size: number; color: string; delay: numb
  * cream wordmark top-left. All decorative and CSS-only (no client JS); the
  * motion stops under reduced motion. Fixed behind the page; put content
  * above it with `position: relative` and a z-index.
+ *
+ * `glowStyle` and `logoStyle` let a screen move the glow and the wordmark
+ * (the computer screen puts the glow behind its QR card and lines the
+ * wordmark up with its content).
  */
-export function ForestNight({ className = "" }: { className?: string }) {
+export function ForestNight({
+  className = "",
+  glowStyle,
+  logoStyle,
+}: {
+  className?: string;
+  glowStyle?: CSSProperties;
+  logoStyle?: CSSProperties;
+}) {
   return (
     <div aria-hidden="true" className={`${forest.root} ${className}`}>
-      <div className={forest.glow} />
+      <div className={forest.glow} style={glowStyle} />
       <div className={forest.doodles} style={doodles} />
       {sparkles.map((s, i) => (
         <span
@@ -82,7 +94,9 @@ export function ForestNight({ className = "" }: { className?: string }) {
           <Sparkle size={s.size} />
         </span>
       ))}
-      <p className={forest.logo}>{welcome.brand}</p>
+      <p className={forest.logo} style={logoStyle}>
+        {welcome.brand}
+      </p>
     </div>
   );
 }

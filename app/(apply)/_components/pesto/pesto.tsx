@@ -25,8 +25,8 @@ export function PestoFace({
   badges = false,
 }: {
   pesto: PestoController;
-  /** Diameter in px. */
-  size: number;
+  /** Diameter: px, or any CSS length (the computer screen scales him). */
+  size: number | string;
   onTap?: () => void;
   tapLabel?: string;
   /** Classes on the outer holder (position, entrance animation). */
@@ -91,7 +91,7 @@ export const pestoPose = {
   popIn: styles.popIn,
 } as const;
 
-export type BubbleVariant = "side" | "dark-down" | "dark-down-left" | "dark-down-right";
+export type BubbleVariant = "side" | "cream" | "dark-down" | "dark-down-left" | "dark-down-right";
 
 /**
  * Pesto's speech bubble. It grows with its line and wraps inside itself.
@@ -99,8 +99,10 @@ export type BubbleVariant = "side" | "dark-down" | "dark-down-left" | "dark-down
  * it isn't page text; screen readers (and text search) get the whole line
  * once, from a polite live region.
  *
- * `side` (question screens) sits beside him and always shows a line. The
- * dark variants float near him and only show while he's talking.
+ * `side` (question screens) sits beside him and always shows a line.
+ * `cream` (computer screen) sits above him on the dark background, tail down
+ * and to the left, and always shows a line. The dark variants float near him
+ * and only show while he's talking.
  */
 export function PestoBubble({
   pesto,
@@ -132,7 +134,9 @@ export function PestoBubble({
   const look =
     variant === "side"
       ? styles.side
-      : `${styles.dark} ${
+      : variant === "cream"
+        ? styles.cream
+        : `${styles.dark} ${
           variant === "dark-down"
             ? styles.tailDown
             : variant === "dark-down-left"

@@ -1,43 +1,71 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { desktop, welcome } from "@/content/apply";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { desktop, pesto as pestoLines, welcome } from "@/content/apply";
 import { config } from "@/lib/config";
 import { handoffUrl } from "../_lib/desktop";
 import { track } from "../_lib/track";
-import { FrostedCard } from "./ui/frosted-card";
+import { desk, pz } from "./classes";
+import { ForestNight } from "./forest-night";
+import { PestoBubble, PestoFace } from "./pesto/pesto";
+import { pestoSvg } from "./pesto/pesto-svg";
+import { useIdleCheckIn } from "./pesto/use-idle-check-in";
+import { prefersReducedMotion, usePesto } from "./pesto/use-pesto";
 import { QrCode } from "./ui/qr-code";
-import { IconSticker, PestoSticker } from "./ui/sticker";
+import { IconSticker } from "./ui/sticker";
 
 const COPIED_MS = 2000;
-/** Browser bar tint on this screen: cream, not the flow's forest. */
-const THEME_COLOR = "#FFFBEB";
+/** Browser bar tint on this screen: Forest night. */
+const THEME_COLOR = "#003F2E";
+/** Quiet time before Pesto checks in. */
+const CHECK_IN_MS = 20_000;
+/** How long a reaction stays in his bubble before he's back to "Scan me!". */
+const REACTION_MS = 2600;
 
-const CARD_W = 880;
-const CARD_H = 480;
-const STICKER = 72;
+/** The dotted path from the QR card down to the phone (artboard 41). */
+const TRAIL = "M0 0C18.3 38.9 55 62.2 110 70";
+
+/** Forest night's glow sits behind the QR card; the wordmark lines up with the content (apply.css, .pz-desk). */
+const forestGlow: CSSProperties = {
+  left: "var(--pz-desk-glow-x)",
+  top: "51%",
+  width: "var(--pz-desk-glow-size)",
+  height: "var(--pz-desk-glow-size)",
+  // Smaller than the tablets' glow, so it fades all the way out (no rim).
+  background: "radial-gradient(closest-side, rgb(189 245 63 / 0.32), rgb(189 245 63 / 0))",
+};
+const forestLogo: CSSProperties = {
+  top: 44,
+  left: "var(--pz-desk-col)",
+  fontSize: 32,
+  lineHeight: "38px",
+  letterSpacing: 0,
+};
+
+/** Pesto's face, still, in the middle of the QR code and on the phone. */
+const qrFace = { __html: pestoSvg("pzqr-") };
+const phoneFace = { __html: pestoSvg("pzph-") };
 
 /**
- * Corner stickers (diya, moon, bow, deer): centre points relative to the
- * card's top-left. Below 1152px wide they tuck in (`tight`) so they stay on
- * screen down to 1024.
- */
-const corners = [
-  { x: -54, tight: -24, y: -30, tilt: -8 },
-  { x: CARD_W + 53, tight: CARD_W + 24, y: -44, tilt: 6 },
-  { x: -46, tight: -20, y: CARD_H + 23, tilt: -6 },
-  { x: CARD_W + 46, tight: CARD_W + 20, y: CARD_H + 10, tilt: 8 },
-];
-
-/**
- * "Let's continue on your phone." Replaces the flow on computers. Never
- * touches the draft or attribution, and fires no Linkrunner events.
- * Only rendered on the client (see DesktopGate), so `window` is safe here.
+ * "Let's continue on your phone." Replaces the flow on computers, on Forest
+ * night. Pesto peeks over the QR card: his eyes follow the mouse, he perks up
+ * when you point at the code, gives a thumbs-up when you copy the link, and
+ * checks in once after 20 quiet seconds. Never touches the draft or
+ * attribution, and fires no Linkrunner events. Only rendered on the client
+ * (see DesktopGate), so `window` is safe here.
  */
 export function DesktopScreen() {
   const [url] = useState(() => handoffUrl(window.location.href));
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const backToRest = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const line = useRef<string>(pestoLines.desktop.scanMe);
+  const lines = pestoLines.desktop;
+  const [line1, line2] = desktop.headline.lines;
+  const [beforeHighlight] = line2.split(desktop.headline.highlight);
+
+  const pesto = usePesto();
+  useIdleCheckIn(pesto, lines.checkIn, CHECK_IN_MS);
 
   useEffect(() => {
     track.desktopGateViewed(window.location.href, document.referrer);
@@ -50,79 +78,151 @@ export function DesktopScreen() {
     };
   }, []);
 
+  // "Scan me!" before the first paint, so the bubble never shows up empty.
+  useLayoutEffect(() => pesto.say(lines.scanMe), [pesto, lines.scanMe]);
+
+  // His eyes follow the mouse.
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    let frame = 0;
+    let x = 0;
+    let y = 0;
+    const move = (e: PointerEvent) => {
+      x = e.clientX;
+      y = e.clientY;
+      frame ||= requestAnimationFrame(() => {
+        frame = 0;
+        pesto.lookAtPoint(x, y);
+      });
+    };
+    window.addEventListener("pointermove", move, { passive: true });
+    return () => {
+      window.removeEventListener("pointermove", move);
+      cancelAnimationFrame(frame);
+    };
+  }, [pesto]);
+
+  /** Says `text`, then goes back to "Scan me!". */
+  const react = (text: string) => {
+    line.current = text;
+    pesto.say(text);
+    clearTimeout(backToRest.current);
+    backToRest.current = pesto.later(() => {
+      line.current = lines.scanMe;
+      pesto.say(lines.scanMe);
+    }, REACTION_MS);
+  };
+
+  const perkUp = () => {
+    pesto.set("surprised", true);
+    pesto.hop();
+    if (line.current !== lines.qrHover) react(lines.qrHover);
+  };
+
   const copy = async () => {
     if (!(await copyText(url))) return;
     track.desktopLinkCopied();
     setCopied(true);
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setCopied(false), COPIED_MS);
+    pesto.flash("thumbs-up", COPIED_MS);
+    react(lines.copied);
   };
 
   return (
-    <main className="relative flex min-h-dvh flex-col items-center justify-center overflow-x-clip px-6 py-24">
-      <div className="relative">
-        {desktop.stickers.map((icon, i) => (
+    <main className={desk.screen}>
+      <ForestNight glowStyle={forestGlow} logoStyle={forestLogo} />
+
+      <div className={desk.frame}>
+        <div className={desk.copy}>
+          <p className={desk.pill}>{desktop.pill(config.admissionsCloseDate.short)}</p>
+          <h1 className={desk.headline}>
+            <span className="block">{line1}</span>{" "}
+            <span className="block">
+              {beforeHighlight}
+              <span className={desk.highlight}>{desktop.headline.highlight}</span>
+            </span>
+          </h1>
+          <p className={desk.sub}>{desktop.sub}</p>
+
+          <div className={desk.link}>
+            <span className={desk.field}>{desktop.linkLabel}</span>
+            <button type="button" onClick={copy} className={desk.button}>
+              {copied ? desktop.copied : desktop.copy}
+            </button>
+            <span role="status" className="sr-only">
+              {copied ? desktop.copied : ""}
+            </span>
+          </div>
+        </div>
+
+        <div className={desk.art}>
           <IconSticker
-            key={icon}
-            icon={icon}
-            tilt={corners[i].tilt}
-            size={STICKER}
-            className="absolute left-(--tight) min-[1152px]:left-(--wide)"
-            style={
-              {
-                "--wide": `${corners[i].x - STICKER / 2}px`,
-                "--tight": `${corners[i].tight - STICKER / 2}px`,
-                top: corners[i].y - STICKER / 2,
-              } as CSSProperties
-            }
+            icon="book"
+            tilt={10}
+            className={desk.sticker}
+            style={{ left: "0em", top: "480em", width: "66em", height: "66em" }}
           />
-        ))}
+          <IconSticker
+            icon="puzzle"
+            tilt={-9}
+            className={desk.sticker}
+            style={{ left: "544em", top: "120em", width: "60em", height: "60em" }}
+          />
 
-        <FrostedCard
-          className="relative flex justify-between pt-8 pr-14 pb-8 pl-16"
-          style={{ width: CARD_W, minHeight: CARD_H }}
-        >
-          <div className="flex flex-col items-start">
-            <PestoSticker className="-ml-2" />
-            <p className="mt-[27px] text-xs leading-4 font-bold tracking-[0.8px] text-lime-text uppercase">
-              {desktop.eyebrow}
-            </p>
-            <h1 className="mt-1 font-display text-[44px] leading-[48px] font-extrabold">
-              {desktop.headline.map((line, i) => (
-                <span key={i} className="block">
-                  {line}
-                </span>
-              ))}
-            </h1>
-            <p className="mt-3.5 max-w-[420px] text-lg leading-[26px] text-muted">{desktop.sub}</p>
+          <svg aria-hidden="true" focusable="false" viewBox="-4 -4 118 78" className={desk.path}>
+            <mask id="pz-desk-trail" maskUnits="userSpaceOnUse" x="-4" y="-4" width="118" height="78">
+              <path
+                d={TRAIL}
+                pathLength={1}
+                fill="none"
+                stroke="#fff"
+                strokeWidth={8}
+                className={desk.pathDraw}
+              />
+            </mask>
+            <path
+              d={TRAIL}
+              fill="none"
+              stroke="#bdf53f"
+              strokeWidth={3}
+              strokeLinecap="round"
+              strokeDasharray="2 10"
+              mask="url(#pz-desk-trail)"
+            />
+          </svg>
 
-            <div className="mt-6 flex h-12 w-[300px] items-center justify-between rounded-full border border-hairline bg-white pr-1.5 pl-5 shadow-unselected">
-              <span className="truncate text-[17px] font-medium">{desktop.linkLabel}</span>
-              <button
-                type="button"
-                onClick={copy}
-                className="h-9 min-w-[100px] shrink-0 rounded-full bg-forest-grad px-4 font-display text-[15px] leading-none font-bold text-cream shadow-primary transition-transform duration-150 ease-step motion-safe:active:scale-[0.97]"
-              >
-                {copied ? desktop.copied : desktop.copy}
-              </button>
-              <span role="status" className="sr-only">
-                {copied ? desktop.copied : ""}
-              </span>
-            </div>
+          <div aria-hidden="true" className={desk.phone}>
+            <span className={`${pz.face} ${pz.happy} ${desk.phoneFace}`} dangerouslySetInnerHTML={phoneFace} />
           </div>
 
-          <div className="flex w-[278px] shrink-0 flex-col items-center pt-5">
-            <div className="grid size-[278px] place-items-center rounded-card-lg border border-hairline bg-white shadow-[0_12px_28px_-12px_rgb(0_63_46/0.14)]">
+          <div
+            className={desk.card}
+            onPointerEnter={perkUp}
+            onPointerLeave={() => pesto.set("surprised", false)}
+          >
+            <div className={desk.qr}>
               <QrCode value={url} label={desktop.qrLabel} />
+              <span aria-hidden="true" className={`${pz.face} ${desk.qrFace}`} dangerouslySetInnerHTML={qrFace} />
             </div>
-            <p className="mt-[18px] text-base leading-[22px] font-medium">{desktop.qrCaption}</p>
-            <p className="mt-0.5 text-[13px] leading-[18px] text-muted">{desktop.qrSub}</p>
+            <p className={desk.caption}>{desktop.qrCaption}</p>
           </div>
-        </FrostedCard>
+
+          <PestoFace pesto={pesto} size="150em" badges className={desk.pesto} />
+          <PestoBubble pesto={pesto} variant="cream" className={desk.bubble} />
+        </div>
       </div>
 
-      <p className="absolute inset-x-0 bottom-9 text-center text-[13px] text-muted">
-        {welcome.footer(config.admissionsCloseDate.short)}
+      <p className={desk.consent}>
+        {welcome.consent.before}
+        <a href={welcome.consent.terms.href} target="_blank" rel="noopener">
+          {welcome.consent.terms.label}
+        </a>
+        {welcome.consent.between}
+        <a href={welcome.consent.privacy.href} target="_blank" rel="noopener">
+          {welcome.consent.privacy.label}
+        </a>
+        {welcome.consent.after}
       </p>
     </main>
   );

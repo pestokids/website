@@ -6,10 +6,13 @@ import { useMemo } from "react";
 /**
  * QR code drawn as one SVG path, generated in the browser (no QR web
  * service). Forest on white; the white tile around it is the quiet zone.
+ * Error correction is High (30%), so a small face can sit in the middle and
+ * it still scans. Anti-aliased on purpose: with `crispEdges`, WebKit at 1x
+ * snaps fractional modules unevenly and long links stop scanning.
  */
 export function QrCode({ value, size = 200, label }: { value: string; size?: number; label: string }) {
   const { count, path } = useMemo(() => {
-    const { modules } = create(value, { errorCorrectionLevel: "M" });
+    const { modules } = create(value, { errorCorrectionLevel: "H" });
     let d = "";
     for (let row = 0; row < modules.size; row++) {
       for (let col = 0; col < modules.size; col++) {
@@ -31,7 +34,6 @@ export function QrCode({ value, size = 200, label }: { value: string; size?: num
       width={size}
       height={size}
       viewBox={`0 0 ${count} ${count}`}
-      shapeRendering="crispEdges"
       className="block bg-white"
     >
       <path d={path} className="fill-forest" />

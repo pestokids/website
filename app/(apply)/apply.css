@@ -1,7 +1,8 @@
 /*
  * Styles for the /apply flow that Tailwind classes can't express: Pesto's rig
- * (pz-*, driven by _components/pesto/use-pesto.ts) and the screens' motion
- * (day-*). Loaded by the (apply) layout only. Class names live in
+ * (pz-*, driven by _components/pesto/use-pesto.ts), the Forest night
+ * background (pz-forest-*), the computer screen (pz-desk-*) and the screens'
+ * motion (day-*). Loaded by the (apply) layout only. Class names live in
  * _components/classes.ts. Everything that moves is off under reduced motion.
  */
 
@@ -235,6 +236,21 @@
     left: -5px;
   }
 
+  /* Above him on Forest night, tail down on the left (computer screen). */
+  .pz-cream {
+    border-radius: 16px;
+    padding: 11px 16px;
+    background: var(--color-cream);
+    color: var(--color-forest);
+    font-size: 20px;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.25);
+  }
+  .pz-cream::after {
+    bottom: -5px;
+    left: 24px;
+  }
+
   /* Dark bubbles that come and go (welcome, received, how, why). */
   .pz-dark {
     background: var(--color-forest);
@@ -277,6 +293,332 @@
     .pz-holder,
     .pz-dark,
     .pz-badge {
+      transition: none;
+    }
+  }
+
+  /*
+   * The computer screen (desktop-screen.tsx), artboards 41 (1440×900) and 42
+   * (1024×768). --u is one design pixel: 1px at 1440×900 and up, shrinking
+   * smoothly to 0.8px at 1024 wide or 768 tall, so 1280×800 fits too. The
+   * picture on the right is sized in em off a font-size of --u, so its
+   * numbers are the 1440 artboard's.
+   */
+  .pz-desk {
+    --u: clamp(0.8px, min(0.8px + (100vw - 1024px) / 2080, 0.8px + (100vh - 768px) / 660), 1px);
+    /* The content column's left edge: 1200 wide and centred, at least 64px in. */
+    --pz-desk-col: max(64px, 50% - 600px);
+    /* Forest night's glow (desktop-screen.tsx), behind the QR card's centre. */
+    --pz-desk-glow-x: calc(100% - var(--pz-desk-col) + 4px + (1px - var(--u)) * 125 - 274 * var(--u));
+    --pz-desk-glow-size: calc(840 * var(--u));
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    min-height: 100dvh;
+    flex-direction: column;
+    overflow-x: clip;
+    /* Clear of the wordmark; the picture's top lands ~120px down at 1440×900. */
+    padding: 108px 0 24px;
+    color: var(--color-cream);
+  }
+  /* Above Forest night, which is fixed at z-index 0. */
+  .pz-desk-frame {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: min(100% - 128px, 1200px);
+    margin: auto;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  /* ── Left: pill, headline, line, link ─────────────────────────────────── */
+  .pz-desk-copy {
+    display: flex;
+    margin-top: calc(144 * var(--u));
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .pz-desk-pill {
+    display: inline-flex;
+    height: 38px;
+    align-items: center;
+    border-radius: 19px;
+    padding: 0 18px;
+    background: #bdf53f;
+    color: var(--color-forest);
+    font: 700 calc(16 * var(--u)) / 22px var(--font-flow);
+    box-shadow: 0 3px 0 #7cae12;
+    white-space: nowrap;
+  }
+  .pz-desk-headline {
+    margin-top: 26px;
+    color: var(--color-cream);
+    font: 800 calc(76 * var(--u)) / calc(81 * var(--u)) var(--font-display);
+    white-space: nowrap;
+  }
+  .pz-desk-highlight {
+    color: #bdf53f;
+  }
+  .pz-desk-sub {
+    margin-top: 22px;
+    color: rgb(255 251 235 / 0.76);
+    font: 600 calc(22 * var(--u)) / calc(31 * var(--u)) var(--font-flow);
+  }
+  .pz-desk-link {
+    display: flex;
+    margin-top: calc(33 * var(--u));
+    gap: 16px;
+  }
+  .pz-desk-field {
+    display: flex;
+    width: calc(300 * var(--u));
+    height: 56px;
+    align-items: center;
+    border: 1.5px solid rgb(255 255 255 / 0.2);
+    border-radius: 16px;
+    padding: 0 18px;
+    background: rgb(255 255 255 / 0.08);
+    color: var(--color-cream);
+    font: 700 17px/24px var(--font-flow);
+    white-space: nowrap;
+  }
+  .pz-desk-button {
+    width: 150px;
+    height: 56px;
+    border-radius: 16px;
+    background: #bdf53f;
+    color: var(--color-forest);
+    font: 800 19px/30px var(--font-display);
+    box-shadow: 0 4px 0 #7cae12;
+    cursor: pointer;
+    transition:
+      translate 0.12s ease-out,
+      box-shadow 0.12s ease-out;
+  }
+  .pz-desk-button:active {
+    translate: 0 2px;
+    box-shadow: 0 2px 0 #7cae12;
+  }
+  .pz-desk-button:focus-visible {
+    outline: 3px solid var(--color-cream);
+    outline-offset: 3px;
+  }
+  .pz-desk-consent {
+    position: absolute;
+    z-index: 1;
+    bottom: 30px;
+    left: var(--pz-desk-col);
+    margin: 0;
+    /* Lighter than the artboard's 50% so it passes AA contrast. */
+    color: rgb(255 251 235 / 0.66);
+    font: 600 13px/18px var(--font-flow);
+  }
+  .pz-desk-consent a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: rgb(255 251 235 / 0.4);
+    text-underline-offset: 2px;
+  }
+  .pz-desk-consent a:hover {
+    color: var(--color-cream);
+  }
+
+  /* ── Right: Pesto, the QR card, the path to the phone ─────────────────── */
+  /* 604×742 in artboard 41, from the book sticker to the puzzle sticker. */
+  .pz-desk-art {
+    position: relative;
+    width: 604em;
+    height: 742em;
+    flex: none;
+    /* Hangs a little past the column on the right: 4px at 1440, 29px at 1024. */
+    margin-right: calc(-4px - (1px - var(--u)) * 125);
+    font-size: var(--u);
+  }
+  .pz-desk-art > * {
+    position: absolute;
+  }
+  .pz-desk-pesto {
+    position: absolute;
+    left: 58em;
+    top: 70em;
+    z-index: 3;
+  }
+  .pz-desk-pesto .pz-face {
+    box-shadow:
+      0 0 0 6em #fff,
+      0 8em 0 6em #d5dcd8;
+  }
+  .pz-desk-pesto .pz-thumb {
+    right: -4em;
+    bottom: -2em;
+    width: 46em;
+    height: 46em;
+    box-shadow: 0 0 0 4em #fff;
+  }
+  .pz-desk-pesto .pz-thumb svg {
+    width: 26em;
+    height: 26em;
+  }
+  /*
+   * Grows up and to the right from above his head as the line gets longer.
+   * Its em is its own 20px type: 80, 694 and 300 design px here.
+   */
+  .pz-desk-bubble {
+    left: 4em;
+    bottom: 34.7em;
+    z-index: 4;
+    width: max-content;
+    max-width: 15em;
+    border-radius: 0.8em;
+    padding: 0.55em 0.8em;
+    font-size: 20em;
+    line-height: 1.3;
+  }
+  .pz-desk-card {
+    left: 150em;
+    top: 140em;
+    z-index: 2;
+    width: 360em;
+    height: 400em;
+    border-radius: 30em;
+    background: #fff;
+    box-shadow:
+      0 0 0 6em rgb(255 255 255 / 0.12),
+      0 30em 70em -10em rgb(0 0 0 / 0.45);
+  }
+  .pz-desk-qr {
+    position: absolute;
+    left: 70em;
+    top: 55em;
+    width: 220em;
+    height: 220em;
+  }
+  .pz-desk-qr svg {
+    width: 100%;
+    height: 100%;
+  }
+  .pz-desk-qr-face {
+    position: absolute;
+    left: 88em;
+    top: 88em;
+    width: 44em;
+    height: 44em;
+    box-shadow: 0 0 0 3em #fff;
+  }
+  /* Its em is its own 20px type: 316 design px from the top. */
+  .pz-desk-caption {
+    position: absolute;
+    inset: 15.8em 0 auto;
+    margin: 0;
+    color: var(--color-forest);
+    font: 800 20em/1.4 var(--font-display);
+    text-align: center;
+  }
+  .pz-desk-path {
+    left: 356em;
+    top: 542em;
+    width: 118em;
+    height: 78em;
+    overflow: visible;
+  }
+  /* The mask's stroke draws in along the path and reveals the dots. */
+  .pz-desk-path-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: pz-desk-draw 1.1s 0.6s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+  }
+  @keyframes pz-desk-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .pz-desk-phone {
+    left: 480em;
+    top: 564em;
+    z-index: 1;
+    width: 96em;
+    height: 170em;
+    border-radius: 22em;
+    background: #fff;
+    box-shadow:
+      inset 0 0 0 4em #bdf53f,
+      0 14em 30em rgb(0 0 0 / 0.35);
+    rotate: -10deg;
+    animation: pz-desk-bob 3.2s ease-in-out infinite;
+  }
+  @keyframes pz-desk-bob {
+    50% {
+      translate: 0 -8em;
+    }
+  }
+  .pz-desk-phone::before {
+    position: absolute;
+    left: 30em;
+    top: 10em;
+    width: 36em;
+    height: 9em;
+    border-radius: 5em;
+    background: var(--color-forest);
+    content: "";
+  }
+  .pz-desk-phone::after {
+    position: absolute;
+    left: 16em;
+    top: 128em;
+    width: 64em;
+    height: 18em;
+    border-radius: 6em;
+    background: var(--color-day-lime);
+    content: "";
+  }
+  .pz-desk-phone-face {
+    position: absolute;
+    left: 22em;
+    top: 46em;
+    width: 52em;
+    height: 52em;
+    box-shadow:
+      0 0 0 3em #fff,
+      0 3em 0 3em #d5dcd8;
+  }
+  /* The phone's Pesto blinks now and then. */
+  .pz-desk-phone-face :is([class~="lid-top"], [class~="lid-bot"]) {
+    animation: pz-desk-blink 4.2s 1.2s infinite;
+  }
+  @keyframes pz-desk-blink {
+    0%,
+    93%,
+    100% {
+      transform: scaleY(0);
+    }
+    95%,
+    97% {
+      transform: scaleY(1);
+    }
+  }
+  /* White tiles for the two IconStickers (ui/sticker.tsx). */
+  .pz-desk-sticker {
+    border: 2em solid var(--color-day-border) !important;
+    border-radius: 27% !important;
+    background: #fff !important;
+    box-shadow: 0 4em 0 var(--color-day-border) !important;
+  }
+  .pz-desk-sticker img {
+    width: 64%;
+    height: 64%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pz-desk-phone,
+    .pz-desk-phone-face :is([class~="lid-top"], [class~="lid-bot"]) {
+      animation: none;
+    }
+    .pz-desk-path-draw {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+    .pz-desk-button {
       transition: none;
     }
   }
