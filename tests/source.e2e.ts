@@ -30,7 +30,7 @@ describe('source', () => {
     test(c.title, async ({ app, browser, screen }) => {
       await runOnlyOn(browser, ['phone-chromium']);
       await openApply(app, browser, c.path);
-      await expect(screen.getByRole('heading', 'For kids who ask why?')).toBeVisible();
+      await expect(screen.getByRole('heading', 'Interactive storybook for young kids')).toBeVisible();
 
       const draft = await readStored<StoredDraft>(browser, DRAFT_KEY);
       expect(draft).toMatchObject(c.expected);

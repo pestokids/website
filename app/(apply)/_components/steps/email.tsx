@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
-import { email as copy, emailDomains, errors } from "@/content/apply";
+import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { email as copy, emailDomains, errors, pesto as lines, pestoCheckInLine } from "@/content/apply";
 import {
   completeWith,
   emailSuggestion,
@@ -11,15 +11,39 @@ import {
   isEmailFormatValid,
   normaliseEmail,
 } from "../../_lib/email";
+import { buzz, burstStar, chirp } from "../../_lib/feel";
 import { submitApplication } from "../../_lib/submit";
 import { track, type SuggestionKind } from "../../_lib/track";
 import { useFlow } from "../apply-flow";
-import { StepScreen } from "../step-screen";
-import { RoundSubmitButton } from "../ui/button";
+import { PestoSays } from "../pesto/pesto";
+import { useIdleCheckIn } from "../pesto/use-idle-check-in";
+import { prefersReducedMotion, usePesto, type PestoController } from "../pesto/use-pesto";
+import { QuestionScreen } from "../step-screen";
+import { SubmitButton } from "../ui/button";
 import { SuggestionChip } from "../ui/chip";
 import { LockIcon } from "../ui/icons";
-import { StickyFooter } from "../ui/sticky-footer";
 import { TextField } from "../ui/text-field";
+
+/** A pause in typing before Pesto judges the address. */
+const SETTLE_MS = 750;
+/** The star burst's length: Received waits for it (the request never does). */
+const BURST_MS = 650;
+
+let measure: CanvasRenderingContext2D | null | undefined;
+
+/** Points Pesto's eyes at the end of the typed address. */
+function followTyping(pesto: PestoController, input: HTMLInputElement) {
+  measure ??= document.createElement("canvas").getContext("2d");
+  if (!measure) return;
+  const cs = getComputedStyle(input);
+  measure.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const x = Math.min(
+    input.clientWidth - 20,
+    parseFloat(cs.paddingLeft) + measure.measureText(input.value).width,
+  );
+  const r = input.getBoundingClientRect();
+  pesto.lookAtPoint(r.left + x, r.top + r.height / 2);
+}
 
 type Status = "idle" | "submitting" | "failed";
 /**
@@ -57,6 +81,7 @@ export function EmailStep() {
   const warnedTypos = useRef(new Set<string>());
   const inFlight = useRef(false);
   const trap = useRef<HTMLInputElement>(null);
+  const formId = useId();
 
   const submitting = status === "submitting";
   // No ghost over state B: the fix chip is the suggestion there.
@@ -117,15 +142,23 @@ export function EmailStep() {
 
     inFlight.current = true;
     setStatus("submitting");
+    // Started from the tap (audio needs it), alongside the request: never before it.
+    chirp();
+    buzz();
+    burstStar();
+    const sentAt = Date.now();
     const result = await submitApplication(draft, normaliseEmail(value), trapValue);
-    inFlight.current = false;
 
     if (result.ok) {
       // A filled trap means a bot: the server saved nothing, so record no conversion.
       if (!trapValue) track.submitted(draft, result.submitted);
+      // Let the star burst finish before Received replaces the screen.
+      const wait = prefersReducedMotion() ? 0 : Math.max(0, BURST_MS - (Date.now() - sentAt));
+      if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
       completeSubmit(result.submitted);
       return;
     }
+    inFlight.current = false;
     track.submitFailed(draft, result.reason);
     if (
       result.reason === "invalid_email" ||
@@ -173,97 +206,141 @@ export function EmailStep() {
           ? copy.sub.typing
           : copy.sub.empty;
 
+  // ── Pesto ──
+  // Leans in and follows the typing; puzzled next to the typo suggestion; a
+  // settled, valid address gets happy eyes, a thumbs-up and "Looks perfect!".
+  const pesto = usePesto();
+  useIdleCheckIn(pesto, pestoCheckInLine("email"));
+  useEffect(() => {
+    pesto.say(lines.email.intro);
+  }, [pesto]);
+  const praised = useRef("");
+  const puzzledBy = useRef("");
+  const typo = !submitting && fix ? fix : null;
+  useEffect(() => {
+    pesto.set("puzzled", Boolean(typo));
+    if (typo) {
+      pesto.set("lean", false);
+      pesto.set("thumbs-up", false);
+      pesto.look(0, 0);
+      if (puzzledBy.current !== value) {
+        puzzledBy.current = value;
+        pesto.say(lines.email.typo(value.split("@").pop() ?? "", typo.split("@").pop() ?? ""));
+      }
+      return;
+    }
+    if (!ready && !submitting) {
+      pesto.set("thumbs-up", false);
+      pesto.set("lean", focused && value.trim() !== "");
+      return;
+    }
+    // Judged once the typing settles.
+    const t = setTimeout(() => {
+      pesto.set("lean", false);
+      pesto.set("thumbs-up", true);
+      pesto.look(0, 0);
+      if (praised.current !== value && !submitting) {
+        praised.current = value;
+        pesto.say(lines.email.good);
+        buzz();
+      }
+    }, SETTLE_MS);
+    return () => clearTimeout(t);
+  }, [pesto, typo, ready, submitting, focused, value]);
+
   return (
-    <StepScreen name="email">
-      {/* The design's two lines need ~362px; narrower phones wrap it as one balanced sentence. */}
-      <h1 className="font-display text-[28px] leading-8 font-extrabold text-balance">
-        {copy.headline.map((line, i) => (
-          <span key={i} className="min-[402px]:block">
-            {i > 0 && " "}
-            {line}
-          </span>
-        ))}
-      </h1>
+    <QuestionScreen
+      name="email"
+      says={<PestoSays pesto={pesto} badges />}
+      question={copy.headline.join(" ")}
+      sub={submitting ? copy.sending : copy.lastStep}
+      footer={
+        <>
+          <p aria-live="polite" className="-mb-1 text-center text-[13px] leading-[18px] font-semibold text-day-sub">
+            {sub}
+          </p>
+          <SubmitButton type="submit" form={formId} disabled={!ready} busy={submitting}>
+            {copy.submitLabel}
+          </SubmitButton>
+        </>
+      }
+    >
+      <form id={formId} noValidate onSubmit={onSubmit} className="flex flex-col">
+        <TextField
+          label={copy.label}
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="go"
+          autoFocus
+          placeholder={copy.placeholder}
+          value={value}
+          ghost={ghost ?? undefined}
+          readOnly={submitting}
+          valid={ready || submitting}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            followTyping(pesto, e.target);
+          }}
+          onKeyDown={onKeyDown}
+          onFocus={(e) => {
+            setFocused(true);
+            followTyping(pesto, e.currentTarget);
+          }}
+          onBlur={() => {
+            setFocused(false);
+            pesto.later(() => pesto.look(0, 0), 300);
+            if (!submitting) check();
+          }}
+          error={
+            invalid &&
+            (invalid.problem === "disposable" ? (
+              errors.emailDisposable
+            ) : fix ? (
+              <>
+                {errors.emailInvalid}
+                <span className="mt-2 flex">
+                  <SuggestionChip
+                    highlighted
+                    // Keep the keyboard up: don't move focus off the field.
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => applySuggestion(fix, "typo")}
+                  >
+                    {copy.suggestion(fix)}
+                  </SuggestionChip>
+                </span>
+              </>
+            ) : invalid.problem === "undeliverable" ? (
+              errors.emailUndeliverable
+            ) : (
+              errors.emailInvalidPlain
+            ))
+          }
+          hint={status === "failed" ? <span className="text-error-text">{errors.network}</span> : undefined}
+        />
 
-      <form noValidate onSubmit={onSubmit} className="mt-4 flex flex-col">
-        <div className="flex min-h-[126px] flex-col">
-          <TextField
-            label={copy.label}
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            enterKeyHint="go"
-            autoFocus
-            placeholder={copy.placeholder}
-            value={value}
-            ghost={ghost ?? undefined}
-            readOnly={submitting}
-            valid={ready || submitting}
-            onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={onKeyDown}
-            onFocus={() => setFocused(true)}
-            onBlur={() => {
-              setFocused(false);
-              if (!submitting) check();
-            }}
-            error={
-              invalid &&
-              (invalid.problem === "disposable" ? (
-                errors.emailDisposable
-              ) : fix ? (
-                <>
-                  {errors.emailInvalid}
-                  <span className="mt-2 mb-3 flex">
-                    <SuggestionChip
-                      highlighted
-                      // Keep the keyboard up: don't move focus off the field.
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => applySuggestion(fix, "typo")}
-                    >
-                      {copy.suggestion(fix)}
-                    </SuggestionChip>
-                  </span>
-                </>
-              ) : invalid.problem === "undeliverable" ? (
-                errors.emailUndeliverable
-              ) : (
-                errors.emailInvalidPlain
-              ))
-            }
-            hint={
-              status === "failed" ? (
-                <span className="text-error-text">{errors.network}</span>
-              ) : ready || submitting ? (
-                <>
-                  <LockIcon />
-                  {copy.privacy}
-                </>
-              ) : undefined
-            }
-          />
+        {showDomainChips && (
+          <div role="group" aria-label={copy.domainChipsLabel} className="mt-2.5 flex flex-wrap gap-x-2 gap-y-3">
+            {emailDomains.map((domain) => (
+              <SuggestionChip
+                key={domain}
+                highlighted={domain === (ghostTarget ?? (!value.trim() && preferredDomain))}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => pickDomain(domain)}
+              >
+                {copy.domainChip(domain)}
+              </SuggestionChip>
+            ))}
+          </div>
+        )}
 
-          {showDomainChips && (
-            <div
-              role="group"
-              aria-label={copy.domainChipsLabel}
-              className="-mx-[var(--margin-page)] mt-2.5 flex gap-2.5 overflow-x-auto px-[var(--margin-page)] py-0.5 [scrollbar-width:none] [mask-image:linear-gradient(90deg,#000_calc(100%-var(--margin-page)-16px),transparent)] [&::-webkit-scrollbar]:hidden"
-            >
-              {emailDomains.map((domain) => (
-                <SuggestionChip
-                  key={domain}
-                  highlighted={domain === (ghostTarget ?? (!value.trim() && preferredDomain))}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => pickDomain(domain)}
-                >
-                  {copy.domainChip(domain)}
-                </SuggestionChip>
-              ))}
-            </div>
-          )}
-        </div>
+        <p className="mt-3.5 flex items-center gap-2 rounded-xl bg-day-tile px-3 py-2.5 text-[13px] leading-[18px] font-semibold text-day-sub">
+          <LockIcon className="shrink-0" />
+          {copy.privacy}
+        </p>
 
         {/* Spam trap: off-screen, out of the tab order and hidden from screen
             readers, so only bots fill it. */}
@@ -273,24 +350,7 @@ export function EmailStep() {
             <input ref={trap} type="text" name="website" tabIndex={-1} autoComplete="off" />
           </label>
         </div>
-
-        <StickyFooter placement="inline">
-          <div className="flex items-center justify-between gap-4">
-            <div aria-live="polite" className="min-w-0">
-              <p className="font-display text-xl leading-6 font-extrabold">
-                {submitting ? copy.sending : copy.lastStep}
-              </p>
-              <p className="text-[15px] leading-5 text-muted">{sub}</p>
-            </div>
-            <RoundSubmitButton
-              type="submit"
-              aria-label={copy.submitLabel}
-              disabled={!ready}
-              busy={submitting}
-            />
-          </div>
-        </StickyFooter>
       </form>
-    </StepScreen>
+    </QuestionScreen>
   );
 }

@@ -46,7 +46,7 @@ function expectWideRule({ wide, phone }: Awaited<ReturnType<typeof measure>>) {
 test('wide layout: welcome', async ({ app, browser, screen }) => {
   await runOnlyOn(browser, ['fold']);
   await openApply(app, browser);
-  const headline = screen.getByRole('heading', 'For kids who ask why?');
+  const headline = screen.getByRole('heading', 'Interactive storybook for young kids');
   const button = screen.getByRole('button', 'Count us in');
   await expect(button).toBeVisible();
   expectWideRule(await measure(browser, headline, button));

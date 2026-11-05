@@ -10,8 +10,8 @@ export type ConfirmationEmailData = {
   family: Family;
   kids: { name: string; age: string }[];
   whatsappUrl: string;
-  /** e.g. "October 31" */
-  betaDate: string;
+  /** e.g. "October 31". Null until the beta day is set: the email then leaves it out. */
+  betaDate: string | null;
   refCode: string;
 };
 
@@ -31,7 +31,8 @@ export const confirmationEmail = {
         `${family.names} to try tonight:`,
       whatsappUrl,
       "",
-      `Beta day is ${betaDate}. Your Founding Family letter will be in your inbox within 48 hours.`,
+      (betaDate ? `Beta day is ${betaDate}. ` : "") +
+        "Your Founding Family letter will be in your inbox within 48 hours.",
       "",
       "Warmly,",
       "The Pesto team",

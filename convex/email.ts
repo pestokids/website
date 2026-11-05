@@ -17,11 +17,20 @@ export type EmailEnv = {
 
 export type EmailConfig =
   | { enabled: false }
-  | { enabled: true; apiKey: string; from: string; whatsappNumber: string; betaDate: string };
+  | {
+      enabled: true;
+      apiKey: string;
+      from: string;
+      whatsappNumber: string;
+      /** e.g. "October 31", or null while the beta day isn't set. */
+      betaDate: string | null;
+    };
 
 /**
  * Reads the Convex env for sending. Sending is off unless EMAIL_SEND_ENABLED
- * is "true"; when it's on, every other var must be present and well-formed.
+ * is "true"; when it's on, every other var must be present and well-formed,
+ * except NEXT_PUBLIC_BETA_DATE: unset, the email leaves the beta day out, but
+ * a value that is set must be a real date.
  */
 export function readEmailConfig(env: EmailEnv): EmailConfig | { problems: string[] } {
   const get = (key: keyof EmailEnv) => env[key]?.trim() ?? "";
@@ -31,16 +40,19 @@ export function readEmailConfig(env: EmailEnv): EmailConfig | { problems: string
   const apiKey = get("RESEND_API_KEY");
   const from = get("EMAIL_FROM");
   const whatsappNumber = get("NEXT_PUBLIC_WHATSAPP_NUMBER");
-  const betaDate = parseIsoDate(get("NEXT_PUBLIC_BETA_DATE"));
+  const rawBetaDate = get("NEXT_PUBLIC_BETA_DATE");
+  const betaDate = rawBetaDate ? parseIsoDate(rawBetaDate) : null;
   if (!apiKey) problems.push("RESEND_API_KEY is not set");
   if (!from) problems.push("EMAIL_FROM is not set");
   if (!isWhatsappNumber(whatsappNumber)) {
     problems.push("NEXT_PUBLIC_WHATSAPP_NUMBER must be E.164 digits without the +");
   }
-  if (!betaDate) problems.push("NEXT_PUBLIC_BETA_DATE must be a date in YYYY-MM-DD form");
-  if (problems.length > 0 || !betaDate) return { problems };
+  if (rawBetaDate && !betaDate) {
+    problems.push("NEXT_PUBLIC_BETA_DATE must be a date in YYYY-MM-DD form");
+  }
+  if (problems.length > 0) return { problems };
 
-  return { enabled: true, apiKey, from, whatsappNumber, betaDate: betaDate.long };
+  return { enabled: true, apiKey, from, whatsappNumber, betaDate: betaDate?.long ?? null };
 }
 
 export const RESEND_URL = "https://api.resend.com/emails";

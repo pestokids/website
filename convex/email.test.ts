@@ -1,5 +1,7 @@
 // @vitest-environment edge-runtime
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { confirmationEmail } from "../content/email";
+import { familyOf } from "../app/(apply)/_lib/personalise";
 import { isRetryableStatus, readEmailConfig } from "./email";
 import { setupConvex, submit } from "./test.setup";
 
@@ -60,6 +62,21 @@ describe("readEmailConfig", () => {
     });
   });
 
+  it("sends without a beta date when it isn't set, but rejects a malformed one", () => {
+    for (const unset of [undefined, "", "  "]) {
+      expect(readEmailConfig({ ...env, NEXT_PUBLIC_BETA_DATE: unset })).toEqual({
+        enabled: true,
+        apiKey: "test-resend-key",
+        from: "Pesto <test.sender@example.com>",
+        whatsappNumber: "15550000000",
+        betaDate: null,
+      });
+    }
+    expect(readEmailConfig({ ...env, NEXT_PUBLIC_BETA_DATE: "31/10/2026" })).toEqual({
+      problems: ["NEXT_PUBLIC_BETA_DATE must be a date in YYYY-MM-DD form"],
+    });
+  });
+
   it("reports every missing or malformed var when sending is on", () => {
     const result = readEmailConfig({
       EMAIL_SEND_ENABLED: "true",
@@ -74,6 +91,29 @@ describe("readEmailConfig", () => {
         "NEXT_PUBLIC_BETA_DATE must be a date in YYYY-MM-DD form",
       ],
     });
+  });
+});
+
+describe("confirmationEmail.text", () => {
+  const data = {
+    family: familyOf(["Test Kid A"]),
+    kids: [{ name: "Test Kid A", age: "5" }],
+    whatsappUrl: "https://wa.me/15550000000",
+    refCode: "PF-TEST",
+  };
+
+  it("names the beta day when it's set", () => {
+    expect(confirmationEmail.text({ ...data, betaDate: "October 31" })).toContain(
+      "\nBeta day is October 31. Your Founding Family letter will be in your inbox within 48 hours.\n",
+    );
+  });
+
+  it("leaves only the beta day out when it isn't set", () => {
+    const withDate = confirmationEmail.text({ ...data, betaDate: "October 31" });
+    const without = confirmationEmail.text({ ...data, betaDate: null });
+    expect(without).not.toContain("Beta day");
+    expect(without).toContain("\nYour Founding Family letter will be in your inbox within 48 hours.\n");
+    expect(without).toBe(withDate.replace("Beta day is October 31. ", ""));
   });
 });
 
@@ -128,6 +168,15 @@ describe("email.sendConfirmation", () => {
     expect(body.text).toContain(`https://wa.me/15550000000?text=${prefill}`);
     expect(body.text).toContain("Beta day is October 31.");
     expect(body.text).toContain(refCode);
+  });
+
+  it("still sends when the beta date isn't set, without the beta day", async () => {
+    vi.stubEnv("NEXT_PUBLIC_BETA_DATE", "");
+    const { fetchSpy, doc } = await submitAndSend(async () => Response.json({ id: "test-email-id" }));
+    expect(doc?.emailStatus).toBe("sent");
+    const body = JSON.parse((fetchSpy.mock.calls[0] as unknown as [string, RequestInit])[1].body as string);
+    expect(body.text).not.toContain("Beta day");
+    expect(body.text).toContain("Your Founding Family letter will be in your inbox within 48 hours.");
   });
 
   it("marks the email failed, without retrying, when Resend rejects it with a 4xx", async () => {

@@ -249,10 +249,13 @@ export function ApplyFlow() {
 
   return (
     <FlowContext value={value}>
-      <FlowProgressHeader />
-      <main className="flex flex-1 flex-col px-[var(--margin-page)]">
-        <StepView step={step} />
-      </main>
+      <div className="contents font-flow text-forest">
+        <FlowProgressHeader />
+        <main className="flex flex-1 flex-col px-[var(--margin-page)]">
+          {/* Keyed so every screen (each age screen too) mounts fresh and slides in. */}
+          <StepView key={step} step={step} />
+        </main>
+      </div>
     </FlowContext>
   );
 }

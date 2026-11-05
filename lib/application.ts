@@ -6,10 +6,10 @@
  * can include it.
  */
 import {
-  afterSchoolOptions,
+  acceptedAfterSchoolSlugs,
+  acceptedGoalSlugs,
   ageOptions,
   EXCLUSIVE_AFTER_SCHOOL,
-  goalOptions,
   MAX_GOALS,
   MAX_KIDS,
   NAME_MAX_LENGTH,
@@ -106,8 +106,10 @@ export const POSTHOG_ID_MAX_LENGTH = 200;
 
 const ATTRIBUTION_KEYS = [...ATTRIBUTION_PARAMS, "landing_url", "referrer"] as const;
 const ageSet = new Set<string>(ageOptions);
-const goalSlugs = new Set<string>(goalOptions.map((o) => o.slug));
-const afterSchoolSlugs = new Set<string>(afterSchoolOptions.map((o) => o.slug));
+// Offered and retired slugs alike, so drafts and applications saved before an
+// option was retired stay valid.
+const goalSlugs = new Set<string>(acceptedGoalSlugs);
+const afterSchoolSlugs = new Set<string>(acceptedAfterSchoolSlugs);
 
 function isSlugList<T extends string>(list: string[], allowed: Set<string>): list is T[] {
   return list.every((x) => allowed.has(x)) && new Set(list).size === list.length;

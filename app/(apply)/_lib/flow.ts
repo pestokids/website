@@ -3,10 +3,10 @@
  * Pure and framework-free so it can be unit-tested.
  */
 import {
-  afterSchoolOptions,
+  acceptedAfterSchoolSlugs,
+  acceptedGoalSlugs,
   ageOptions,
   EXCLUSIVE_AFTER_SCHOOL,
-  goalOptions,
   MAX_GOALS,
   MAX_KIDS,
   type AfterSchoolSlug,
@@ -324,8 +324,9 @@ export function analyticsStep(step: Step): { step: string; kid_index?: number } 
 
 // ── Draft sanitising (localStorage is untrusted) ─────────────────────────────
 
-const goalSlugs = new Set<string>(goalOptions.map((o) => o.slug));
-const afterSchoolSlugs = new Set<string>(afterSchoolOptions.map((o) => o.slug));
+// Retired slugs too: a draft saved before an option was retired keeps it.
+const goalSlugs = new Set<string>(acceptedGoalSlugs);
+const afterSchoolSlugs = new Set<string>(acceptedAfterSchoolSlugs);
 const ageSet = new Set<string>(ageOptions);
 
 function isRecord(value: unknown): value is Record<string, unknown> {

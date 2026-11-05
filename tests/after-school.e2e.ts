@@ -49,14 +49,14 @@ test('"Mostly just school" is exclusive', async ({ app, browser, screen, agent }
   await expect(hint).toBeHidden({ timeout: 6_000 });
 
   // Picking another option drops it, silently.
-  await chip('Bal Vihar').tap();
-  await expect(chip('Bal Vihar')).toHaveAttribute('aria-pressed', 'true');
+  await chip('Playing outside').tap();
+  await expect(chip('Playing outside')).toHaveAttribute('aria-pressed', 'true');
   await expect(school).toHaveAttribute('aria-pressed', 'false');
   await expect(screen.getByText(CLEARED)).toHaveCount(0);
-  expect((await readStored<StoredDraft>(browser, DRAFT_KEY))!.afterSchool).toEqual(['bal_vihar']);
+  expect((await readStored<StoredDraft>(browser, DRAFT_KEY))!.afterSchool).toEqual(['playing_outside']);
 
   // Tapping it with nothing else picked shows no hint.
-  await chip('Bal Vihar').tap();
+  await chip('Playing outside').tap();
   await school.tap();
   await expect(school).toHaveAttribute('aria-pressed', 'true');
   await expect(screen.getByText(CLEARED)).toHaveCount(0);

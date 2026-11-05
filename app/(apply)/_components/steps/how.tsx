@@ -1,107 +1,88 @@
 "use client";
 
-import { how } from "@/content/apply";
+/* eslint-disable @next/next/no-img-element -- tiny static SVGs */
+import { useEffect, type CSSProperties } from "react";
+import { how, pestoCheckInLine } from "@/content/apply";
 import { useFlow } from "../apply-flow";
+import { PestoBubble, PestoFace, pestoPose } from "../pesto/pesto";
+import { useIdleCheckIn } from "../pesto/use-idle-check-in";
+import { prefersReducedMotion, usePesto } from "../pesto/use-pesto";
 import { StepScreen } from "../step-screen";
 import { PrimaryButton } from "../ui/button";
-import { IconSticker, PestoSticker } from "../ui/sticker";
+import { day } from "../classes";
 
-/** Per trail sticker (Stories, Questions, Games): tilt, and how far it rises. */
-const trailStyle: { tilt: number; lift: number }[] = [
-  { tilt: -8, lift: 0 },
-  { tilt: 4, lift: 22 },
-  { tilt: -5, lift: -6 },
-];
+/** When each line slides in (s): "Play." ×3, then "Learn." */
+const lineDelays = [0, 0.25, 0.5, 0.9];
+const ASIDE_DELAY = 1.3;
+const TRAIL_DELAYS = [1.5, 1.7, 1.9];
+/** Pesto winks as "Learn." lands. */
+const WINK_AT_MS = 1050;
+
+const delay = (s: number): CSSProperties => ({ animationDelay: `${s}s` });
 
 export function HowStep() {
   const { advance, family } = useFlow();
   const last = how.lines.length - 1;
+
+  const pesto = usePesto();
+  useIdleCheckIn(pesto, pestoCheckInLine("how"));
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    pesto.later(() => pesto.look(-40, 10), 300);
+    pesto.later(() => pesto.flash("wink", 420), WINK_AT_MS);
+    pesto.later(() => pesto.look(0, 0), 1500);
+  }, [pesto]);
 
   return (
     <StepScreen
       name="how"
       footer={<PrimaryButton onClick={() => advance()}>{how.cta}</PrimaryButton>}
     >
-      <div className="relative pt-1">
-        <h1 className="font-display text-[54px] leading-[56px] font-extrabold">
+      <div className="relative">
+        <h1 className="mt-[22px] font-display text-[50px] leading-none font-extrabold tracking-[-0.5px]">
           {how.lines.map((line, i) => (
-            <span key={i} className={`block ${i === last ? "text-orange" : ""}`}>
+            <span
+              key={i}
+              className={`block ${day.slideIn} ${i === last ? "text-orange" : ""}`}
+              style={delay(lineDelays[i])}
+            >
               {line}
             </span>
           ))}
         </h1>
-        <PestoSticker size={120} tilt={7} zoom={1.15} className="absolute top-1 right-1" />
+        <p
+          className={`mt-1 text-sm leading-5 font-extrabold text-lime-text ${day.slideIn}`}
+          style={delay(ASIDE_DELAY)}
+        >
+          {how.aside}
+        </p>
+
+        <div className="absolute top-[34px] right-1.5">
+          <PestoBubble
+            pesto={pesto}
+            variant="dark-down"
+            className="absolute bottom-[calc(100%+10px)] left-1/2 w-max max-w-[180px] -translate-x-1/2"
+          />
+          <PestoFace pesto={pesto} size={120} holderClassName={pestoPose.bob} />
+        </div>
       </div>
 
-      <p className="mt-2 flex items-center gap-2 text-[15px] leading-5 font-bold text-orange">
-        <Squiggle />
-        {how.aside}
-      </p>
+      <p className="mt-3.5 text-sm leading-[1.45] text-day-sub">{how.sub(family)}</p>
 
-      <p className="mt-4 text-base leading-[22px] text-muted">{how.sub(family)}</p>
-
-      <div className="relative mt-[clamp(28px,calc(100dvh-706px),48px)] pb-2">
-        <TrailDots />
-        <ul className="relative -left-3 grid grid-cols-3">
-          {how.trail.map((item, i) => {
-            const s = trailStyle[i];
-            return (
-              <li
-                key={item.label}
-                className="flex flex-col items-center gap-1.5"
-                style={{ translate: `0 ${-s.lift}px` }}
-              >
-                <IconSticker icon={item.icon} size={66} tilt={s.tilt} />
-                <span
-                  className="font-display text-[17px] leading-6 font-extrabold text-forest/80"
-                  style={{ rotate: `${s.tilt}deg` }}
-                >
-                  {item.label}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      <ul className="relative mt-5 flex justify-between before:absolute before:inset-x-[30px] before:top-[30px] before:border-t-2 before:border-dashed before:border-day-ring before:content-['']">
+        {how.trail.map((item, i) => (
+          <li
+            key={item.label}
+            className={`relative grid justify-items-center gap-1.5 font-display text-sm font-extrabold ${day.slideIn}`}
+            style={delay(TRAIL_DELAYS[i])}
+          >
+            <span className="grid size-[60px] place-items-center rounded-2xl border-2 border-day-border bg-white shadow-[0_4px_0_var(--color-day-border)]">
+              <img src={`/icons/md/${item.icon}.svg`} alt="" width={36} height={36} />
+            </span>
+            {item.label}
+          </li>
+        ))}
+      </ul>
     </StepScreen>
-  );
-}
-
-/** Lime wave under "Learn.", before the aside. */
-function Squiggle() {
-  return (
-    <svg width="126" height="20" viewBox="0 0 126 20" fill="none" aria-hidden="true" className="shrink-0">
-      <path
-        d="M3 13C17 4 31 4 45 10s28 8 40 2 26-9 38-2"
-        stroke="var(--color-lime)"
-        strokeWidth="6"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-/**
- * Dotted path linking the three trail stickers. Stretches with the column;
- * the stroke and dot spacing stay the same size.
- */
-function TrailDots() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-x-0 top-0 h-[66px] w-full"
-      viewBox="0 0 362 66"
-      preserveAspectRatio="none"
-      fill="none"
-    >
-      <path
-        d="M84 38C100 42 118 43 134 40M206 20C222 23 238 30 254 40"
-        stroke="var(--color-pale)"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeDasharray="0 8"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
   );
 }

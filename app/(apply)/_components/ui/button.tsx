@@ -1,50 +1,54 @@
 import type { ComponentProps, MouseEvent } from "react";
-import { ArrowRightIcon } from "./icons";
 
 type ButtonProps = ComponentProps<"button">;
 
-const pill =
-  "inline-flex h-[52px] items-center justify-center gap-1.5 rounded-full px-6 font-display text-[17px] leading-none font-extrabold whitespace-nowrap " +
-  "transition-transform duration-150 ease-step motion-safe:enabled:active:scale-[0.97]";
+/**
+ * Chunky button: 54px tall with a 4px darker edge underneath. Pressing sinks
+ * it onto its edge.
+ */
+const chunky =
+  "inline-flex h-[54px] items-center justify-center gap-2.5 rounded-[15px] px-6 font-display text-lg leading-none font-extrabold whitespace-nowrap " +
+  "transition-[transform,box-shadow,opacity] duration-100 ease-out enabled:active:translate-y-[3px]";
 
 /**
- * Primary pill: forest gradient, cream label. Full width unless `className`
- * says otherwise. Disabled: pale fill, muted label, no shadow.
+ * Primary: lime with a deeper lime edge, forest label. Full width unless
+ * `className` says otherwise. Disabled: faded to 45%.
  */
 export function PrimaryButton({ className = "w-full", type = "button", ...props }: ButtonProps) {
   return (
     <button
       type={type}
-      className={`${pill} bg-forest-grad text-cream shadow-primary disabled:bg-disabled disabled:bg-none disabled:text-muted disabled:shadow-none ${className}`}
+      className={`${chunky} bg-day-lime text-forest shadow-[0_4px_0_var(--color-day-lime-deep)] enabled:active:shadow-[0_1px_0_var(--color-day-lime-deep)] disabled:opacity-45 ${className}`}
       {...props}
     />
   );
 }
 
-/** Secondary pill: white with a field-rest outline, forest label. */
+/** Secondary: white with a grey border and edge, forest label. */
 export function SecondaryButton({ className = "w-full", type = "button", ...props }: ButtonProps) {
   return (
     <button
       type={type}
-      className={`${pill} border-[1.5px] border-field-rest bg-white text-forest shadow-unselected disabled:border-hairline disabled:bg-white/60 disabled:text-muted disabled:shadow-none ${className}`}
+      className={`${chunky} border-2 border-day-border bg-white px-4 text-forest shadow-[0_4px_0_var(--color-day-border)] enabled:active:shadow-[0_1px_0_var(--color-day-border)] disabled:opacity-45 ${className}`}
       {...props}
     />
   );
 }
 
 /**
- * 52px round submit with an arrow (email screen). No outer ring.
- * `busy` swaps the arrow for a cream spinner and swallows clicks, so a
- * double tap can't submit twice; the button keeps focus while busy.
+ * The email screen's submit: a primary button that can be `busy`. Busy shows
+ * a spinner before the label and swallows clicks, so a double tap can't
+ * submit twice; the button keeps focus while busy.
  */
-export function RoundSubmitButton({
+export function SubmitButton({
   busy = false,
   disabled,
   onClick,
-  className = "",
+  className = "w-full",
   type = "button",
+  children,
   ...props
-}: ButtonProps & { busy?: boolean; "aria-label": string }) {
+}: ButtonProps & { busy?: boolean }) {
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     if (busy) {
       event.preventDefault();
@@ -54,23 +58,22 @@ export function RoundSubmitButton({
   };
 
   return (
-    <button
+    <PrimaryButton
       type={type}
       disabled={disabled && !busy}
       aria-disabled={busy || undefined}
       aria-busy={busy || undefined}
       onClick={handleClick}
-      className={`grid size-[52px] shrink-0 place-items-center rounded-full bg-forest-grad text-cream shadow-primary transition-transform duration-150 ease-step disabled:bg-disabled disabled:bg-none disabled:text-muted disabled:shadow-none ${
-        busy ? "cursor-progress" : "motion-safe:enabled:active:scale-[0.97]"
-      } ${className}`}
+      className={`${busy ? "cursor-progress" : ""} ${className}`}
       {...props}
     >
-      {busy ? <Spinner /> : <ArrowRightIcon size={20} strokeWidth={2.2} />}
-    </button>
+      {busy && <Spinner size={20} />}
+      {children}
+    </PrimaryButton>
   );
 }
 
-/** Cream ring spinner. With reduced motion it holds still (globals.css). */
+/** Ring spinner in the current colour. With reduced motion it holds still (globals.css). */
 export function Spinner({ size = 22 }: { size?: number }) {
   return (
     <svg

@@ -30,8 +30,11 @@ test('one kid: singular copy and possessives', async ({ app, browser, screen, ag
   await expect(
     screen.getByRole('heading', `After school, what keeps ${KID_A}’s brain busy?`),
   ).toBeVisible();
-  await agent.act('pick {option}', { params: { option: 'Bal Vihar' } });
-  await expect(screen.getByRole('button', 'Bal Vihar')).toHaveAttribute('aria-pressed', 'true');
+  await agent.act('pick {option}', { params: { option: 'Culture or language classes' } });
+  await expect(screen.getByRole('button', 'Culture or language classes')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   await screen.getByRole('button', 'That’s their week').tap();
 
   // 7 Why it works → 8 Email

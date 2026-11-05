@@ -1,11 +1,31 @@
 "use client";
 
-import { useId, useRef, type MouseEvent } from "react";
-import { goalOptions, goals as copy, MAX_GOALS, type GoalSlug } from "@/content/apply";
+import { useEffect, useId, useRef, useState, type MouseEvent } from "react";
+import {
+  goalOptions,
+  goals as copy,
+  MAX_GOALS,
+  pesto as lines,
+  pestoCheckInLine,
+  pestoGoalLine,
+  retiredGoalOptions,
+  type GoalSlug,
+} from "@/content/apply";
+import { buzz } from "../../_lib/feel";
 import { useFlow } from "../apply-flow";
-import { StepScreen } from "../step-screen";
+import { PestoSays } from "../pesto/pesto";
+import { useIdleCheckIn } from "../pesto/use-idle-check-in";
+import { usePesto } from "../pesto/use-pesto";
+import { QuestionScreen } from "../step-screen";
 import { PrimaryButton } from "../ui/button";
 import { Chip } from "../ui/chip";
+import { day } from "../classes";
+
+/** Offered goals, then retired ones (only ever shown when a resumed draft has them picked). */
+const allGoals = [...goalOptions, ...retiredGoalOptions];
+
+/** How long Pesto keeps happy eyes after the third goal. */
+const HAPPY_MS = 1600;
 
 /**
  * Fill in the blank: each option lives in exactly one place, either dropped
@@ -15,10 +35,18 @@ export function GoalsStep() {
   const { draft, dispatch, advance, family } = useFlow();
   const headlineId = useId();
   const groupRef = useRef<HTMLDivElement>(null);
+  // The last goal dropped in, so only it plays the drop.
+  const [dropped, setDropped] = useState<GoalSlug | null>(null);
+
+  const pesto = usePesto();
+  useIdleCheckIn(pesto, pestoCheckInLine("goals"));
+  useEffect(() => {
+    pesto.say(lines.goals.intro);
+  }, [pesto]);
 
   const picked = draft.goals;
   const full = picked.length >= MAX_GOALS;
-  const pickedOptions = picked.map((slug) => goalOptions.find((o) => o.slug === slug)!);
+  const pickedOptions = picked.map((slug) => allGoals.find((o) => o.slug === slug)!);
   const unpicked = goalOptions.filter((o) => !picked.includes(o.slug));
   const sentence = copy.sentence(family);
 
@@ -26,6 +54,16 @@ export function GoalsStep() {
   // button that had focus unmounts. Keep keyboard focus on the same option.
   const toggle = (slug: GoalSlug) => (event: MouseEvent<HTMLButtonElement>) => {
     const hadFocus = document.activeElement === event.currentTarget;
+    const adding = !picked.includes(slug);
+    if (adding && !full) {
+      setDropped(slug);
+      buzz();
+      const count = picked.length + 1;
+      pesto.say(pestoGoalLine(slug, count));
+      if (count >= MAX_GOALS) pesto.flash("happy", HAPPY_MS);
+    } else {
+      setDropped(null);
+    }
     dispatch({ type: "toggleGoal", slug });
     if (hadFocus) {
       requestAnimationFrame(() =>
@@ -35,29 +73,24 @@ export function GoalsStep() {
   };
 
   return (
-    <StepScreen
+    <QuestionScreen
       name="goals"
+      says={<PestoSays pesto={pesto} />}
+      questionId={headlineId}
+      question={sentence.join(" ")}
       footer={
         <PrimaryButton disabled={picked.length === 0} onClick={() => advance()}>
           {picked.length === 0 ? copy.pick : copy.confirm}
         </PrimaryButton>
       }
     >
-      <h1 id={headlineId} className="font-display text-[28px] leading-8 font-extrabold">
-        {sentence.map((line, i) => (
-          <span key={i} className="block">
-            {line}
-          </span>
-        ))}
-      </h1>
-
-      <div ref={groupRef} role="group" aria-labelledby={headlineId} className="mt-6 flex flex-col">
+      <div ref={groupRef} role="group" aria-labelledby={headlineId} className="flex flex-col">
         {/* The sentence. Two rows tall at rest, so the list doesn't jump as it fills. */}
-        <div className="flex min-h-[98px] flex-wrap content-start items-center gap-2.5">
+        <div className="flex min-h-[96px] flex-wrap content-start items-center gap-2">
           {pickedOptions.map((o, i) => (
-            <span key={o.slug} className="inline-flex items-center gap-2.5">
+            <span key={o.slug} className="inline-flex items-center gap-2">
               {i > 0 && (
-                <span className="font-display text-xl leading-none font-extrabold">
+                <span className="text-[15px] leading-none font-extrabold text-day-sub">
                   {copy.joiner}
                 </span>
               )}
@@ -66,21 +99,28 @@ export function GoalsStep() {
                 icon={o.icon}
                 pressed
                 onClick={toggle(o.slug)}
-                className="motion-safe:animate-drop-in"
+                className={`!shadow-none ${dropped === o.slug ? day.drop : ""}`}
               >
                 {o.label}
               </Chip>
             </span>
           ))}
           {!full && (
-            <span className="inline-flex h-11 items-center rounded-full border-2 border-dashed border-lime-deep/45 px-10 font-display text-[17px] leading-none font-bold whitespace-nowrap text-muted/55">
-              {picked.length === 0 ? copy.emptySlot : copy.moreSlot}
+            <span className="inline-flex items-center gap-2">
+              {picked.length > 0 && (
+                <span className="text-[15px] leading-none font-extrabold text-day-sub">
+                  {copy.joiner}
+                </span>
+              )}
+              <span className="inline-flex h-11 items-center rounded-full border-2 border-dashed border-day-ring px-3.5 text-sm leading-none font-bold whitespace-nowrap text-day-sub">
+                {picked.length === 0 ? copy.emptySlot : copy.moreSlot}
+              </span>
             </span>
           )}
         </div>
 
-        <div className="mt-9 flex items-center justify-between text-xs leading-4 font-bold tracking-[0.8px]">
-          <span className="text-muted">{copy.pickLabel}</span>
+        <div className="mt-2 flex items-center justify-between text-[11px] leading-4 font-extrabold tracking-[0.8px] text-day-sub">
+          <span>{copy.pickLabel}</span>
           <span className="flex items-center gap-2.5">
             <span aria-live="polite">{copy.counter(picked.length)}</span>
             <span aria-hidden="true" className="flex gap-1">
@@ -88,7 +128,7 @@ export function GoalsStep() {
                 <span
                   key={i}
                   className={`size-2 rounded-full ${
-                    i < picked.length ? "bg-lime-deep" : "border-[1.5px] border-muted/35"
+                    i < picked.length ? "bg-day-lime-deep" : "border-[1.5px] border-day-ring"
                   }`}
                 />
               ))}
@@ -96,7 +136,7 @@ export function GoalsStep() {
           </span>
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-2.5">
+        <div className="mt-2.5 flex flex-wrap gap-2">
           {unpicked.map((o) => (
             <Chip
               key={o.slug}
@@ -111,6 +151,6 @@ export function GoalsStep() {
           ))}
         </div>
       </div>
-    </StepScreen>
+    </QuestionScreen>
   );
 }

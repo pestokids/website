@@ -342,6 +342,56 @@ describe("resume from draft", () => {
     expect(loadDraft(storage)?.afterSchool).toEqual(["mostly_school"]);
   });
 
+  it("keeps goals and after-school picks that are no longer offered", () => {
+    const storage = memoryStorage();
+    storage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({
+        ...oneKid,
+        step: "why",
+        goals: ["being_kind", "the_world", "making_things"],
+        afterSchool: ["bal_vihar", "tutors"],
+      }),
+    );
+    expect(loadDraft(storage)).toMatchObject({
+      step: "why",
+      goals: ["being_kind", "the_world", "making_things"],
+      afterSchool: ["bal_vihar", "tutors"],
+    });
+  });
+
+  it("only offers the app's options; the retired ones are accepted, not offered", () => {
+    const offeredGoals = content.goalOptions.map((o) => o.slug);
+    const offeredAfterSchool = content.afterSchoolOptions.map((o) => o.slug);
+    expect(offeredGoals).toEqual([
+      "our_stories",
+      "space",
+      "science",
+      "music",
+      "art",
+      "animals",
+      "puzzles",
+      "new_words",
+    ]);
+    expect(offeredAfterSchool).toEqual([
+      "youtube_cartoons",
+      "learning_apps",
+      "bedtime_stories",
+      "grandparents",
+      "tutors",
+      "music_art_sports",
+      "culture_classes",
+      "playing_outside",
+      "mostly_school",
+    ]);
+    for (const slug of ["being_kind", "the_world", "making_things"] as const) {
+      expect(offeredGoals).not.toContain(slug);
+      expect(content.acceptedGoalSlugs).toContain(slug);
+    }
+    expect(offeredAfterSchool).not.toContain("bal_vihar");
+    expect(content.acceptedAfterSchoolSlugs).toContain("bal_vihar");
+  });
+
   it("returns null for corrupt JSON or a non-draft", () => {
     const storage = memoryStorage();
     storage.setItem(DRAFT_KEY, "{not json");

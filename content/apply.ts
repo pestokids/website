@@ -53,29 +53,70 @@ export const familyCountCopy = "100 families";
 export const ageOptions = ["3", "4", "5", "6", "7", "8+"] as const;
 export type Age = (typeof ageOptions)[number];
 
+/**
+ * The goals and after-school options match the app's onboarding
+ * (pestokids/app, app/src/onboarding/options.ts: TOPICS and AFTER_SCHOOL),
+ * in the same order with the same labels and icons. Slugs are the app's ids
+ * in this file's snake_case style. YouTube and learning apps keep the slugs
+ * the website already stored for them.
+ */
 export const goalOptions = [
   { slug: "our_stories", label: "our stories", icon: "diya" },
+  { slug: "space", label: "space", icon: "globe" },
   { slug: "science", label: "science", icon: "telescope" },
-  { slug: "being_kind", label: "being kind", icon: "heart" },
   { slug: "music", label: "music", icon: "note" },
+  { slug: "art", label: "art", icon: "palette" },
+  { slug: "animals", label: "animals", icon: "heart" },
   { slug: "puzzles", label: "puzzles", icon: "puzzle" },
-  { slug: "the_world", label: "the world", icon: "globe" },
   { slug: "new_words", label: "new words", icon: "bubble" },
+] as const satisfies readonly Option<string>[];
+
+/**
+ * Goals no longer offered. Drafts and applications saved with them stay
+ * valid: they're accepted wherever slugs are checked, and a resumed draft
+ * shows them picked until they're taken out.
+ */
+export const retiredGoalOptions = [
+  { slug: "being_kind", label: "being kind", icon: "heart" },
+  { slug: "the_world", label: "the world", icon: "globe" },
   { slug: "making_things", label: "making things", icon: "palette" },
 ] as const satisfies readonly Option<string>[];
-export type GoalSlug = (typeof goalOptions)[number]["slug"];
+
+export type GoalSlug =
+  | (typeof goalOptions)[number]["slug"]
+  | (typeof retiredGoalOptions)[number]["slug"];
 
 export const afterSchoolOptions = [
   { slug: "youtube_cartoons", label: "YouTube & cartoons", icon: "tv" },
-  { slug: "bal_vihar", label: "Bal Vihar", icon: "school" },
   { slug: "learning_apps", label: "Learning apps", icon: "phone" },
   { slug: "bedtime_stories", label: "Bedtime stories", icon: "book" },
   { slug: "grandparents", label: "Grandparents", icon: "grandma" },
   { slug: "tutors", label: "Tutors", icon: "pencil" },
   { slug: "music_art_sports", label: "Music, art or sports", icon: "palette" },
+  { slug: "culture_classes", label: "Culture or language classes", icon: "diya" },
+  { slug: "playing_outside", label: "Playing outside", icon: "dice" },
   { slug: "mostly_school", label: "Mostly just school", icon: "sprout" },
 ] as const satisfies readonly Option<string>[];
-export type AfterSchoolSlug = (typeof afterSchoolOptions)[number]["slug"];
+
+/** After-school options no longer offered. Still accepted, like `retiredGoalOptions`. */
+export const retiredAfterSchoolOptions = [
+  { slug: "bal_vihar", label: "Bal Vihar", icon: "school" },
+] as const satisfies readonly Option<string>[];
+
+export type AfterSchoolSlug =
+  | (typeof afterSchoolOptions)[number]["slug"]
+  | (typeof retiredAfterSchoolOptions)[number]["slug"];
+
+/** Every goal slug a draft or an application may hold: offered, then retired. */
+export const acceptedGoalSlugs: readonly GoalSlug[] = [...goalOptions, ...retiredGoalOptions].map(
+  (o) => o.slug,
+);
+/** Every after-school slug a draft or an application may hold: offered, then retired. */
+export const acceptedAfterSchoolSlugs: readonly AfterSchoolSlug[] = [
+  ...afterSchoolOptions,
+  ...retiredAfterSchoolOptions,
+].map((o) => o.slug);
+
 /** Can't be picked together with any other after-school option. */
 export const EXCLUSIVE_AFTER_SCHOOL = "mostly_school" satisfies AfterSchoolSlug;
 
@@ -128,21 +169,27 @@ export const meta = {
   siteName: "Pesto",
 } as const;
 
+/** Founding Family spots still open, shown on the welcome screen. */
+export const FOUNDING_SPOTS_LEFT = 25;
+
 export const welcome = {
-  headline: ["For kids", "who ask", "why?"],
-  stickers: ["diya", "moon", "bow", "deer"] satisfies IconName[],
+  /** The wordmark above Pesto. */
+  brand: "pesto",
+  pill: "Founding Families · Class of 2026",
+  /** Two lines; `highlight` gets the lime marker that sweeps in. */
+  tagline: { lines: ["Interactive storybook", "for young kids"], highlight: "storybook" },
+  sub: `Stories your kids talk back to. Only ${FOUNDING_SPOTS_LEFT} Founding Family spots left.`,
+  /** The three fact tiles. The close date comes from config. */
+  facts: (admissionsCloseShort: string) => [
+    { value: "3 min", label: "to apply" },
+    { value: String(FOUNDING_SPOTS_LEFT), label: "spots left", hot: true },
+    { value: admissionsCloseShort, label: "closes" },
+  ],
   cta: "Count us in",
   /** The desktop screen's footer line. */
   footer: (admissionsCloseShort: string) =>
     `3 minutes · ${familyCountCopy} · Admissions close ${admissionsCloseShort}`,
-  /** The scrolling strip at the top of the welcome screen, shown as "3 minutes ✦ 100 families ✦ …". */
-  marquee: (admissionsCloseShort: string) => [
-    "3 minutes",
-    familyCountCopy,
-    `Admissions close ${admissionsCloseShort}`,
-  ],
-  marqueeSeparator: "✦",
-  /** Fine print under the footer: "By continuing, you agree to our Terms and Privacy Policy." Links open in a new tab. */
+  /** Fine print right above the button: "By continuing, you agree to our Terms and Privacy Policy." Links open in a new tab. */
   consent: {
     before: "By continuing, you agree to our ",
     terms: { label: "Terms", href: "/terms" },
@@ -159,6 +206,7 @@ export const progress = {
 
 export const names = {
   headline: ["Who’s joining the", "adventure?"],
+  sub: "I’ll use their names in their stories.",
   labelFirst: "First kid’s name",
   labelSecond: "Second kid’s name",
   placeholder: "e.g. Meera",
@@ -181,6 +229,8 @@ export const ages = {
   questionSecond: (kid: string) => `And how old is ${kid}?`,
   unit: "years",
   hint: "Tap the age that fits.",
+  /** The sub line on the first kid's age screen when a second kid comes next. */
+  nextKid: (kid: string) => `${kid} is next.`,
   pick: "Pick an age",
   confirm: (kid: string) => `That’s ${kid}!`,
 } as const;
@@ -215,6 +265,8 @@ export const afterSchool = {
       ? "After school, what keeps their brains busy?"
       : `After school, what keeps ${family.possessive} brain busy?`,
   sub: "Tap everything that fits.",
+  /** Between the options and "Mostly just school". */
+  or: "or",
   pick: "Pick at least one",
   confirm: "That’s their week",
   /** Shown under the chips when "Mostly just school" clears the others. */
@@ -262,7 +314,8 @@ export const received = {
   title: (family: Family) => `You’re in the running, ${family.names}!`,
   meta: (todayShort: string) => `Application received · ${todayShort}`,
   nextTitle: "What happens next",
-  doneCount: "1 of 4 done",
+  /** "1 of 4 done"; 3 steps while the beta day isn't set. */
+  doneCount: (total: number) => `1 of ${total} done`,
   sent: { title: "Application sent", sub: "Just now" },
   sayHi: {
     eyebrow: "NOW",
@@ -294,3 +347,141 @@ export const desktop = {
   qrLabel: "QR code for this page",
   stickers: ["diya", "moon", "bow", "deer"] satisfies IconName[],
 } as const;
+
+// ── Pesto's lines ────────────────────────────────────────────────────────────
+// What Pesto says in his speech bubble on each screen. Bubbles are announced
+// politely to screen readers. The lookups below fall back to a general line
+// for anything without its own (e.g. options that are no longer offered).
+
+/** Screens with an idle check-in line, keyed like the flow's steps (both age screens are "age"). */
+export type CheckInScreen =
+  | "welcome"
+  | "names"
+  | "age"
+  | "goals"
+  | "how"
+  | "after-school"
+  | "why"
+  | "email";
+
+export const pesto = {
+  /** Accessible names of the tappable Pesto (welcome, received). */
+  tapLabel: "Tap Pesto",
+  celebrateLabel: "Tap Pesto to celebrate",
+  welcome: {
+    hi: "Hi! I’m Pesto.",
+    /** One per tap, in order, then round again. */
+    taps: [
+      "I love a good story!",
+      "Squawk! I mean… hello!",
+      "Ready for an adventure?",
+      `Pssst. Only ${FOUNDING_SPOTS_LEFT} spots left!`,
+      "Tap “Count us in”, I’ll wait.",
+    ],
+  },
+  names: {
+    intro: "Hi, I’m Pesto! Let’s meet your crew.",
+    /** Read back after a pause in typing. */
+    heard: (name: string) => `${name}! What a lovely name.`,
+  },
+  ages: {
+    first: (kid: string) => `${kid}! What a lovely name.`,
+    second: (kid: string) => `Now for ${kid}!`,
+    picked: {
+      "3": "3! The best age for big questions.",
+      "4": "4! Ready for wild stories.",
+      "5": "5! A great age for stories.",
+      "6": "6! Old enough for big adventures.",
+      "7": "7! Perfect for tricky puzzles.",
+      "8+": "8+! Let’s make it extra clever.",
+    } satisfies Record<Age, string>,
+  },
+  goals: {
+    intro: "What should they fall in love with?",
+    picked: {
+      our_stories: "Our stories! I know so many.",
+      space: "Space! I’ve always wanted to fly to the moon.",
+      science: "Science! I love a good experiment.",
+      music: "Music! I can sing, you know.",
+      art: "Art! Let’s get messy.",
+      animals: "Animals! Birds are my favourite. Obviously.",
+      puzzles: "Puzzles! My brain is tingling.",
+      new_words: "New words! “Squawk” is my favourite.",
+    } satisfies Partial<Record<GoalSlug, string>>,
+    /** Any goal without its own line. */
+    fallback: "Ooh, good one!",
+    /** The third goal. */
+    full: "That’s three! Perfect.",
+  },
+  afterSchool: {
+    intro: "No wrong answers here, promise!",
+    picked: {
+      youtube_cartoons: "Lots of watching? I’ll get them talking back.",
+      learning_apps: "Apps! I’m a little different, you’ll see.",
+      bedtime_stories: "Bedtime stories! My favourite time of day.",
+      grandparents: "Grandparents! The best storytellers.",
+      tutors: "Tutors! Busy bees.",
+      music_art_sports: "Busy and creative. Love it.",
+      culture_classes: "Culture classes! I know some great stories.",
+      playing_outside: "Playing outside! The best kind of fun.",
+      mostly_school: "Just school. Got it!",
+    } satisfies Partial<Record<AfterSchoolSlug, string>>,
+    fallback: "Love it!",
+  },
+  email: {
+    intro: "Last one, then you’re in!",
+    /** The existing typo check found one: "gmial.com" → "gmail.com". */
+    typo: (typed: string, suggested: string) => `Hmm, ${typed}? Did you mean ${suggested}?`,
+    good: "Looks perfect!",
+  },
+  received: {
+    yay: "Yay! You’re in!",
+    /** One per tap on Pesto, in order, then round again. */
+    cheers: (family: Family) => [
+      "Woohoo! See you on WhatsApp!",
+      "Best. Day. Ever.",
+      `${family.names} ${family.plural ? "are" : "is"} in!`,
+    ],
+    /** The second WhatsApp nudge, at about 12 s. */
+    nudge: "Psst! Say hi down there.",
+  },
+  /** Said once per screen after 10 quiet seconds. */
+  checkIn: {
+    welcome: "Psst… tap “Count us in” when you’re ready.",
+    names: "Take your time! I’m not going anywhere.",
+    age: "Take your time!",
+    goals: "Need ideas? Space is very popular.",
+    how: "Ready when you are!",
+    "after-school": "No rush. Any answer works.",
+    why: "Pretty cool, right?",
+    email: "Take your time! I’ll wait right here.",
+  } satisfies Record<CheckInScreen, string>,
+} as const;
+
+/** Pesto's reaction to an age pick. */
+export function pestoAgeLine(age: Age): string {
+  return pesto.ages.picked[age];
+}
+
+/** Pesto's reaction to a dropped goal: the third gets "That's three!", others their own line. */
+export function pestoGoalLine(slug: GoalSlug, pickedCount: number): string {
+  if (pickedCount >= MAX_GOALS) return pesto.goals.full;
+  const lines: Partial<Record<GoalSlug, string>> = pesto.goals.picked;
+  return lines[slug] ?? pesto.goals.fallback;
+}
+
+/** Pesto's reaction to an after-school pick. */
+export function pestoAfterSchoolLine(slug: AfterSchoolSlug): string {
+  const lines: Partial<Record<AfterSchoolSlug, string>> = pesto.afterSchool.picked;
+  return lines[slug] ?? pesto.afterSchool.fallback;
+}
+
+/** The idle check-in line for a screen. */
+export function pestoCheckInLine(screen: CheckInScreen): string {
+  return pesto.checkIn[screen];
+}
+
+/** Pesto's line for the n-th tap (0-based) on a list that goes round. */
+export function pestoNthLine(lines: readonly string[], n: number): string {
+  return lines[((n % lines.length) + lines.length) % lines.length];
+}

@@ -44,7 +44,6 @@ export async function expectReceived(
 
   await expect(screen.getByText(`Application received · ${await todayShort(browser)}`)).toBeVisible();
   await expect(screen.getByRole('heading', 'What happens next')).toBeVisible();
-  await expect(screen.getByText('1 of 4 done')).toBeVisible();
   await expect(screen.getByText('Application sent')).toBeVisible();
   await expect(screen.getByText('Just now')).toBeVisible();
   await expect(screen.getByText('Say hi to Pesto')).toBeVisible();
@@ -67,6 +66,23 @@ export async function expectReceived(
   expect(whatsapp.pathname).toMatch(number ? new RegExp(`^/${number}$`) : /^\/[1-9]\d{7,14}$/);
   expect(whatsapp.searchParams.get('text')).toBe(`Hi Pesto! 👋 (${submitted!.refCode})`);
 
+  // The beta day is optional (NEXT_PUBLIC_BETA_DATE). The runner may not know
+  // the app's value (CI doesn't), so the page says whether it's set; when
+  // the runner does know it, the page must agree.
+  const shown = (await browser.evaluate(() =>
+    [...document.querySelectorAll('a')].some((a) => a.textContent === '+ Calendar'),
+  )) as boolean;
+  const beta = process.env.NEXT_PUBLIC_BETA_DATE?.trim();
+  if (beta !== undefined) expect(shown).toBe(beta !== '');
+
+  if (!shown) {
+    // Not set: three steps, and no Beta day row or Calendar button.
+    await expect(screen.getByText('1 of 3 done')).toBeVisible();
+    await expect(screen.getByText('Beta day')).toHaveCount(0);
+    return submitted!;
+  }
+
+  await expect(screen.getByText('1 of 4 done')).toBeVisible();
   // Calendar: an all-day "Pesto beta day" Google Calendar template.
   const calendar = new URL((await screen.getByRole('link', '+ Calendar').getAttribute('href'))!);
   expect(calendar.origin + calendar.pathname).toBe('https://calendar.google.com/calendar/render');
@@ -76,7 +92,6 @@ export async function expectReceived(
   expect(dates).toMatch(/^\d{8}\/\d{8}$/);
   const betaIso = `${dates.slice(0, 4)}-${dates.slice(4, 6)}-${dates.slice(6, 8)}`;
   expect(dates).toBe(allDayRange(betaIso));
-  const beta = process.env.NEXT_PUBLIC_BETA_DATE;
   if (beta) expect(betaIso).toBe(beta);
   await expect(screen.getByText('Beta day')).toBeVisible();
   await expect(screen.getByText(longDate(betaIso), { exact: true })).toBeVisible();
