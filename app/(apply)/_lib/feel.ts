@@ -2,7 +2,39 @@
  * Small touches of feel for the /apply flow: a tap of vibration, a short
  * synthesized chirp and the "star burst" signal. All of them are skipped when
  * the user prefers reduced motion. Browser-only; call from event handlers.
+ *
+ * The chirp's sound, the star burst's sparkles and the confetti live in
+ * celebrate.ts, a separate chunk: `preloadCelebration()` fetches it when the
+ * email step or Received mounts, well before the submit tap needs it.
  */
+
+type Celebration = typeof import("./celebrate");
+
+let celebration: Celebration | undefined;
+let loading: Promise<Celebration> | undefined;
+
+function loadCelebration(): Promise<Celebration> {
+  loading ??= import("./celebrate").then(
+    (module) => (celebration = module),
+    (error) => {
+      // Try again next time (a flaky network shouldn't cost the confetti for good).
+      loading = undefined;
+      throw error;
+    },
+  );
+  return loading;
+}
+
+/** Starts fetching the celebration code, if it isn't loaded yet. */
+export function preloadCelebration() {
+  loadCelebration().catch(() => {});
+}
+
+/** Runs `run` with the celebration code: right away once it's loaded, else as soon as it is. */
+export function withCelebration(run: (celebration: Celebration) => void) {
+  if (celebration) run(celebration);
+  else loadCelebration().then(run, () => {});
+}
 
 function reducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -22,7 +54,9 @@ let audio: AudioContext | undefined;
 
 /**
  * Two rising sine blips (~0.2 s), made with Web Audio: no file to load.
- * Must start from the tap itself, or Safari keeps the audio context locked.
+ * Must start from the tap itself, or Safari keeps the audio context locked:
+ * the context is created and resumed here, synchronously, and the blips play
+ * on it right away (or the moment celebrate.ts arrives, if it hasn't yet).
  */
 export function chirp() {
   if (reducedMotion()) return;
@@ -31,25 +65,9 @@ export function chirp() {
       window.AudioContext ??
       (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctx) return;
-    audio ??= new Ctx();
-    void audio.resume();
-    const t = audio.currentTime;
-    for (const [delay, from, to] of [
-      [0, 1900, 2900],
-      [0.11, 2300, 3400],
-    ]) {
-      const osc = audio.createOscillator();
-      const gain = audio.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(from, t + delay);
-      osc.frequency.exponentialRampToValueAtTime(to, t + delay + 0.07);
-      gain.gain.setValueAtTime(0, t + delay);
-      gain.gain.linearRampToValueAtTime(0.18, t + delay + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.09);
-      osc.connect(gain).connect(audio.destination);
-      osc.start(t + delay);
-      osc.stop(t + delay + 0.1);
-    }
+    const context = (audio ??= new Ctx());
+    void context.resume();
+    withCelebration(({ playChirp }) => playChirp(context));
   } catch {
     // No audio is fine.
   }

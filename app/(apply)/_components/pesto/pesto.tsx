@@ -11,8 +11,10 @@ const THUMB_PATH =
 /**
  * Pesto's round face, inlined from the rigged artwork so his eyes, lids,
  * cheeks, brows and jaw can move. Ids are unique per instance. Decorative:
- * what he says is in <PestoBubble>. With `onTap` he's a button (welcome,
- * received), otherwise not focusable.
+ * the face and his badges are hidden from screen readers, and the "?" is
+ * drawn by CSS so it isn't page text either; what he says is in
+ * <PestoBubble>. With `onTap` he's a button (welcome, received), named by
+ * `tapLabel`, otherwise not focusable.
  */
 export function PestoFace({
   pesto,
@@ -50,6 +52,7 @@ export function PestoFace({
 
   const face = (
     <span
+      aria-hidden="true"
       className={styles.face}
       style={{ width: size, height: size }}
       dangerouslySetInnerHTML={markup}
@@ -76,9 +79,7 @@ export function PestoFace({
               <path fill="#fff" d={THUMB_PATH} />
             </svg>
           </span>
-          <span aria-hidden="true" className={`${styles.badge} ${styles.qmark}`}>
-            ?
-          </span>
+          <span aria-hidden="true" className={`${styles.badge} ${styles.qmark}`} />
         </>
       )}
     </div>
