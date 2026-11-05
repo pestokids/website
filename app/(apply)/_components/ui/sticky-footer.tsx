@@ -20,6 +20,18 @@ import { useKeyboardInset } from "./use-keyboard-inset";
  * for every step. Ignored while the keyboard is open, so it behaves exactly
  * as on a phone.
  */
+/**
+ * Phones: solid white, so the screen's content scrolls up behind the
+ * footer's top edge and never shows through it; a white strip below covers
+ * the safe area under it. Being sticky in the flow, the footer always sits
+ * after the content once it's scrolled to the end.
+ */
+const phoneSurface =
+  "bg-white after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-[env(safe-area-inset-bottom)] after:bg-white after:content-['']";
+/** Wide screens (tablets, foldables) keep the soft fade over the page wash. */
+const wideSurface =
+  "min-[600px]:bg-transparent min-[600px]:bg-linear-to-t min-[600px]:from-cream/85 min-[600px]:from-40% min-[600px]:to-transparent min-[600px]:pt-6 min-[600px]:after:hidden";
+
 export function StickyFooter({
   children,
   placement = "end",
@@ -38,7 +50,7 @@ export function StickyFooter({
       style={{ "--keyboard-inset": `${inset}px` } as CSSProperties}
       className={`sticky bottom-[max(var(--keyboard-inset),env(safe-area-inset-bottom))] z-10 flex flex-col gap-3 ${
         placement === "end"
-          ? "mt-auto mb-[var(--footer-lift,0px)] bg-linear-to-t from-white from-60% to-white/0 pt-5 pb-6 min-[600px]:from-cream/85 min-[600px]:from-40% min-[600px]:to-transparent data-[keyboard=open]:mb-0 data-[keyboard=open]:pb-3"
+          ? `mt-auto mb-[var(--footer-lift,0px)] pt-4 pb-6 data-[keyboard=open]:mb-0 data-[keyboard=open]:pb-3 ${phoneSurface} ${wideSurface}`
           : "py-3"
       } ${className}`}
     >

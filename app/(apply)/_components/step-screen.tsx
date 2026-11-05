@@ -26,21 +26,19 @@ export function StepScreen({
   name,
   children,
   footer,
-  footerClassName = "",
   className = "",
 }: {
   /** The step's name, for tests and debugging (`data-step`). */
   name: string;
   children: ReactNode;
   footer?: ReactNode;
-  footerClassName?: string;
   className?: string;
 }) {
   const entrance = useEntrance();
   return (
     <section data-step={name} className={`flex flex-1 flex-col ${entrance} ${className}`}>
       {children}
-      {footer && <StickyFooter className={footerClassName}>{footer}</StickyFooter>}
+      {footer && <StickyFooter>{footer}</StickyFooter>}
     </section>
   );
 }

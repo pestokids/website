@@ -5,7 +5,7 @@ import { pesto as lines, pestoNthLine, received as copy } from "@/content/apply"
 import { googleCalendarLink } from "@/lib/calendar";
 import { config } from "@/lib/config";
 import { whatsappLink } from "@/lib/whatsapp";
-import { receivedDates } from "../../_lib/received";
+import { nextSteps, receivedDates } from "../../_lib/received";
 import { track } from "../../_lib/track";
 import { useFlow } from "../apply-flow";
 import { PestoBubble, PestoFace, pestoPose } from "../pesto/pesto";
@@ -14,7 +14,7 @@ import { StepScreen } from "../step-screen";
 import { Confetti, type ConfettiHandle } from "../ui/confetti";
 import { day } from "../classes";
 import { CheckIcon } from "../ui/icons";
-import { Marker } from "../ui/marker";
+import { MarkedNames } from "../ui/marker";
 import { replayClass } from "../ui/replay";
 
 /** The celebration's beats (ms after the screen appears). */
@@ -67,6 +67,8 @@ export function ReceivedStep() {
   if (!submitted) return null;
 
   const { receivedOn, sentWhen } = receivedDates(submitted.submittedAt, new Date());
+  const { betaDate } = config;
+  const steps = nextSteps(betaDate);
 
   const tap = () => {
     celebrate();
@@ -78,8 +80,6 @@ export function ReceivedStep() {
   return (
     <StepScreen
       name="received"
-      // Two lines tall: a solid fade, so the card scrolling under it never shows through the copy line.
-      footerClassName="from-85%!"
       footer={
         <>
           <p className="-mb-1 text-center text-[13px] leading-[18px] text-day-sub [overflow-wrap:anywhere]">
@@ -118,26 +118,20 @@ export function ReceivedStep() {
         <PestoBubble
           pesto={pesto}
           variant="dark-down-left"
-          className="absolute -top-[22px] left-[calc(50%+40px)] z-20 max-w-[calc(50%-40px)]"
+          // Anchored to the right edge so "Yay! You’re in!" stays on one line on narrow phones.
+          className="absolute -top-[22px] -right-2 z-20 w-max max-w-[calc(50%+4px)]"
         />
       </div>
 
       <h1 className="mt-3 text-center font-display text-[26px] leading-[1.15] font-extrabold text-balance">
-        {copy.title(family).split(family.names)[0]}
-        {family.kidNames.map((name, i) => (
-          <span key={name}>
-            {i > 0 && " & "}
-            <Marker>{name}</Marker>
-          </span>
-        ))}
-        {copy.title(family).split(family.names).slice(1).join(family.names)}
+        <MarkedNames text={copy.title(family)} names={family.kidNames} />
       </h1>
       <p className="mt-1 text-center text-[13px] leading-[18px] text-day-sub">{copy.meta(receivedOn)}</p>
 
       <section className="mt-3 mb-1 rounded-[18px] border-2 border-day-border px-3.5 py-3 shadow-[0_4px_0_var(--color-day-border)]">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-display text-[15px] leading-6 font-extrabold">{copy.nextTitle}</h2>
-          <p className="text-xs leading-4 font-bold text-day-sub">{copy.doneCount}</p>
+          <p className="text-xs leading-4 font-bold text-day-sub">{copy.doneCount(steps.total)}</p>
         </div>
 
         <ol className="mt-2 flex flex-col gap-[11px]">
@@ -170,24 +164,27 @@ export function ReceivedStep() {
             <StepSub>{copy.letter.sub}</StepSub>
           </TimelineStep>
 
-          <TimelineStep
-            marker={<NumberMarker n={4} />}
-            aside={
-              <a
-                href={googleCalendarLink(copy.betaDay.calendarTitle, config.betaDate.iso)}
-                onClick={() => track.calendarAdded(submitted.kidNames.length)}
-                target="_blank"
-                rel="noopener noreferrer"
-                // 30px visual, 44px tap target.
-                className="relative inline-flex h-[30px] shrink-0 items-center rounded-full bg-day-tile px-3 text-[13px] font-extrabold text-forest transition-transform duration-100 before:absolute before:-inset-y-[7px] before:inset-x-0 before:content-[''] active:translate-y-px"
-              >
-                {copy.betaDay.cta}
-              </a>
-            }
-          >
-            <StepTitle>{copy.betaDay.title}</StepTitle>
-            <StepSub>{config.betaDate.long}</StepSub>
-          </TimelineStep>
+          {/* Only once the beta day is set (NEXT_PUBLIC_BETA_DATE is optional). */}
+          {betaDate && (
+            <TimelineStep
+              marker={<NumberMarker n={4} />}
+              aside={
+                <a
+                  href={googleCalendarLink(copy.betaDay.calendarTitle, betaDate.iso)}
+                  onClick={() => track.calendarAdded(submitted.kidNames.length)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  // 30px visual, 44px tap target.
+                  className="relative inline-flex h-[30px] shrink-0 items-center rounded-full bg-day-tile px-3 text-[13px] font-extrabold text-forest transition-transform duration-100 before:absolute before:-inset-y-[7px] before:inset-x-0 before:content-[''] active:translate-y-px"
+                >
+                  {copy.betaDay.cta}
+                </a>
+              }
+            >
+              <StepTitle>{copy.betaDay.title}</StepTitle>
+              <StepSub>{betaDate.long}</StepSub>
+            </TimelineStep>
+          )}
         </ol>
       </section>
     </StepScreen>

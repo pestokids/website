@@ -11,7 +11,7 @@ import { QuestionScreen } from "../step-screen";
 import { PrimaryButton } from "../ui/button";
 import { AgeTile } from "../ui/chip";
 import { day } from "../classes";
-import { Marker } from "../ui/marker";
+import { MarkedNames } from "../ui/marker";
 import { replayClass } from "../ui/replay";
 
 /** Number colour per age tile, in `ageOptions` order (forest once picked). */
@@ -35,9 +35,7 @@ export function AgeStep({ kidIndex }: { kidIndex: 0 | 1 }) {
 
   const eyebrow =
     kidIndex === 1 && first.age ? copy.eyebrowSecond(first.name, first.age) : copy.eyebrow;
-  // The question with the kid's name marked: "How old is [Meera]?".
   const question = kidIndex === 1 ? copy.questionSecond(kid.name) : copy.question(kid.name);
-  const at = question.lastIndexOf(kid.name);
 
   const pick = (age: (typeof ageOptions)[number]) => (event: MouseEvent<HTMLButtonElement>) => {
     replayClass(event.currentTarget, day.squish, 400);
@@ -52,13 +50,7 @@ export function AgeStep({ kidIndex }: { kidIndex: 0 | 1 }) {
       says={<PestoSays pesto={pesto} />}
       questionId={questionId}
       eyebrow={eyebrow}
-      question={
-        <>
-          {question.slice(0, at)}
-          <Marker>{kid.name}</Marker>
-          {question.slice(at + kid.name.length)}
-        </>
-      }
+      question={<MarkedNames text={question} names={[kid.name]} />}
       sub={nextKid ? copy.nextKid(nextKid.name) : copy.hint}
       footer={
         <PrimaryButton disabled={!kid.age} onClick={() => advance()}>

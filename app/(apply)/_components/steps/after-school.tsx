@@ -21,7 +21,7 @@ import { QuestionScreen } from "../step-screen";
 import { PrimaryButton } from "../ui/button";
 import { OptionTile } from "../ui/chip";
 import { day } from "../classes";
-import { Marker } from "../ui/marker";
+import { MarkedNames } from "../ui/marker";
 import { replayClass } from "../ui/replay";
 
 /** How long the "we cleared the others" line stays before it goes, and the fade. */
@@ -98,15 +98,12 @@ export function AfterSchoolStep() {
       name="after-school"
       says={<PestoSays pesto={pesto} />}
       questionId={headlineId}
+      // One kid: "Meera’s" marked. Two kids read "their", with no name to mark.
       question={
         family.plural ? (
           copy.headline(family)
         ) : (
-          <>
-            {copy.headline(family).split(family.possessive)[0]}
-            <Marker>{family.possessive}</Marker>
-            {copy.headline(family).split(family.possessive).slice(1).join(family.possessive)}
-          </>
+          <MarkedNames text={copy.headline(family)} names={[family.possessive]} />
         )
       }
       sub={copy.sub}

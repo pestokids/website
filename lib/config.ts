@@ -21,7 +21,8 @@ export type RawPublicEnv = {
 };
 
 export type PublicConfig = {
-  betaDate: DateConfig;
+  /** Null until the beta day is set; the Received screen then leaves it out. */
+  betaDate: DateConfig | null;
   admissionsCloseDate: DateConfig;
   /** E.164 without the leading +. */
   whatsappNumber: string;
@@ -73,7 +74,16 @@ export function parsePublicEnv(env: RawPublicEnv): PublicConfig {
     return parsed ?? { iso: "", short: "", long: "" };
   };
 
-  const betaDate = requireDate("NEXT_PUBLIC_BETA_DATE");
+  // Optional: empty or missing means "not set yet". A value that is set must be a real date.
+  const optionalDate = (key: keyof RawPublicEnv): DateConfig | null => {
+    const raw = get(key);
+    if (!raw) return null;
+    const parsed = parseIsoDate(raw);
+    if (!parsed) problems.push(`${key} must be a real date in YYYY-MM-DD form, got "${raw}"`);
+    return parsed;
+  };
+
+  const betaDate = optionalDate("NEXT_PUBLIC_BETA_DATE");
   const admissionsCloseDate = requireDate("NEXT_PUBLIC_ADMISSIONS_CLOSE_DATE");
 
   const whatsappNumber = get("NEXT_PUBLIC_WHATSAPP_NUMBER");

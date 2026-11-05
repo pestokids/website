@@ -36,7 +36,6 @@ describe("parsePublicEnv", () => {
     } catch (e) {
       const message = (e as Error).message;
       for (const key of [
-        "NEXT_PUBLIC_BETA_DATE",
         "NEXT_PUBLIC_ADMISSIONS_CLOSE_DATE",
         "NEXT_PUBLIC_WHATSAPP_NUMBER",
         "NEXT_PUBLIC_CONVEX_URL",
@@ -44,6 +43,16 @@ describe("parsePublicEnv", () => {
         expect(message).toContain(key);
       }
     }
+  });
+
+  it("treats the beta date as optional: unset is null, set must be a real date", () => {
+    for (const unset of [undefined, "", "  "]) {
+      expect(parsePublicEnv({ ...valid, NEXT_PUBLIC_BETA_DATE: unset }).betaDate).toBeNull();
+    }
+    expect(() => parsePublicEnv({ ...valid, NEXT_PUBLIC_BETA_DATE: "2026-02-31" })).toThrow(
+      /NEXT_PUBLIC_BETA_DATE must be a real date/,
+    );
+    expect(() => parsePublicEnv({})).not.toThrow(/NEXT_PUBLIC_BETA_DATE/);
   });
 
   it("rejects malformed values", () => {

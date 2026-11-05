@@ -314,7 +314,8 @@ export const received = {
   title: (family: Family) => `You’re in the running, ${family.names}!`,
   meta: (todayShort: string) => `Application received · ${todayShort}`,
   nextTitle: "What happens next",
-  doneCount: "1 of 4 done",
+  /** "1 of 4 done"; 3 steps while the beta day isn't set. */
+  doneCount: (total: number) => `1 of ${total} done`,
   sent: { title: "Application sent", sub: "Just now" },
   sayHi: {
     eyebrow: "NOW",
