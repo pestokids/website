@@ -20,7 +20,10 @@
  */
 
 .legal {
-  --wrap: 1120px;
+  /* The text column: about 75 characters a line (16px text here, 17px from 768px). */
+  --measure: 500px;
+  /* What sits inside the gutters: the text column, plus the sidebar when there's one. */
+  --inner: var(--measure);
   --gutter: 20px;
   --sheet-radius: 28px;
   --overlap: 28px;
@@ -36,10 +39,13 @@
   & .legal-wrap {
     box-sizing: border-box;
     width: 100%;
-    max-width: var(--wrap);
+    /* The gutters grow into the notch and rounded corners when held sideways. */
+    --pad-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+    --pad-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+    max-width: calc(var(--inner) + var(--pad-left) + var(--pad-right));
     margin-inline: auto;
-    padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
-    padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+    padding-left: var(--pad-left);
+    padding-right: var(--pad-right);
   }
 
   /* ── Night: the hero ───────────────────────────────────────────────────── */
@@ -62,7 +68,7 @@
 
   & .legal-sky {
     position: absolute;
-    inset: 64px 0 40px;
+    inset: 64px max(0px, calc((100% - 1440px) / 2)) 40px;
     overflow: hidden;
     color: var(--color-night-star);
   }
@@ -80,19 +86,21 @@
     opacity: 0.85;
   }
 
+  /* Beside the title's first line, clear of the chip and the menu button. */
   & .legal-moon {
     position: absolute;
-    top: 0;
-    right: 40%;
+    top: 54px;
+    right: 10%;
     width: 30px;
     height: 30px;
     fill: currentColor;
     filter: drop-shadow(0 0 10px rgb(246 211 107 / 0.45));
   }
 
+  /* The h1 comes first in the page; the chip shows above it. */
   & .legal-hero-body {
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     align-items: flex-start;
     margin-top: 22px;
   }
@@ -112,9 +120,11 @@
     margin: 14px 0 0;
     font-family: var(--font-display);
     font-weight: 800;
-    font-size: clamp(44px, 14vw, 54px);
-    line-height: 50px;
+    font-size: clamp(40px, 14vw, 54px);
+    line-height: 1.04;
     letter-spacing: -0.015em;
+    /* Never break inside a word: the size above keeps "Privacy" whole down to 280px. */
+    overflow-wrap: normal;
     color: var(--color-cream);
     text-shadow: 0 2px 0 rgb(0 0 0 / 0.18);
   }
@@ -149,6 +159,7 @@
 
   & .legal-content {
     min-width: 0;
+    container: legal-content / inline-size;
   }
 
   & .legal-intro {
@@ -334,7 +345,7 @@
     line-height: 28px;
     font-weight: 700;
     text-wrap: balance;
-    scroll-margin-top: 24px;
+    scroll-margin-top: calc(24px + env(safe-area-inset-top, 0px));
   }
 
   & .legal-num {
@@ -393,7 +404,7 @@
     text-transform: uppercase;
   }
 
-  /* Tables: on phones each row is a small card. */
+  /* Tables: each row is a small card while the column is too narrow for the table. */
   & .legal-table {
     margin-top: 16px;
   }
@@ -456,7 +467,7 @@
     box-shadow: 0 5px 0 var(--color-day-error-edge);
 
     & h2 {
-      scroll-margin-top: 48px;
+      scroll-margin-top: calc(48px + env(safe-area-inset-top, 0px));
     }
 
     /* The deep orange, not --color-orange: white on #ff6420 is only 3:1. */
@@ -511,7 +522,7 @@
     justify-content: center;
     gap: 22px;
     padding-top: 44px;
-    padding-bottom: max(28px, env(safe-area-inset-bottom, 0px));
+    padding-bottom: max(28px, calc(env(safe-area-inset-bottom, 0px) + 12px));
     text-align: center;
   }
 
@@ -578,8 +589,8 @@
   }
 }
 
-/* Wide phones and up: tables are tables again. */
-@media (min-width: 600px) {
+/* Tables are tables once the text column fits three columns of text. */
+@container legal-content (min-width: 440px) {
   .legal {
     & .legal-table {
       overflow: hidden;
@@ -658,6 +669,7 @@
   .legal {
     --gutter: 40px;
     --sheet-radius: 36px;
+    --measure: 560px;
 
     & .legal-hero {
       padding-top: max(28px, env(safe-area-inset-top, 0px));
@@ -665,7 +677,7 @@
     }
 
     & .legal-sky {
-      inset: 84px 0 40px;
+      inset: 84px max(0px, calc((100% - 1440px) / 2)) 40px;
     }
 
     & .legal-moon {
@@ -752,38 +764,43 @@
     }
 
     & .legal-foot-row {
-      flex-direction: row;
-      justify-content: space-between;
-      gap: 32px;
       padding-top: 56px;
-      padding-bottom: max(40px, env(safe-area-inset-bottom, 0px));
-      text-align: left;
+      padding-bottom: max(40px, calc(env(safe-area-inset-bottom, 0px) + 12px));
     }
 
     & .legal-cta {
       width: auto;
       padding: 0 32px;
     }
+
+    & .legal-note {
+      padding: 13px 18px 14px;
+      font-size: 16px;
+      line-height: 24px;
+    }
   }
 }
 
-/* Desktop: the section list becomes a sticky sidebar beside the text. */
-@media (min-width: 1080px) {
+/*
+ * Room for the section list beside a full text column: it becomes a sidebar,
+ * and the footer a row.
+ */
+@media (min-width: 960px) {
   .legal {
+    --sidebar: 240px;
+    --sidebar-gap: 56px;
+    --inner: calc(var(--sidebar) + var(--sidebar-gap) + var(--measure));
+
     & .legal-layout {
       display: grid;
-      grid-template-columns: 260px minmax(0, 760px);
-      justify-content: space-between;
-      column-gap: 56px;
+      grid-template-columns: var(--sidebar) minmax(0, var(--measure));
+      column-gap: var(--sidebar-gap);
     }
 
+    /* Scrolls with the page unless the window is tall enough to keep it in view (below). */
     & .legal-sidebar {
-      position: sticky;
-      top: 24px;
       align-self: start;
       display: block;
-      max-height: calc(100dvh - 48px);
-      overflow-y: auto;
       padding: 4px;
     }
 
@@ -801,8 +818,7 @@
       font-size: 14px;
     }
 
-    /* With a mouse, shorter rows, so the whole list fits beside the text
-       and the wheel scrolls the page, not the list. */
+    /* With a mouse, shorter rows. Touch keeps 44px. */
     @media (pointer: fine) {
       & .legal-sidebar .legal-toc-list a {
         min-height: 34px;
@@ -812,6 +828,150 @@
 
     & .legal-jump {
       display: none;
+    }
+
+    & .legal-foot-row {
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 32px;
+      text-align: left;
+    }
+  }
+}
+
+/* Sticky only when the whole list fits the window, so it never scrolls on its own. */
+@media (min-width: 960px) and (min-height: 760px) and (pointer: fine), (min-width: 960px) and (min-height: 1000px) {
+  .legal .legal-sidebar {
+    position: sticky;
+    top: calc(24px + env(safe-area-inset-top, 0px));
+  }
+}
+
+/*
+ * Short screens (phones and tablets held sideways): a compact sky, with the
+ * title and the chip on one row, so the night is well under half the screen.
+ */
+@media (orientation: landscape) and (max-height: 500px) {
+  .legal {
+    & .legal-hero {
+      padding-top: max(10px, env(safe-area-inset-top, 0px));
+      padding-bottom: calc(var(--overlap) + 18px);
+    }
+
+    & .legal-sky {
+      inset: 50px max(0px, calc((100% - 1440px) / 2)) 30px;
+    }
+
+    & .legal-moon {
+      top: 0;
+      right: 8%;
+      width: 26px;
+      height: 26px;
+    }
+
+    & .legal-hero-body {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 16px;
+      margin-top: 8px;
+    }
+
+    & h1 {
+      margin: 0;
+      font-size: 40px;
+      line-height: 44px;
+    }
+
+    & .legal-accent {
+      display: inline-block;
+    }
+
+    & .legal-sheet {
+      padding-top: 32px;
+    }
+  }
+}
+
+/*
+ * A page spanning two screens with a hinge (Surface Duo, some foldables):
+ * the section list on the left screen, the text on the right, nothing under
+ * the hinge. Browsers without viewport segments ignore all of this.
+ */
+@media (horizontal-viewport-segments: 2) {
+  .legal {
+    --left-screen: env(viewport-segment-width 0 0);
+    --hinge: calc(env(viewport-segment-left 1 0) - env(viewport-segment-right 0 0));
+    --right-screen: env(viewport-segment-width 1 0);
+
+    /* Each band is laid out as left screen | hinge | right screen. */
+    & .legal-wrap {
+      display: grid;
+      grid-template-columns: var(--left-screen) var(--hinge) var(--right-screen);
+      column-gap: 0;
+      max-width: none;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    & .legal-wrap > :is(.legal-hero-body, .legal-sidebar, .legal-content, .legal-foot-title) {
+      box-sizing: border-box;
+      padding-inline: 24px;
+    }
+
+    & .legal-hero-body,
+    & .legal-foot-title {
+      grid-column: 1;
+    }
+
+    /* Header: logo at the left screen's edge, links at the right screen's. */
+    & .night-header {
+      grid-column: 1 / -1;
+      padding-inline: 24px;
+    }
+
+    & .legal-hero-body {
+      flex-direction: column-reverse;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+    }
+
+    & .legal-accent {
+      display: table;
+    }
+
+    & .legal-sidebar {
+      display: block;
+      grid-column: 1;
+      position: sticky;
+      top: calc(24px + env(safe-area-inset-top, 0px));
+      align-self: start;
+    }
+
+    & .legal-content {
+      grid-column: 3;
+      max-width: calc(var(--measure) + 48px);
+    }
+
+    & .legal-jump {
+      display: none;
+    }
+
+    & .legal-foot-row {
+      align-items: start;
+      gap: 24px 0;
+      text-align: left;
+    }
+
+    & .legal-foot-row > .legal-foot-title {
+      grid-column: 1;
+    }
+
+    & .legal-foot-row > .legal-cta,
+    & .legal-foot-row > .legal-foot-links {
+      grid-column: 3;
+      justify-self: start;
+      margin-inline: 24px;
     }
   }
 }

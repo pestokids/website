@@ -138,10 +138,11 @@ export function LegalPage({ name }: { name: LegalPageName }) {
         <div className="legal-wrap">
           <Header current={name} prefetch={false} />
           <div className="legal-hero-body">
-            <p className="legal-chip">{legalChrome.updated}</p>
             <h1>
               {page.heading.lead} <span className="legal-accent">{page.heading.accent}</span>
             </h1>
+            {/* Shown above the title (CSS), read after it. */}
+            <p className="legal-chip">{legalChrome.updated}</p>
           </div>
         </div>
       </div>
