@@ -1,7 +1,7 @@
 import type { Viewport } from "next";
 import { meta, tagline } from "@/content/landing";
 import { GetInEarly } from "./_components/landing/get-in-early";
-import { Header } from "./_components/landing/header";
+import { LandingHeader } from "./_components/landing/landing-header";
 import { ParallaxLoader } from "./_components/landing/parallax-loader";
 import { Scene } from "./_components/landing/scene";
 import { StructuredData } from "./_components/landing/structured-data";
@@ -28,7 +28,7 @@ export default function HomePage() {
       <Scene />
       <div className="shade" />
       <div className="ui">
-        <Header />
+        <LandingHeader />
         <section className="copy">
           <h1>
             {tagline.lines.map((line) => (

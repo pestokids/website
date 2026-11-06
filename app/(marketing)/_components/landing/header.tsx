@@ -3,20 +3,28 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type FocusEvent } from "react";
 import { header, logo, type HeaderLink } from "@/content/landing";
-import { track } from "../../_lib/track";
 import "./header.css";
 
-function NavLink({ link, current, tracked }: { link: HeaderLink; current: boolean; tracked: boolean }) {
+function NavLink({
+  link,
+  current,
+  prefetch,
+  onClick,
+}: {
+  link: HeaderLink;
+  current: boolean;
+  prefetch?: false;
+  onClick?: () => void;
+}) {
   const content = (
     <>
       {link.label}
       {link.detail && <span className="detail">{link.detail}</span>}
     </>
   );
-  const onClick = tracked ? () => track.linkClicked(link.id) : undefined;
   if (link.href.startsWith("/")) {
     return (
-      <Link href={link.href} onClick={onClick} aria-current={current ? "page" : undefined}>
+      <Link href={link.href} prefetch={prefetch} onClick={onClick} aria-current={current ? "page" : undefined}>
         {content}
       </Link>
     );
@@ -38,11 +46,22 @@ function NavLink({ link, current, tracked }: { link: HeaderLink; current: boolea
  * sit in a panel behind the menu button, which closes on a tap outside,
  * Escape, or focus leaving the header.
  *
- * `current` marks the page you're on. The landing events (link clicks, menu
- * opens) fire only on the landing page, which has no current link.
+ * `current` marks the page you're on. The callbacks are for the landing
+ * page's events (landing-header.tsx); the legal pages pass none, so they
+ * don't load the analytics code. They also pass `prefetch={false}`:
+ * prefetching / would load the landing page's code on every legal page.
  */
-export function Header({ current }: { current?: HeaderLink["id"] } = {}) {
-  const tracked = current === undefined;
+export function Header({
+  current,
+  prefetch,
+  onLinkClick,
+  onMenuOpen,
+}: {
+  current?: HeaderLink["id"];
+  prefetch?: false;
+  onLinkClick?: (id: HeaderLink["id"]) => void;
+  onMenuOpen?: () => void;
+}) {
   // Next keeps a page you left in the DOM, hidden, so each page needs its own id.
   const navId = `${current ?? "landing"}-links`;
   const [open, setOpen] = useState(false);
@@ -73,7 +92,7 @@ export function Header({ current }: { current?: HeaderLink["id"] } = {}) {
 
   return (
     <header ref={headerRef} className={open ? "night-header open" : "night-header"} onBlur={onBlur}>
-      <Link className="logo" href={logo.href}>
+      <Link className="logo" href={logo.href} prefetch={prefetch}>
         {logo.text}
       </Link>
       <button
@@ -84,7 +103,7 @@ export function Header({ current }: { current?: HeaderLink["id"] } = {}) {
         aria-controls={navId}
         aria-label={header.menuLabel}
         onClick={() => {
-          if (!open && tracked) track.menuOpened();
+          if (!open) onMenuOpen?.();
           setOpen(!open);
         }}
       >
@@ -101,7 +120,13 @@ export function Header({ current }: { current?: HeaderLink["id"] } = {}) {
       </button>
       <nav className="links" id={navId} aria-label={header.navLabel} onClick={() => setOpen(false)}>
         {header.links.map((link) => (
-          <NavLink key={link.id} link={link} current={link.id === current} tracked={tracked} />
+          <NavLink
+            key={link.id}
+            link={link}
+            current={link.id === current}
+            prefetch={prefetch}
+            onClick={onLinkClick && (() => onLinkClick(link.id))}
+          />
         ))}
       </nav>
     </header>

@@ -129,7 +129,7 @@ export function LegalPage({ name }: { name: LegalPageName }) {
       <div className="legal-hero">
         <NightSky />
         <div className="legal-wrap">
-          <Header current={name} />
+          <Header current={name} prefetch={false} />
           <div className="legal-hero-body">
             <p className="legal-chip">{legalChrome.updated}</p>
             <h1>

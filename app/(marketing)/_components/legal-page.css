@@ -910,6 +910,15 @@
       font-size: 14px;
     }
 
+    /* With a mouse, shorter rows, so the whole list fits beside the text
+       and the wheel scrolls the page, not the list. */
+    @media (pointer: fine) {
+      & .legal-sidebar .legal-toc-list a {
+        min-height: 34px;
+        padding-block: 2px;
+      }
+    }
+
     & .legal-jump {
       display: none;
     }
