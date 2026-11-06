@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { CSSProperties } from "react";
-import { IconSticker, PestoSticker, Sparkle } from "@/app/_components/sticker";
+import { IconSticker, Sparkle } from "@/app/_components/sticker";
 import { legalChrome, legalPages, type LegalPageName } from "@/content/legal";
 import { DELETE_ACCOUNT_ID, isAccountDeletion, readLegal, type LegalSection } from "@/lib/legal";
 import { Header } from "./landing/header";
@@ -23,17 +23,20 @@ export const legalViewport: Viewport = {
 /** Sticker tilts for the short version's bullets, in turn. */
 const TILTS = [-4, 3.5, -3, 4];
 
-/** Static stars, in % of the hero, and their size in px. */
+/**
+ * Stars, in % of the hero, their size in px, and how they twinkle: each on
+ * its own cycle (s) and start (negative delay), so they never blink together.
+ */
 const STARS = [
-  { left: 2, top: 24, size: 8 },
-  { left: 31, top: 2, size: 6 },
-  { left: 74, top: 4, size: 7 },
-  { left: 97, top: 46, size: 8 },
-  { left: 64, top: 96, size: 6 },
-  { left: 90, top: 100, size: 5 },
-]
+  { left: 2, top: 24, size: 8, time: 4.1, delay: -0.4 },
+  { left: 31, top: 2, size: 6, time: 3.4, delay: -2.6 },
+  { left: 74, top: 4, size: 7, time: 5.2, delay: -1.3 },
+  { left: 97, top: 46, size: 8, time: 3.8, delay: -3.1 },
+  { left: 64, top: 96, size: 6, time: 4.7, delay: -0.9 },
+  { left: 90, top: 100, size: 5, time: 4.4, delay: -2.0 },
+];
 
-/** A few static stars and a crescent moon, in felt yellow. Decorative. */
+/** A few twinkling stars and a still crescent moon, in felt yellow. Decorative. */
 function NightSky() {
   return (
     <div className="legal-sky" aria-hidden="true">
@@ -41,7 +44,14 @@ function NightSky() {
         <span
           key={`${star.left}-${star.top}`}
           className="legal-star"
-          style={{ left: `${star.left}%`, top: `${star.top}%` } as CSSProperties}
+          style={
+            {
+              left: `${star.left}%`,
+              top: `${star.top}%`,
+              "--twinkle-time": `${star.time}s`,
+              "--twinkle-delay": `${star.delay}s`,
+            } as CSSProperties
+          }
         >
           <Sparkle size={star.size} />
         </span>
@@ -98,16 +108,13 @@ function Section({ section }: { section: LegalSection }) {
         {section.title}
       </h2>
       {section.note && (
-        <div className="legal-note">
-          <PestoSticker size={34} tilt={-6} className="legal-note-pesto" />
-          <p>
-            <span className="legal-note-label">
-              {legalChrome.noteLabel}
-              <span className="sr-only">:</span>
-            </span>{" "}
-            <span className="legal-note-text" dangerouslySetInnerHTML={{ __html: section.note }} />
-          </p>
-        </div>
+        <p className="legal-note">
+          <span className="legal-note-label">
+            {legalChrome.noteLabel}
+            <span className="sr-only">:</span>
+          </span>{" "}
+          <span className="legal-note-text" dangerouslySetInnerHTML={{ __html: section.note }} />
+        </p>
       )}
       <div className="legal-text" dangerouslySetInnerHTML={{ __html: section.html }} />
     </section>
@@ -135,11 +142,6 @@ export function LegalPage({ name }: { name: LegalPageName }) {
             <h1>
               {page.heading.lead} <span className="legal-accent">{page.heading.accent}</span>
             </h1>
-            <p className="legal-sub">{page.subtitle}</p>
-            <div className="legal-mascot" aria-hidden="true">
-              <p className="legal-bubble">{page.bubble}</p>
-              <PestoSticker size={148} tilt={6} className="legal-mascot-pesto" />
-            </div>
           </div>
         </div>
       </div>
@@ -164,7 +166,14 @@ export function LegalPage({ name }: { name: LegalPageName }) {
                     const { icon, tint } = page.icons[i % page.icons.length];
                     return (
                       <li key={item}>
-                        <IconSticker icon={icon} tint={tint} size={44} border={3} tilt={TILTS[i % TILTS.length]} />
+                        <IconSticker
+                          icon={icon}
+                          tint={tint}
+                          size={44}
+                          border={3}
+                          tilt={TILTS[i % TILTS.length]}
+                          className="legal-sticker"
+                        />
                         <span dangerouslySetInnerHTML={{ __html: item }} />
                       </li>
                     );
@@ -193,10 +202,7 @@ export function LegalPage({ name }: { name: LegalPageName }) {
 
       <footer className="legal-foot">
         <div className="legal-wrap legal-foot-row">
-          <div className="legal-foot-copy">
-            <p className="legal-foot-title">{legalChrome.questions}</p>
-            <p className="legal-foot-sub">{legalChrome.replies}</p>
-          </div>
+          <p className="legal-foot-title">{legalChrome.questions}</p>
           <a className="legal-cta" href={`mailto:${page.email}`}>
             {page.email}
           </a>

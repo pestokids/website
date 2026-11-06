@@ -24,9 +24,6 @@ export const legalPages = {
       "How Pesto handles your family's information on the website, the Founding Families waitlist and the Pesto app: what we collect, why, who helps us, and how to delete it.",
     /** The h1: the first word in cream, the rest in orange. */
     heading: { lead: "Privacy", accent: "policy" },
-    subtitle: "Plain words first, the full version after.",
-    /** Pesto's speech bubble in the hero. */
-    bubble: "No ads. No tracking. Pinky promise.",
     /** The footer button. */
     email: "privacy@pestokids.com",
     /** One per short-version bullet, in order. */
@@ -46,8 +43,6 @@ export const legalPages = {
     description:
       "The rules for using pestokids.com, applying to Pesto Founding Families and using the Pesto app, explained in plain words.",
     heading: { lead: "Terms", accent: "of use" },
-    subtitle: "Short, and explained in plain words.",
-    bubble: "Rule one: be nice. Rule two: see rule one.",
     email: brand.email,
     icons: [
       { icon: "book", tint: "lime" },
@@ -73,7 +68,6 @@ export const legalChrome = {
   /** Label above each plain-words note. The markdown starts each note with it. */
   noteLabel: "What this means",
   questions: "Questions?",
-  replies: "We read every email. A real person replies.",
   linksLabel: "Home, privacy, terms and contact",
   links: [
     { id: "home", label: "Home", href: "/" },

@@ -65,11 +65,21 @@ describe.each(pages)("$path", ({ path, file, html, h1, accent, email }) => {
     for (const link of current) expect(link).toContain(`href="${path}"`);
   });
 
-  it("puts the “What this means” notes in Pesto's bubbles, with the label once", () => {
+  it("sets the “What this means” notes apart in a plain box, with the label once", () => {
     expect(html).toMatch(
-      /<div class="legal-note">.*?<p><span class="legal-note-label">What this means<span class="sr-only">:<\/span><\/span> <span class="legal-note-text">/,
+      /<p class="legal-note"><span class="legal-note-label">What this means<span class="sr-only">:<\/span><\/span> <span class="legal-note-text">/,
     );
     expect(html).not.toContain("What this means:");
+  });
+
+  it("has no Pesto, speech bubble or subtitle in the hero, and no Pesto beside the notes", () => {
+    expect(html).not.toContain("mascot-primary.svg");
+    expect(html).not.toMatch(/legal-(mascot|bubble|sub)\b|legal-note-pesto/);
+  });
+
+  it("ends with “Questions?”, the email button and the links, and nothing else", () => {
+    const footer = html.slice(html.indexOf("<footer"), html.indexOf("</footer>"));
+    expect(text(footer)).toBe(`Questions?${email}HomePrivacyTermsContact`);
   });
 
   it("gives every numbered section a heading with its number as text, and lists it", () => {

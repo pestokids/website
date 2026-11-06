@@ -1,13 +1,16 @@
 /*
  * /privacy and /terms (legal-page.tsx). Three bands:
  *
- *   night     the landing page's sky: header, a few stars and a moon, the
- *             "Updated" chip, the title, and Pesto with a speech bubble.
+ *   night     the landing page's sky: header, twinkling stars and a moon,
+ *             the "Updated" chip and the title.
  *   daylight  a white sheet for reading, in the /apply look: the short
  *             version as a card of stickers, the sections with lime number
- *             badges and Pesto's "What this means" bubbles, and the
- *             section list (a disclosure on phones, a sticky sidebar on desktop).
- *   night     "Questions?" and the lime email button, filling the rest of the screen.
+ *             badges and "What this means" boxes, and the section list
+ *             (a disclosure on phones, a sticky sidebar on desktop).
+ *   night     "Questions?", the lime email button and links, filling the rest of the screen.
+ *
+ * The small touches (twinkle, pop-in, sticker hover, button press, the
+ * glow on the section you jumped to) are at the end, off with reduced motion.
  *
  * Widths: under 600px tables become cards; from 768px the desktop type
  * sizes, the one-line title and the tile grid; from 1080px the sidebar.
@@ -45,7 +48,8 @@
   & .legal-hero {
     position: relative;
     padding-top: max(20px, env(safe-area-inset-top, 0px));
-    padding-bottom: calc(var(--overlap) + 20px);
+    /* About 64px of night under the title before the sheet. */
+    padding-bottom: calc(var(--overlap) + 64px);
     background: linear-gradient(to bottom, var(--color-night) 55%, #172a6c);
     color: var(--color-cream);
     color-scheme: dark;
@@ -87,20 +91,13 @@
   }
 
   & .legal-hero-body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "chip  chip"
-      "title mascot"
-      "sub   mascot";
-    align-items: start;
-    column-gap: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     margin-top: 22px;
   }
 
   & .legal-chip {
-    grid-area: chip;
-    justify-self: start;
     margin: 0;
     padding: 5px 12px;
     border-radius: 999px;
@@ -112,7 +109,6 @@
   }
 
   & h1 {
-    grid-area: title;
     margin: 14px 0 0;
     font-family: var(--font-display);
     font-weight: 800;
@@ -123,63 +119,11 @@
     text-shadow: 0 2px 0 rgb(0 0 0 / 0.18);
   }
 
+  /* Its own line on phones; a table box shrinks to the word, so it can be transformed around its middle. */
   & .legal-accent {
-    display: block;
+    display: table;
     color: var(--color-orange);
-  }
-
-  & .legal-sub {
-    grid-area: sub;
-    margin: 10px 0 0;
-    font-size: 16px;
-    line-height: 22px;
-    font-weight: 600;
-    color: var(--color-night-link);
-  }
-
-  /* Pesto alone sets the column's width; his bubble floats above him. */
-  & .legal-mascot {
-    grid-area: mascot;
-    position: relative;
-    align-self: end;
-    margin-bottom: 4px;
-  }
-
-  & .legal-bubble {
-    position: absolute;
-    right: 6px;
-    bottom: calc(100% + 10px);
-    box-sizing: border-box;
-    width: max-content;
-    max-width: min(128px, 36vw);
-    margin: 0;
-    text-wrap: balance;
-    padding: 8px 11px;
-    border-radius: 16px 16px 4px 16px;
-    background: var(--color-cream);
-    color: var(--color-forest);
-    font-size: 13px;
-    line-height: 16px;
-    font-weight: 800;
-    box-shadow: 0 6px 16px rgb(8 14 45 / 0.35);
-  }
-
-  /* Tail at the bottom right, pointing down at Pesto. */
-  & .legal-bubble::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    bottom: -7px;
-    width: 14px;
-    height: 10px;
-    background: var(--color-cream);
-    clip-path: polygon(0 0, 100% 0, 100% 100%);
-  }
-
-  /* 148px on desktop, 96px on phones. */
-  & .legal-mascot-pesto {
-    zoom: 0.65;
-    margin: 0 4px 0 0;
+    transform-origin: 50% 70%;
   }
 
   /* ── Daylight: the sheet ───────────────────────────────────────────────── */
@@ -328,7 +272,6 @@
     & summary svg {
       width: 22px;
       height: 22px;
-      transition: rotate 0.2s ease;
     }
 
     &[open] summary svg {
@@ -374,7 +317,10 @@
   }
 
   /* Sections */
+  /* Its own stacking context, so the :target glow (below) sits behind the text. */
   & .legal-section {
+    position: relative;
+    isolation: isolate;
     margin-top: 44px;
   }
 
@@ -417,26 +363,14 @@
     margin-top: 16px;
   }
 
-  /* "What this means": Pesto says it, in a speech bubble. */
+  /* "What this means": a plain-words summary in a soft box. */
   & .legal-note {
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
-
-    & .legal-note-pesto {
-      margin-bottom: 2px;
-    }
-
-    & p {
-      flex: 1;
-      min-width: 0;
-      padding: 11px 15px 12px;
-      border-radius: 18px 18px 18px 6px;
-      background: var(--color-day-bubble);
-      font-size: 15px;
-      line-height: 22px;
-      font-weight: 600;
-    }
+    padding: 11px 15px 12px;
+    border-radius: 16px;
+    background: var(--color-day-bubble);
+    font-size: 15px;
+    line-height: 22px;
+    font-weight: 600;
   }
 
   & .legal-note-label {
@@ -532,7 +466,7 @@
       color: #fff;
     }
 
-    & .legal-note p {
+    & .legal-note {
       background: #fff;
     }
 
@@ -588,14 +522,6 @@
     font-weight: 800;
   }
 
-  & .legal-foot-sub {
-    margin-top: 6px;
-    font-size: 15px;
-    line-height: 21px;
-    font-weight: 600;
-    color: var(--color-night-link);
-  }
-
   /* The landing page's lime button. */
   & .legal-cta {
     box-sizing: border-box;
@@ -616,15 +542,6 @@
     box-shadow:
       inset 0 -4px 0 var(--color-day-lime-deep),
       0 12px 26px rgb(0 0 0 / 0.28);
-    transition: transform 0.2s ease;
-  }
-
-  & .legal-cta:hover {
-    transform: translateY(-2px);
-  }
-
-  & .legal-cta:active {
-    transform: translateY(1px);
   }
 
   & .legal-foot-links {
@@ -744,7 +661,7 @@
 
     & .legal-hero {
       padding-top: max(28px, env(safe-area-inset-top, 0px));
-      padding-bottom: calc(var(--overlap) + 44px);
+      padding-bottom: calc(var(--overlap) + 72px);
     }
 
     & .legal-sky {
@@ -759,17 +676,7 @@
     }
 
     & .legal-hero-body {
-      grid-template-areas:
-        "chip  mascot"
-        "title mascot"
-        "sub   mascot";
-      align-items: end;
-      column-gap: 32px;
       margin-top: 52px;
-    }
-
-    & .legal-chip {
-      align-self: end;
     }
 
     & h1 {
@@ -779,27 +686,7 @@
     }
 
     & .legal-accent {
-      display: inline;
-    }
-
-    & .legal-sub {
-      margin-top: 14px;
-    }
-
-    & .legal-mascot {
-      margin: 0 12px -8px 0;
-    }
-
-    & .legal-bubble {
-      bottom: calc(100% + 14px);
-      max-width: 200px;
-      padding: 10px 14px;
-      font-size: 13px;
-      line-height: 17px;
-    }
-
-    & .legal-mascot-pesto {
-      zoom: 1;
+      display: inline-block;
     }
 
     & .legal-sheet {
@@ -839,6 +726,10 @@
 
     & .legal-section {
       margin-top: 52px;
+    }
+
+    & .legal-note {
+      border-radius: 18px;
     }
 
     & .legal-section h2 {
@@ -925,12 +816,109 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+/*
+ * Small touches. All of them only with motion allowed, and only transform
+ * and opacity, so nothing moves the layout or holds back the first paint.
+ */
+@media (prefers-reduced-motion: no-preference) {
   .legal {
-    & .legal-cta,
-    & .legal-jump summary svg {
-      transition: none;
+    /* The stars twinkle, each on its own cycle (legal-page.tsx). The moon stays still. */
+    & .legal-star {
+      animation: legal-twinkle var(--twinkle-time, 4s) ease-in-out var(--twinkle-delay, 0s) infinite alternate;
     }
+
+    /* The orange word pops in once. Painted from the start: transform only. */
+    & .legal-accent {
+      animation: legal-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both;
+    }
+
+    & .legal-jump summary svg {
+      transition: rotate 0.2s ease;
+    }
+
+    /* The email button lifts on hover and presses down onto its edge. */
+    & .legal-cta {
+      transition: transform 0.12s ease;
+    }
+
+    & .legal-cta:hover {
+      transform: translateY(-2px);
+    }
+
+    & .legal-cta:active {
+      transform: translateY(3px);
+      box-shadow:
+        inset 0 -1px 0 var(--color-day-lime-deep),
+        0 6px 14px rgb(0 0 0 / 0.24);
+    }
+
+    /* The section you jumped to glows, then fades: lime, or peach for the deletion card. */
+    & .legal-section:has(> h2:target)::before {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      z-index: -1;
+      border-radius: 22px;
+      background: rgb(166 232 31 / 0.14);
+      box-shadow:
+        0 0 0 2px rgb(166 232 31 / 0.45),
+        0 0 32px 6px rgb(166 232 31 / 0.35);
+      pointer-events: none;
+      animation: legal-hello 1.2s ease-in both;
+    }
+
+    & .legal-section.is-delete:has(> h2:target)::before {
+      inset: -6px;
+      border-radius: 30px;
+      background: none;
+      box-shadow:
+        0 0 0 4px rgb(255 100 32 / 0.28),
+        0 0 36px 10px rgb(255 100 32 / 0.35);
+    }
+  }
+
+  /* With a mouse: a hovered item's sticker straightens up and lifts. */
+  @media (hover: hover) {
+    .legal {
+      & .legal-sticker {
+        transition:
+          rotate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+          translate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      /* !important beats the tilt IconSticker sets inline. */
+      & .legal-short li:hover .legal-sticker {
+        rotate: 0deg !important;
+        translate: 0 -3px;
+      }
+    }
+  }
+}
+
+@keyframes legal-twinkle {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.2;
+  }
+}
+
+@keyframes legal-pop {
+  from {
+    transform: scale(0.6) rotate(-6deg);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes legal-hello {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
 
