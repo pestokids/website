@@ -601,7 +601,7 @@
       transform: scaleY(1);
     }
   }
-  /* White tiles for the two IconStickers (ui/sticker.tsx). */
+  /* White tiles for the two IconStickers (app/_components/sticker.tsx). */
   .pz-desk-sticker {
     border: 2em solid var(--color-day-border) !important;
     border-radius: 27% !important;

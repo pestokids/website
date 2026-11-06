@@ -17,11 +17,11 @@
  */
 
 .landing {
-  --night: #13235f;
-  --night-deep: #0c1740;
-  --link: #c8cff0;
-  --star: #f6d36b;
-  --lime-shadow: #6ea300;
+  --night: var(--color-night);
+  --night-deep: var(--color-night-deep);
+  --link: var(--color-night-link);
+  --star: var(--color-night-star);
+  --lime-shadow: var(--color-day-lime-deep);
   --ease-rise: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ar: 1.5; /* wide art, 2400×1600 */
   --pesto-x: 57.5%; /* base of Pesto in the art */
@@ -182,65 +182,6 @@
     pointer-events: auto;
   }
 
-  & .top {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
-
-  & .logo {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 28px;
-    letter-spacing: -0.01em;
-    color: var(--color-cream);
-    text-decoration: none;
-  }
-
-  & .links {
-    display: flex;
-    align-items: center;
-    gap: 22px;
-    font-size: 14px;
-    font-weight: 700;
-  }
-  & .links a {
-    color: var(--link);
-    text-decoration: none;
-  }
-  & .links a:hover,
-  & .links a:focus-visible {
-    color: var(--color-cream);
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
-  & .links a:focus-visible {
-    border-radius: 4px;
-    outline-offset: 4px;
-  }
-  & .links .detail {
-    display: none;
-  }
-
-  & .menu-btn {
-    display: none;
-    width: 44px;
-    height: 44px;
-    align-items: center;
-    justify-content: center;
-    border: 0;
-    border-radius: 50%;
-    background: rgb(255 251 235 / 0.12);
-    color: var(--color-cream);
-    cursor: pointer;
-  }
-  & .menu-btn svg {
-    width: 22px;
-    height: 22px;
-  }
-
   & .copy {
     margin-top: clamp(28px, 7cqh, 110px);
     display: flex;
@@ -368,70 +309,6 @@
       width: 100%;
       max-width: 420px;
       align-self: center;
-    }
-  }
-}
-
-/* Phones: the links fold into a menu. Upright tablets keep them inline. */
-@media (max-aspect-ratio: 17/20) and (max-width: 699px) {
-  .landing {
-    & .menu-btn {
-      display: inline-flex;
-    }
-    & .links {
-      position: absolute;
-      top: calc(100% + 10px);
-      right: 0;
-      z-index: 5;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0;
-      box-sizing: content-box;
-      min-width: 220px;
-      padding: 8px;
-      border-radius: 18px;
-      background: rgb(12 23 64 / 0.94);
-      box-shadow:
-        0 16px 40px rgb(0 0 0 / 0.4),
-        inset 0 0 0 1px rgb(255 251 235 / 0.1);
-      font-size: 16px;
-      opacity: 0;
-      transform: translateY(-6px) scale(0.98);
-      transform-origin: top right;
-      visibility: hidden;
-      transition:
-        opacity 0.18s ease,
-        transform 0.18s ease,
-        visibility 0s 0.18s;
-    }
-    & .links a {
-      padding: 12px 14px;
-      border-radius: 12px;
-      color: var(--color-cream);
-      text-decoration: none;
-    }
-    & .links a:hover,
-    & .links a:focus-visible {
-      background: rgb(255 251 235 / 0.08);
-      text-decoration: none;
-    }
-    & .links a:focus-visible {
-      outline-offset: -3px;
-    }
-    & .links .detail {
-      display: block;
-      margin-top: 2px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--link);
-    }
-    & .top.open .links {
-      opacity: 1;
-      transform: none;
-      visibility: visible;
-      transition:
-        opacity 0.18s ease,
-        transform 0.18s ease;
     }
   }
 }

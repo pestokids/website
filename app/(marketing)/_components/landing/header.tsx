@@ -4,20 +4,19 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type FocusEvent } from "react";
 import { header, logo, type HeaderLink } from "@/content/landing";
 import { track } from "../../_lib/track";
+import "./header.css";
 
-const NAV_ID = "landing-links";
-
-function NavLink({ link }: { link: HeaderLink }) {
+function NavLink({ link, current, tracked }: { link: HeaderLink; current: boolean; tracked: boolean }) {
   const content = (
     <>
       {link.label}
       {link.detail && <span className="detail">{link.detail}</span>}
     </>
   );
-  const onClick = () => track.linkClicked(link.id);
+  const onClick = tracked ? () => track.linkClicked(link.id) : undefined;
   if (link.href.startsWith("/")) {
     return (
-      <Link href={link.href} onClick={onClick}>
+      <Link href={link.href} onClick={onClick} aria-current={current ? "page" : undefined}>
         {content}
       </Link>
     );
@@ -34,11 +33,18 @@ function NavLink({ link }: { link: HeaderLink }) {
 }
 
 /**
- * Logo and the four links. Inline on tablets and laptops; on phones (tall
- * layout, under 700px) they sit in a panel behind the menu button, which
- * closes on a tap outside, Escape, or focus leaving the header.
+ * Logo and the four links, on the landing page and atop /privacy and /terms.
+ * Inline on tablets and laptops; on phones (tall layout, under 700px) they
+ * sit in a panel behind the menu button, which closes on a tap outside,
+ * Escape, or focus leaving the header.
+ *
+ * `current` marks the page you're on. The landing events (link clicks, menu
+ * opens) fire only on the landing page, which has no current link.
  */
-export function Header() {
+export function Header({ current }: { current?: HeaderLink["id"] } = {}) {
+  const tracked = current === undefined;
+  // Next keeps a page you left in the DOM, hidden, so each page needs its own id.
+  const navId = `${current ?? "landing"}-links`;
   const [open, setOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -66,7 +72,7 @@ export function Header() {
   };
 
   return (
-    <header ref={headerRef} className={open ? "top open" : "top"} onBlur={onBlur}>
+    <header ref={headerRef} className={open ? "night-header open" : "night-header"} onBlur={onBlur}>
       <Link className="logo" href={logo.href}>
         {logo.text}
       </Link>
@@ -75,10 +81,10 @@ export function Header() {
         className="menu-btn"
         type="button"
         aria-expanded={open}
-        aria-controls={NAV_ID}
+        aria-controls={navId}
         aria-label={header.menuLabel}
         onClick={() => {
-          if (!open) track.menuOpened();
+          if (!open && tracked) track.menuOpened();
           setOpen(!open);
         }}
       >
@@ -93,9 +99,9 @@ export function Header() {
           <path d="M5 8h14M5 16h14" />
         </svg>
       </button>
-      <nav className="links" id={NAV_ID} aria-label={header.navLabel} onClick={() => setOpen(false)}>
+      <nav className="links" id={navId} aria-label={header.navLabel} onClick={() => setOpen(false)}>
         {header.links.map((link) => (
-          <NavLink key={link.id} link={link} />
+          <NavLink key={link.id} link={link} current={link.id === current} tracked={tracked} />
         ))}
       </nav>
     </header>

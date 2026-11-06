@@ -61,6 +61,14 @@
   --color-day-error-fill: #fff7f2;
   --color-day-whatsapp-edge: #169c49;
 
+  /* Night (the landing page, /contact, and the top and bottom of /privacy and /terms). */
+  --color-night: #13235f;
+  --color-night-deep: #0c1740;
+  /* Links and small text on night. */
+  --color-night-link: #c8cff0;
+  /* Felt-yellow stars and moon. */
+  --color-night-star: #f6d36b;
+
   /* Radius */
   --radius-field: 16px;
   --radius-card: 24px;

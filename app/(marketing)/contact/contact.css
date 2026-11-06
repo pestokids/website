@@ -9,11 +9,11 @@
 
 .contact {
   /* The landing page's night (landing.css). */
-  --night: #13235f;
-  --night-deep: #0c1740;
-  --link: #c8cff0;
-  --star: #f6d36b;
-  --lime-shadow: #6ea300;
+  --night: var(--color-night);
+  --night-deep: var(--color-night-deep);
+  --link: var(--color-night-link);
+  --star: var(--color-night-star);
+  --lime-shadow: var(--color-day-lime-deep);
 
   position: relative;
   isolation: isolate;

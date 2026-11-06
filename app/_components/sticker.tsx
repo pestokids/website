@@ -2,42 +2,94 @@
 import type { CSSProperties } from "react";
 import type { IconName } from "@/content/apply";
 
-/** Tile colour per icon. Anything not listed sits on pale. */
-const tints: Partial<Record<IconName, string>> = {
-  diya: "bg-sticker-peach",
-  moon: "bg-pale",
-  bow: "bg-sticker-butter",
-  deer: "bg-sticker-lime",
-  book: "bg-sticker-butter",
-  bubble: "bg-sticker-lime",
-  dice: "bg-sticker-peach",
+/** An md icon, or "delete": a trash can drawn inline (there's no md icon for it yet). */
+export type StickerIcon = IconName | "delete";
+
+export type StickerTint = "peach" | "butter" | "lime" | "pale";
+
+const tintClasses: Record<StickerTint, string> = {
+  peach: "bg-sticker-peach",
+  butter: "bg-sticker-butter",
+  lime: "bg-sticker-lime",
+  pale: "bg-pale",
 };
+
+/** Tile colour per icon, unless the caller picks one. Anything not listed sits on pale. */
+const tints: Partial<Record<StickerIcon, StickerTint>> = {
+  diya: "peach",
+  moon: "pale",
+  bow: "butter",
+  deer: "lime",
+  book: "butter",
+  bubble: "lime",
+  dice: "peach",
+  delete: "peach",
+};
+
+/** A stroked trash can in the deep orange, sized like the md icons. */
+function TrashIcon({ size }: { size: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="var(--color-day-orange-text)"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M4 7h16M9.5 7V5.2c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2V7M6.5 7l.8 11.6c.1 1 .9 1.9 2 1.9h5.4c1.1 0 1.9-.9 2-1.9L17.5 7M10.2 11v5.5M13.8 11v5.5" />
+    </svg>
+  );
+}
 
 /**
  * Tilted icon sticker: an md icon on a tinted tile with a white border
- * (welcome, desktop corners, how it works). Decorative.
+ * (welcome, desktop corners, how it works, the legal pages' short version).
+ * The corner radius scales with `size`. Decorative.
  */
 export function IconSticker({
   icon,
+  tint,
   tilt = 0,
   size = 72,
+  border = 5,
   className = "",
   style,
 }: {
-  icon: IconName;
+  icon: StickerIcon;
+  /** Tile colour. Defaults to the icon's own. */
+  tint?: StickerTint;
   /** Degrees, clockwise. */
   tilt?: number;
   size?: number;
+  /** White border width, in px. */
+  border?: number;
   className?: string;
   style?: CSSProperties;
 }) {
+  const art = size * 0.56;
   return (
     <span
       aria-hidden="true"
-      className={`grid shrink-0 place-items-center rounded-[22px] border-[5px] border-white shadow-sticker ${tints[icon] ?? "bg-pale"} ${className}`}
-      style={{ width: size, height: size, rotate: `${tilt}deg`, ...style }}
+      className={`grid shrink-0 place-items-center border-solid border-white shadow-sticker ${tintClasses[tint ?? tints[icon] ?? "pale"]} ${className}`}
+      style={{
+        width: size,
+        height: size,
+        borderWidth: border,
+        borderRadius: size * (22 / 72),
+        rotate: `${tilt}deg`,
+        ...style,
+      }}
     >
-      <img src={`/icons/md/${icon}.svg`} alt="" width={size * 0.56} height={size * 0.56} />
+      {icon === "delete" ? (
+        <TrashIcon size={art} />
+      ) : (
+        <img src={`/icons/md/${icon}.svg`} alt="" width={art} height={art} />
+      )}
     </span>
   );
 }
