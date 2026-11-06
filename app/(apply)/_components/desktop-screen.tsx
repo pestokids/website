@@ -12,7 +12,7 @@ import { pestoSvg } from "./pesto/pesto-svg";
 import { useIdleCheckIn } from "./pesto/use-idle-check-in";
 import { prefersReducedMotion, usePesto } from "./pesto/use-pesto";
 import { QrCode } from "./ui/qr-code";
-import { IconSticker } from "./ui/sticker";
+import { IconSticker } from "@/app/_components/sticker";
 
 const COPIED_MS = 2000;
 /** Browser bar tint on this screen: Forest night. */

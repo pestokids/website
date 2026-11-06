@@ -1,115 +1,1090 @@
 /*
- * Rendered legal markdown (/privacy, /terms). Readable on a phone: 16px body,
- * comfortable line height, and wide tables that scroll inside their own box.
+ * /privacy and /terms (legal-page.tsx). Three bands:
+ *
+ *   night     the landing page's sky: header, twinkling stars and a moon,
+ *             the "Updated" chip and the title.
+ *   daylight  a white sheet for reading, in the /apply look: the short
+ *             version as a card of stickers, the sections with lime number
+ *             badges and "What this means" boxes, and the section list
+ *             (a disclosure on phones, a sticky sidebar on desktop).
+ *   night     "Questions?", the lime email button and links, filling the rest of the screen.
+ *
+ * The small touches (twinkle, pop-in, sticker hover, button press, the
+ * glow on the section you jumped to) are at the end, off with reduced motion.
+ *
+ * Widths: under 600px tables become cards; from 768px the desktop type
+ * sizes, the one-line title and the tile grid; from 1080px the sidebar.
+ *
+ * Everything is scoped under .legal: the stylesheet stays loaded after a
+ * client-side navigation, so nothing here may style html or body.
  */
-.legal-prose {
-  font-size: 16px;
-  line-height: 26px;
+
+.legal {
+  /* The text column: about 75 characters a line (16px text here, 17px from 768px). */
+  --measure: 500px;
+  /* What sits inside the gutters: the text column, plus the sidebar when there's one. */
+  --inner: var(--measure);
+  --gutter: 20px;
+  --sheet-radius: 28px;
+  --overlap: 28px;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-night);
+  color: var(--color-forest);
+  font-family: var(--font-nunito), ui-rounded, system-ui, sans-serif;
   overflow-wrap: break-word;
 
-  & h1 {
-    font-family: var(--font-display);
-    font-size: 34px;
-    line-height: 40px;
+  & .legal-wrap {
+    box-sizing: border-box;
+    width: 100%;
+    /* The gutters grow into the notch and rounded corners when held sideways. */
+    --pad-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+    --pad-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+    max-width: calc(var(--inner) + var(--pad-left) + var(--pad-right));
+    margin-inline: auto;
+    padding-left: var(--pad-left);
+    padding-right: var(--pad-right);
+  }
+
+  /* ── Night: the hero ───────────────────────────────────────────────────── */
+
+  /* No clipping and no stacking context here: the phone menu opens over the sheet. */
+  & .legal-hero {
+    position: relative;
+    padding-top: max(20px, env(safe-area-inset-top, 0px));
+    /* About 64px of night under the title before the sheet. */
+    padding-bottom: calc(var(--overlap) + 64px);
+    background: linear-gradient(to bottom, var(--color-night) 55%, #172a6c);
+    color: var(--color-cream);
+    color-scheme: dark;
+  }
+
+  & .legal-hero :focus-visible {
+    outline: 3px solid var(--color-cream);
+    outline-offset: 2px;
+  }
+
+  & .legal-sky {
+    position: absolute;
+    inset: 64px max(0px, calc((100% - 1440px) / 2)) 40px;
+    overflow: hidden;
+    color: var(--color-night-star);
+  }
+
+  /* Above the sheet, which overlaps the hero's empty bottom edge. */
+  & .legal-hero > .legal-wrap {
+    position: relative;
+    z-index: 2;
+  }
+
+  & .legal-star {
+    position: absolute;
+    display: block;
+    line-height: 0;
+    opacity: 0.85;
+  }
+
+  /* Beside the title's first line, clear of the chip and the menu button. */
+  & .legal-moon {
+    position: absolute;
+    top: 54px;
+    right: 10%;
+    width: 30px;
+    height: 30px;
+    fill: currentColor;
+    filter: drop-shadow(0 0 10px rgb(246 211 107 / 0.45));
+  }
+
+  /* The h1 comes first in the page; the chip shows above it. */
+  & .legal-hero-body {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    margin-top: 22px;
+  }
+
+  & .legal-chip {
+    margin: 0;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: var(--color-day-peach);
+    color: var(--color-day-orange-text);
+    font-size: 13px;
+    line-height: 18px;
     font-weight: 800;
-    text-wrap: balance;
   }
 
-  & h2 {
-    margin-top: 40px;
+  & h1 {
+    margin: 14px 0 0;
     font-family: var(--font-display);
-    font-size: 22px;
-    line-height: 28px;
+    font-weight: 800;
+    font-size: clamp(40px, 14vw, 54px);
+    line-height: 1.04;
+    letter-spacing: -0.015em;
+    /* Never break inside a word: the size above keeps "Privacy" whole down to 280px. */
+    overflow-wrap: normal;
+    color: var(--color-cream);
+    text-shadow: 0 2px 0 rgb(0 0 0 / 0.18);
+  }
+
+  /* Its own line on phones; a table box shrinks to the word, so it can be transformed around its middle. */
+  & .legal-accent {
+    display: table;
+    color: var(--color-orange);
+    transform-origin: 50% 70%;
+  }
+
+  /* ── Daylight: the sheet ───────────────────────────────────────────────── */
+
+  & .legal-sheet {
+    position: relative;
+    z-index: 1;
+    margin-top: calc(-1 * var(--overlap));
+    padding-top: 28px;
+    padding-bottom: 56px;
+    border-radius: var(--sheet-radius);
+    background: #fff;
+  }
+
+  & .legal-sheet :focus-visible {
+    outline: 2px solid var(--color-forest);
+    outline-offset: 2px;
+  }
+
+  & .legal-sidebar {
+    display: none;
+  }
+
+  & .legal-content {
+    min-width: 0;
+    container: legal-content / inline-size;
+  }
+
+  & .legal-intro {
+    font-size: 17px;
+    line-height: 27px;
+    font-weight: 600;
+  }
+
+  /* Body text, links and lists, from the markdown. */
+  & .legal-text {
+    font-size: 16px;
+    line-height: 26px;
+
+    & > * + * {
+      margin-top: 14px;
+    }
+
+    & strong {
+      font-weight: 800;
+    }
+
+    & ul {
+      padding-left: 22px;
+      list-style: disc;
+    }
+
+    & li + li {
+      margin-top: 8px;
+    }
+
+    & li::marker {
+      color: var(--color-day-lime-edge);
+    }
+  }
+
+  & .legal-text a,
+  & .legal-note a,
+  & .legal-short a {
+    color: var(--color-forest);
     font-weight: 700;
-    text-wrap: balance;
-    scroll-margin-top: 24px;
-  }
-
-  & h1 + p {
-    margin-top: 8px;
-    font-size: 14px;
-    line-height: 20px;
-    color: var(--color-muted);
-  }
-
-  & p,
-  & ul,
-  & .legal-table {
-    margin-top: 16px;
-  }
-
-  & h2 + p,
-  & h2 + ul {
-    margin-top: 12px;
-  }
-
-  & ul {
-    padding-left: 22px;
-    list-style: disc;
-  }
-
-  & li + li {
-    margin-top: 8px;
-  }
-
-  & li::marker {
-    color: var(--color-lime-deep);
-  }
-
-  & strong {
-    font-weight: 700;
-  }
-
-  & a {
     text-decoration: underline;
-    text-decoration-color: var(--color-lime-deep);
-    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-day-lime);
+    text-decoration-thickness: 3px;
     text-underline-offset: 3px;
   }
 
-  /* "What this means": a plain-words summary, set apart from the binding text. */
-  & .legal-note {
-    margin-top: 12px;
-    padding: 12px 16px;
-    border-radius: var(--radius-field);
-    background-color: rgb(225 235 190 / 0.6);
-    color: var(--color-forest);
+  & .legal-text a:hover,
+  & .legal-note a:hover,
+  & .legal-short a:hover {
+    text-decoration-color: var(--color-day-lime-edge);
   }
 
-  & .legal-note + p {
+  /* The short version: a white card in the /apply tile style. */
+  & .legal-short {
+    margin-top: 24px;
+    padding: 22px 18px 20px;
+    border: 2px solid var(--color-day-border);
+    border-radius: var(--radius-card);
+    background: #fff;
+    box-shadow: 0 5px 0 var(--color-day-border);
+
+    & h2 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 26px;
+      line-height: 30px;
+      font-weight: 800;
+    }
+
+    & ul {
+      display: grid;
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    & li {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      align-items: start;
+      column-gap: 14px;
+      font-size: 15.5px;
+      line-height: 23px;
+    }
+
+    & li strong {
+      font-weight: 800;
+    }
+  }
+
+  & .legal-short-after {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 2px dashed var(--color-day-border);
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--color-day-sub);
+  }
+
+  /* Jump to a section (phones and tablets). */
+  & .legal-jump {
+    margin-top: 24px;
+
+    & summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 0 18px;
+      border-radius: var(--radius-field);
+      background: var(--color-day-tile);
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    & summary::-webkit-details-marker {
+      display: none;
+    }
+
+    & summary svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    &[open] summary svg {
+      rotate: 180deg;
+    }
+
+    & .legal-toc-list {
+      margin-top: 8px;
+      padding: 6px 4px;
+    }
+  }
+
+  & .legal-toc-list {
+    & a {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      min-height: 44px;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 20px;
+      font-weight: 700;
+      color: var(--color-forest);
+      text-decoration: none;
+    }
+
+    & a:hover {
+      background: var(--color-day-tile);
+    }
+
+    & .legal-toc-num {
+      flex: none;
+      min-width: 24px;
+      color: var(--color-day-sub);
+      font-variant-numeric: tabular-nums;
+    }
+
+    & a.is-delete,
+    & a.is-delete .legal-toc-num {
+      color: var(--color-day-orange-text);
+    }
+  }
+
+  /* Sections */
+  /* Its own stacking context, so the :target glow (below) sits behind the text. */
+  & .legal-section {
+    position: relative;
+    isolation: isolate;
+    margin-top: 44px;
+  }
+
+  & .legal-section h2 {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 23px;
+    line-height: 28px;
+    font-weight: 700;
+    text-wrap: balance;
+    scroll-margin-top: calc(24px + env(safe-area-inset-top, 0px));
+  }
+
+  & .legal-num {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    margin-top: -3px;
+    border-radius: 11px;
+    background: var(--color-day-lime);
+    box-shadow: inset 0 -3px 0 var(--color-day-lime-edge);
+    color: var(--color-forest);
+    font-size: 19px;
+    line-height: 1;
+    font-weight: 800;
+    padding-bottom: 2px;
+    box-sizing: border-box;
+  }
+
+  & .legal-section h2 + * {
+    margin-top: 14px;
+  }
+
+  & .legal-note + .legal-text {
     margin-top: 16px;
   }
 
-  & .legal-table {
-    overflow-x: auto;
-    border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-field);
-    background-color: rgb(255 255 255 / 0.7);
-    -webkit-overflow-scrolling: touch;
+  /* "What this means": a plain-words summary in a soft box. */
+  & .legal-note {
+    padding: 11px 15px 12px;
+    border-radius: 16px;
+    background: var(--color-day-bubble);
+    font-size: 15px;
+    line-height: 22px;
+    font-weight: 600;
   }
 
-  & table {
-    min-width: 560px;
-    width: 100%;
-    border-collapse: collapse;
+  & .legal-note-label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-lime-text);
+  }
+
+  /* The note follows its label, so it reads as a sentence of its own. */
+  & .legal-note-text {
+    display: block;
+  }
+
+  & .legal-note-text::first-letter {
+    text-transform: uppercase;
+  }
+
+  /* Tables: each row is a small card while the column is too narrow for the table. */
+  & .legal-table {
+    margin-top: 16px;
+  }
+
+  & .legal-table table,
+  & .legal-table tbody,
+  & .legal-table tr,
+  & .legal-table td {
+    display: block;
+  }
+
+  & .legal-table thead {
+    display: none;
+  }
+
+  & .legal-table tr {
+    padding: 14px 16px;
+    border: 2px solid var(--color-day-border);
+    border-radius: 18px;
+    box-shadow: 0 4px 0 var(--color-day-border);
     font-size: 15px;
     line-height: 22px;
   }
 
-  & th,
-  & td {
-    padding: 10px 12px;
-    text-align: left;
-    vertical-align: top;
+  & .legal-table tr + tr {
+    margin-top: 14px;
   }
 
-  & th {
-    font-weight: 700;
-    background-color: rgb(225 235 190 / 0.45);
+  & .legal-table td:first-child {
+    font-weight: 800;
+    font-size: 16px;
   }
 
-  & tr + tr td,
-  & tbody tr:first-child td {
-    border-top: 1px solid var(--color-hairline);
+  & .legal-table td + td {
+    margin-top: 4px;
+  }
+
+  & .legal-table td:nth-child(n + 3) {
+    margin-top: 10px;
+    color: var(--color-day-sub);
+  }
+
+  & .legal-table td:nth-child(n + 3)::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-lime-text);
+  }
+
+  /* Deleting your account: a highlighted card, in orange. */
+  & .legal-section.is-delete {
+    padding: 22px 18px;
+    border: 2px solid var(--color-day-error-edge);
+    border-radius: var(--radius-card);
+    background: var(--color-day-error-fill);
+    box-shadow: 0 5px 0 var(--color-day-error-edge);
+
+    & h2 {
+      scroll-margin-top: calc(48px + env(safe-area-inset-top, 0px));
+    }
+
+    /* The deep orange, not --color-orange: white on #ff6420 is only 3:1. */
+    & .legal-num {
+      background: var(--color-day-orange-text);
+      box-shadow: inset 0 -3px 0 #9a3412;
+      color: #fff;
+    }
+
+    & .legal-note {
+      background: #fff;
+    }
+
+    & .legal-note-label {
+      color: var(--color-day-orange-text);
+    }
+
+    & .legal-text ul {
+      display: grid;
+      gap: 12px;
+      padding: 0;
+      list-style: none;
+    }
+
+    & .legal-text li {
+      margin: 0;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: #fff;
+    }
+  }
+
+  /* ── Night: the footer ─────────────────────────────────────────────────── */
+
+  & .legal-foot {
+    flex: 1;
+    display: flex;
+    background: var(--color-night);
+    color: var(--color-cream);
+    color-scheme: dark;
+  }
+
+  & .legal-foot :focus-visible {
+    outline: 3px solid var(--color-cream);
+    outline-offset: 3px;
+  }
+
+  & .legal-foot-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    padding-top: 44px;
+    padding-bottom: max(28px, calc(env(safe-area-inset-bottom, 0px) + 12px));
+    text-align: center;
+  }
+
+  & .legal-foot-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 32px;
+    font-weight: 800;
+  }
+
+  /* The landing page's lime button. */
+  & .legal-cta {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 420px;
+    min-height: 58px;
+    padding: 0 24px;
+    border-radius: 999px;
+    background: var(--gradient-lime);
+    color: var(--color-forest);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 20px;
+    text-decoration: none;
+    box-shadow:
+      inset 0 -4px 0 var(--color-day-lime-deep),
+      0 12px 26px rgb(0 0 0 / 0.28);
+  }
+
+  & .legal-foot-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 8px;
+
+    & a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 10px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-night-link);
+      text-decoration: none;
+    }
+
+    & a:hover {
+      color: var(--color-cream);
+      text-decoration: underline;
+      text-underline-offset: 5px;
+    }
+
+    & a[aria-current="page"] {
+      color: var(--color-cream);
+      text-decoration: underline;
+      text-decoration-color: var(--color-day-lime);
+      text-decoration-thickness: 3px;
+      text-underline-offset: 6px;
+    }
+  }
+}
+
+/* Tables are tables once the text column fits three columns of text. */
+@container legal-content (min-width: 440px) {
+  .legal {
+    & .legal-table {
+      overflow: hidden;
+      border: 2px solid var(--color-day-border);
+      border-radius: 18px;
+      box-shadow: 0 4px 0 var(--color-day-border);
+    }
+
+    & .legal-table table {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+      line-height: 22px;
+    }
+
+    & .legal-table thead {
+      display: table-header-group;
+    }
+
+    & .legal-table tbody {
+      display: table-row-group;
+    }
+
+    & .legal-table tr {
+      display: table-row;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    & .legal-table th,
+    & .legal-table td {
+      display: table-cell;
+      margin: 0;
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    & .legal-table th {
+      background: var(--color-day-tint);
+      font-size: 11px;
+      line-height: 16px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-lime-text);
+    }
+
+    & .legal-table td {
+      border-top: 2px solid var(--color-day-border);
+    }
+
+    & .legal-table td:first-child {
+      font-size: 15px;
+    }
+
+    & .legal-table td:nth-child(n + 3) {
+      margin: 0;
+    }
+
+    & .legal-table td:last-child {
+      color: var(--color-day-sub);
+    }
+
+    & .legal-table td:nth-child(n + 3)::before {
+      content: none;
+    }
+  }
+}
+
+/* Desktop type, the one-line title, and the tile grid. */
+@media (min-width: 768px) {
+  .legal {
+    --gutter: 40px;
+    --sheet-radius: 36px;
+    --measure: 560px;
+
+    & .legal-hero {
+      padding-top: max(28px, env(safe-area-inset-top, 0px));
+      padding-bottom: calc(var(--overlap) + 72px);
+    }
+
+    & .legal-sky {
+      inset: 84px max(0px, calc((100% - 1440px) / 2)) 40px;
+    }
+
+    & .legal-moon {
+      top: 10px;
+      right: 34%;
+      width: 40px;
+      height: 40px;
+    }
+
+    & .legal-hero-body {
+      margin-top: 52px;
+    }
+
+    & h1 {
+      margin-top: 18px;
+      font-size: clamp(64px, 8vw, 88px);
+      line-height: 1;
+    }
+
+    & .legal-accent {
+      display: inline-block;
+    }
+
+    & .legal-sheet {
+      padding-top: 44px;
+      padding-bottom: 72px;
+    }
+
+    & .legal-intro {
+      font-size: 20px;
+      line-height: 31px;
+    }
+
+    & .legal-text {
+      font-size: 17px;
+      line-height: 28px;
+    }
+
+    & .legal-short {
+      margin-top: 32px;
+      padding: 28px 28px 26px;
+
+      & ul {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-top: 20px;
+      }
+
+      & li {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 20px;
+        background: var(--color-day-tile);
+      }
+    }
+
+    & .legal-section {
+      margin-top: 52px;
+    }
+
+    & .legal-note {
+      border-radius: 18px;
+    }
+
+    & .legal-section h2 {
+      align-items: center;
+      font-size: 28px;
+      line-height: 34px;
+      gap: 14px;
+    }
+
+    & .legal-num {
+      margin-top: 0;
+    }
+
+    & .legal-section.is-delete {
+      padding: 30px 30px 28px;
+
+      & .legal-text ul {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    & .legal-foot-row {
+      padding-top: 56px;
+      padding-bottom: max(40px, calc(env(safe-area-inset-bottom, 0px) + 12px));
+    }
+
+    & .legal-cta {
+      width: auto;
+      padding: 0 32px;
+    }
+
+    & .legal-note {
+      padding: 13px 18px 14px;
+      font-size: 16px;
+      line-height: 24px;
+    }
+  }
+}
+
+/*
+ * Room for the section list beside a full text column: it becomes a sidebar,
+ * and the footer a row.
+ */
+@media (min-width: 960px) {
+  .legal {
+    --sidebar: 240px;
+    --sidebar-gap: 56px;
+    --inner: calc(var(--sidebar) + var(--sidebar-gap) + var(--measure));
+
+    & .legal-layout {
+      display: grid;
+      grid-template-columns: var(--sidebar) minmax(0, var(--measure));
+      column-gap: var(--sidebar-gap);
+    }
+
+    /* Scrolls with the page unless the window is tall enough to keep it in view (below). */
+    & .legal-sidebar {
+      align-self: start;
+      display: block;
+      padding: 4px;
+    }
+
+    & .legal-sidebar-title {
+      padding: 0 12px 6px;
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-lime-text);
+    }
+
+    & .legal-sidebar .legal-toc-list a {
+      font-size: 14px;
+    }
+
+    /* With a mouse, shorter rows. Touch keeps 44px. */
+    @media (pointer: fine) {
+      & .legal-sidebar .legal-toc-list a {
+        min-height: 34px;
+        padding-block: 2px;
+      }
+    }
+
+    & .legal-jump {
+      display: none;
+    }
+
+    & .legal-foot-row {
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 32px;
+      text-align: left;
+    }
+  }
+}
+
+/* Sticky only when the whole list fits the window, so it never scrolls on its own. */
+@media (min-width: 960px) and (min-height: 760px) and (pointer: fine), (min-width: 960px) and (min-height: 1000px) {
+  .legal .legal-sidebar {
+    position: sticky;
+    top: calc(24px + env(safe-area-inset-top, 0px));
+  }
+}
+
+/*
+ * Short screens (phones and tablets held sideways): a compact sky, with the
+ * title and the chip on one row, so the night is well under half the screen.
+ */
+@media (orientation: landscape) and (max-height: 500px) {
+  .legal {
+    & .legal-hero {
+      padding-top: max(10px, env(safe-area-inset-top, 0px));
+      padding-bottom: calc(var(--overlap) + 18px);
+    }
+
+    & .legal-sky {
+      inset: 50px max(0px, calc((100% - 1440px) / 2)) 30px;
+    }
+
+    & .legal-moon {
+      top: 0;
+      right: 8%;
+      width: 26px;
+      height: 26px;
+    }
+
+    & .legal-hero-body {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 16px;
+      margin-top: 8px;
+    }
+
+    & h1 {
+      margin: 0;
+      font-size: 40px;
+      line-height: 44px;
+    }
+
+    & .legal-accent {
+      display: inline-block;
+    }
+
+    & .legal-sheet {
+      padding-top: 32px;
+    }
+  }
+}
+
+/*
+ * A page spanning two screens with a hinge (Surface Duo, some foldables):
+ * the section list on the left screen, the text on the right, nothing under
+ * the hinge. Browsers without viewport segments ignore all of this.
+ */
+@media (horizontal-viewport-segments: 2) {
+  .legal {
+    --left-screen: env(viewport-segment-width 0 0);
+    --hinge: calc(env(viewport-segment-left 1 0) - env(viewport-segment-right 0 0));
+    --right-screen: env(viewport-segment-width 1 0);
+
+    /* Each band is laid out as left screen | hinge | right screen. */
+    & .legal-wrap {
+      display: grid;
+      grid-template-columns: var(--left-screen) var(--hinge) var(--right-screen);
+      column-gap: 0;
+      max-width: none;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    & .legal-wrap > :is(.legal-hero-body, .legal-sidebar, .legal-content, .legal-foot-title) {
+      box-sizing: border-box;
+      padding-inline: 24px;
+    }
+
+    & .legal-hero-body,
+    & .legal-foot-title {
+      grid-column: 1;
+    }
+
+    /* Header: logo at the left screen's edge, links at the right screen's. */
+    & .night-header {
+      grid-column: 1 / -1;
+      padding-inline: 24px;
+    }
+
+    & .legal-hero-body {
+      flex-direction: column-reverse;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+    }
+
+    & .legal-accent {
+      display: table;
+    }
+
+    & .legal-sidebar {
+      display: block;
+      grid-column: 1;
+      position: sticky;
+      top: calc(24px + env(safe-area-inset-top, 0px));
+      align-self: start;
+    }
+
+    & .legal-content {
+      grid-column: 3;
+      max-width: calc(var(--measure) + 48px);
+    }
+
+    & .legal-jump {
+      display: none;
+    }
+
+    & .legal-foot-row {
+      align-items: start;
+      gap: 24px 0;
+      text-align: left;
+    }
+
+    & .legal-foot-row > .legal-foot-title {
+      grid-column: 1;
+    }
+
+    & .legal-foot-row > .legal-cta,
+    & .legal-foot-row > .legal-foot-links {
+      grid-column: 3;
+      justify-self: start;
+      margin-inline: 24px;
+    }
+  }
+}
+
+/*
+ * Small touches. All of them only with motion allowed, and only transform
+ * and opacity, so nothing moves the layout or holds back the first paint.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .legal {
+    /* The stars twinkle, each on its own cycle (legal-page.tsx). The moon stays still. */
+    & .legal-star {
+      animation: legal-twinkle var(--twinkle-time, 4s) ease-in-out var(--twinkle-delay, 0s) infinite alternate;
+    }
+
+    /* The orange word pops in once. Painted from the start: transform only. */
+    & .legal-accent {
+      animation: legal-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both;
+    }
+
+    & .legal-jump summary svg {
+      transition: rotate 0.2s ease;
+    }
+
+    /* The email button lifts on hover and presses down onto its edge. */
+    & .legal-cta {
+      transition: transform 0.12s ease;
+    }
+
+    & .legal-cta:hover {
+      transform: translateY(-2px);
+    }
+
+    & .legal-cta:active {
+      transform: translateY(3px);
+      box-shadow:
+        inset 0 -1px 0 var(--color-day-lime-deep),
+        0 6px 14px rgb(0 0 0 / 0.24);
+    }
+
+    /* The section you jumped to glows, then fades: lime, or peach for the deletion card. */
+    & .legal-section:has(> h2:target)::before {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      z-index: -1;
+      border-radius: 22px;
+      background: rgb(166 232 31 / 0.14);
+      box-shadow:
+        0 0 0 2px rgb(166 232 31 / 0.45),
+        0 0 32px 6px rgb(166 232 31 / 0.35);
+      pointer-events: none;
+      animation: legal-hello 1.2s ease-in both;
+    }
+
+    & .legal-section.is-delete:has(> h2:target)::before {
+      inset: -6px;
+      border-radius: 30px;
+      background: none;
+      box-shadow:
+        0 0 0 4px rgb(255 100 32 / 0.28),
+        0 0 36px 10px rgb(255 100 32 / 0.35);
+    }
+  }
+
+  /* With a mouse: a hovered item's sticker straightens up and lifts. */
+  @media (hover: hover) {
+    .legal {
+      & .legal-sticker {
+        transition:
+          rotate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+          translate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      /* !important beats the tilt IconSticker sets inline. */
+      & .legal-short li:hover .legal-sticker {
+        rotate: 0deg !important;
+        translate: 0 -3px;
+      }
+    }
+  }
+}
+
+@keyframes legal-twinkle {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.2;
+  }
+}
+
+@keyframes legal-pop {
+  from {
+    transform: scale(0.6) rotate(-6deg);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes legal-hello {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* The phone menu opens over the title and text here, not the art: make it solid. */
+@media (max-aspect-ratio: 17/20) and (max-width: 699px) {
+  .legal .night-header .links {
+    background: var(--color-night-deep);
   }
 }

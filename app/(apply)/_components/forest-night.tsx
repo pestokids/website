@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { welcome } from "@/content/apply";
 import { forest } from "./classes";
-import { Sparkle } from "./ui/sticker";
+import { Sparkle } from "@/app/_components/sticker";
 
 /**
  * The doodle tile: star, book, music note, moon, leaf, paper plane, swirl,
