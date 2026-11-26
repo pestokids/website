@@ -17,7 +17,7 @@ test('email: ghost suggestion, typo fix and a long address', async ({ app, brows
   const submit = screen.getByRole('button', 'Submit application');
   // Tapping the headline blurs the field (WebKit doesn't Tab off a field to buttons).
   const blur = () =>
-    screen.getByRole('heading', 'Where should we send your Founding Family letter?').tap();
+    screen.getByRole('heading', 'Where can we reach you?').tap();
   await expect(field).toBeFocused();
   await expect(screen.getByText('Enter your email to submit')).toBeVisible();
   await expect(submit).toBeDisabled();

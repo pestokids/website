@@ -11,7 +11,7 @@ test('welcome screen', { tags: ['smoke'] }, async ({ app, browser, screen, agent
     screen.getByRole('heading', 'Interactive storybook for young kids', { level: 1 }),
   ).toBeVisible();
   await expect(
-    screen.getByText('Stories your kids talk back to. Only 25 Founding Family spots left.'),
+    screen.getByText('Stories your kids talk back to. Founding Families is closed, but the waitlist is open.'),
   ).toBeVisible();
   await expect(screen.getByRole('button', 'Count us in')).toBeEnabled();
 
@@ -22,16 +22,20 @@ test('welcome screen', { tags: ['smoke'] }, async ({ app, browser, screen, agent
       )
     : null;
 
-  // The facts: 3 min to apply, 25 spots left, and the close date (from config).
+  // The pill says when Founding Families closed (from config).
+  await expect(
+    closesShort
+      ? screen.getByText(`Founding Families closed ${closesShort}`)
+      : screen.getByText(/^Founding Families closed [A-Z][a-z]{2} \d{1,2}$/),
+  ).toBeVisible();
+
+  // The facts: 3 min to apply, the waitlist is open, ages 3–8.
   const facts = (await browser.evaluate(() =>
     [...document.querySelectorAll('dl > div')].map(
       (fact) => `${fact.querySelector('dd')?.textContent} ${fact.querySelector('dt')?.textContent}`,
     ),
   )) as string[];
-  expect(facts.slice(0, 2)).toEqual(['3 min to apply', '25 spots left']);
-  expect(facts[2]).toMatch(
-    closesShort ? `${closesShort} closes` : /^[A-Z][a-z]{2} \d{1,2} closes$/,
-  );
+  expect(facts).toEqual(['3 min to apply', 'Open waitlist', '3–8 ages']);
 
   // The consent line right above the button links the legal pages, each in a new tab.
   await expect(

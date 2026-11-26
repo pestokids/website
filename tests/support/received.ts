@@ -31,7 +31,7 @@ export async function expectReceived(
   browser: Browser,
   { names, kidNames, email }: { names: string; kidNames: string[]; email: string },
 ): Promise<StoredSubmitted> {
-  await expect(screen.getByRole('heading', `You’re in the running, ${names}!`)).toBeVisible({
+  await expect(screen.getByRole('heading', `You’re on the waitlist, ${names}!`)).toBeVisible({
     timeout: 30_000,
   });
   await expect(browser).toHaveURL(/\/apply\?step=received$/);
@@ -48,11 +48,11 @@ export async function expectReceived(
   await expect(screen.getByText('Just now')).toBeVisible();
   await expect(screen.getByText('Say hi to Pesto')).toBeVisible();
   await expect(
-    screen.getByText(`He’ll send a 2-minute story for ${names} to try tonight.`),
+    screen.getByText(`Meet him on WhatsApp while ${names} ${kidNames.length > 1 ? 'wait' : 'waits'}.`),
   ).toBeVisible();
   await expect(screen.getByText(`Hi ${names}! Story time tonight?`)).toBeVisible();
-  await expect(screen.getByText('Your Founding Family letter')).toBeVisible();
-  await expect(screen.getByText('In your inbox within 48 hours')).toBeVisible();
+  await expect(screen.getByText('On the waitlist')).toBeVisible();
+  await expect(screen.getByText('We’ll email you if a spot opens up')).toBeVisible();
   await expect(
     screen.getByText(`A copy of your application is on its way to ${email}`),
   ).toBeVisible();

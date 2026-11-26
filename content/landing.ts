@@ -22,7 +22,7 @@ export const meta = {
    * description in the structured data and /llms.txt.
    */
   description:
-    "Pesto, also known as Pesto Kids, is a warm, beautifully made learning app for curious kids aged 3 to 8. Join the Founding Families waitlist.",
+    "Pesto, also known as Pesto Kids, is a warm, beautifully made learning app for curious kids aged 3 to 8. Join the waitlist.",
   siteName: "Pesto",
   /** Alt text for the share card (scripts/share-art.mjs): the wordmark next to flat Pesto. */
   shareAlt: "The word “pesto” next to Pesto, a cartoon green parrot with a big orange beak, on dark green.",

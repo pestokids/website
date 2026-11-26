@@ -36,7 +36,7 @@ test('kids stop at two', async ({ app, browser, screen }) => {
   await expect(screen.getByRole('heading', 'Your kids')).toBeVisible();
   await expect(screen.getByRole('button', `Remove ${KID_A}`)).toBeVisible();
   await expect(screen.getByRole('button', `Remove ${KID_B}`)).toBeVisible();
-  await expect(screen.getByText('Founding Families is for up to 2 kids per family.')).toBeVisible();
+  await expect(screen.getByText('Up to 2 kids per family.')).toBeVisible();
   await expect(screen.getByRole('button', '+ Add another kid')).toHaveCount(0);
   await expect(screen.getByRole('textbox')).toHaveCount(0);
 

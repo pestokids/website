@@ -542,11 +542,10 @@ describe("personalisation · 1 vs 2 kids", () => {
   });
 
   it("screen 9: received", () => {
-    expect(content.received.title(one)).toBe(`You’re in the running, ${A}!`);
-    expect(content.received.title(two)).toBe(`You’re in the running, ${A} & ${B}!`);
-    expect(content.received.sayHi.sub(two)).toBe(
-      `He’ll send a 2-minute story for ${A} & ${B} to try tonight.`,
-    );
+    expect(content.received.title(one)).toBe(`You’re on the waitlist, ${A}!`);
+    expect(content.received.title(two)).toBe(`You’re on the waitlist, ${A} & ${B}!`);
+    expect(content.received.sayHi.sub(one)).toBe(`Meet him on WhatsApp while ${A} waits.`);
+    expect(content.received.sayHi.sub(two)).toBe(`Meet him on WhatsApp while ${A} & ${B} wait.`);
     expect(content.received.sayHi.chatMessage(one)).toBe(`Hi ${A}! Story time tonight?`);
   });
 

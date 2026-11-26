@@ -102,18 +102,19 @@ describe("confirmationEmail.text", () => {
     refCode: "PF-TEST",
   };
 
-  it("names the beta day when it's set", () => {
-    expect(confirmationEmail.text({ ...data, betaDate: "October 31" })).toContain(
-      "\nBeta day is October 31. Your Founding Family letter will be in your inbox within 48 hours.\n",
-    );
+  it("says Founding Families is closed and promises no spot, letter or date", () => {
+    const text = confirmationEmail.text({ ...data, betaDate: null });
+    expect(confirmationEmail.subject).toBe("You’re on the Pesto waitlist");
+    expect(text).toContain("Thanks for joining the Pesto waitlist!");
+    expect(text).toContain("Founding Families is now closed, so we can’t promise a spot or a date.");
+    expect(text).not.toMatch(/letter|48 hours|Beta day/);
   });
 
-  it("leaves only the beta day out when it isn't set", () => {
+  it("names the beta day only when it's set", () => {
     const withDate = confirmationEmail.text({ ...data, betaDate: "October 31" });
     const without = confirmationEmail.text({ ...data, betaDate: null });
-    expect(without).not.toContain("Beta day");
-    expect(without).toContain("\nYour Founding Family letter will be in your inbox within 48 hours.\n");
-    expect(without).toBe(withDate.replace("Beta day is October 31. ", ""));
+    expect(withDate).toContain("\nBeta day is October 31.\n");
+    expect(without).toBe(withDate.replace("\n\nBeta day is October 31.", ""));
   });
 });
 
@@ -158,7 +159,7 @@ describe("email.sendConfirmation", () => {
     expect(body).toMatchObject({
       from: "Pesto <test.sender@example.com>",
       to: ["test.parent@example.com"],
-      subject: "Your Founding Family application",
+      subject: "You’re on the Pesto waitlist",
     });
     expect(body.html).toBeUndefined();
     const prefill = encodeURIComponent(`Hi Pesto! 👋 (${refCode})`);
@@ -176,7 +177,7 @@ describe("email.sendConfirmation", () => {
     expect(doc?.emailStatus).toBe("sent");
     const body = JSON.parse((fetchSpy.mock.calls[0] as unknown as [string, RequestInit])[1].body as string);
     expect(body.text).not.toContain("Beta day");
-    expect(body.text).toContain("Your Founding Family letter will be in your inbox within 48 hours.");
+    expect(body.text).toContain("We’ll email you if a spot opens up.");
   });
 
   it("marks the email failed, without retrying, when Resend rejects it with a 4xx", async () => {
