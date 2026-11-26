@@ -131,7 +131,6 @@ describe("applications.submit", () => {
     expect(docs[0]).toMatchObject({
       refCode: first.refCode,
       createdAt: before?.createdAt,
-      updatedAt: before!.updatedAt + 60_000,
       kids: [{ name: "Test Kid C", age: "3" }],
       goals: ["puzzles"],
       afterSchool: ["mostly_school"],
@@ -144,6 +143,10 @@ describe("applications.submit", () => {
       posthogDistinctId: "test-distinct-id",
       emailStatus: "pending",
     });
+    // About a minute later. convex-test can nudge the clock a millisecond past
+    // the scheduled functions the first submit created.
+    expect(docs[0].updatedAt - before!.updatedAt).toBeGreaterThanOrEqual(60_000);
+    expect(docs[0].updatedAt - before!.updatedAt).toBeLessThan(60_010);
   });
 
   it("gives different emails different ref codes", async () => {

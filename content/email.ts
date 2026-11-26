@@ -1,10 +1,18 @@
 /**
- * Copy for the emails Convex sends: the confirmation after an application is
- * submitted, and the team's daily digest. Plain text on purpose: it reads
- * like a note from a person, and renders the same in every mail app.
+ * Copy for the emails Convex sends: the confirmation after someone joins the
+ * waitlist, and the alert the team gets for every application. Plain text on
+ * purpose: it reads like a note from a person, and renders the same in every
+ * mail app.
+ *
+ * Founding Families is closed, so nothing here promises a spot or a date.
  */
-import { parseIsoDate } from "../lib/dates";
-import type { Family } from "./apply";
+import {
+  afterSchoolOptions,
+  goalOptions,
+  retiredAfterSchoolOptions,
+  retiredGoalOptions,
+  type Family,
+} from "./apply";
 
 export type ConfirmationEmailData = {
   family: Family;
@@ -18,21 +26,21 @@ export type ConfirmationEmailData = {
 const ageLabel = (age: string) => (age === "8+" ? "8 or older" : `age ${age}`);
 
 export const confirmationEmail = {
-  subject: "Your Founding Family application",
+  subject: "You’re on the Pesto waitlist",
   text: ({ family, kids, whatsappUrl, betaDate, refCode }: ConfirmationEmailData) =>
     [
       "Hi there,",
       "",
-      `Thank you for applying to Pesto Founding Families! We’ve got your application for ${family.names}:`,
+      `Thanks for joining the Pesto waitlist! We’ve got your details for ${family.names}:`,
       "",
       ...kids.map((kid) => `  • ${kid.name}, ${ageLabel(kid.age)}`),
       "",
-      "Say hi to Pesto on WhatsApp. He’ll send a 2-minute story for " +
-        `${family.names} to try tonight:`,
-      whatsappUrl,
+      "Founding Families is now closed, so we can’t promise a spot or a date. " +
+        "We’ll email you if a spot opens up.",
+      ...(betaDate ? ["", `Beta day is ${betaDate}.`] : []),
       "",
-      (betaDate ? `Beta day is ${betaDate}. ` : "") +
-        "Your Founding Family letter will be in your inbox within 48 hours.",
+      "In the meantime, say hi to Pesto on WhatsApp:",
+      whatsappUrl,
       "",
       "Warmly,",
       "The Pesto team",
@@ -42,52 +50,51 @@ export const confirmationEmail = {
     ].join("\n"),
 } as const;
 
-export type DigestCounts = {
-  total: number;
-  bySourceType: { paid: number; organic: number; ai: number; direct: number };
-  /** Most first. */
-  bySource: { source: string; count: number }[];
+export type ApplicationAlertData = {
+  /** False when an existing applicant submitted again and changed their answers. */
+  isNew: boolean;
+  family: Family;
+  email: string;
+  kids: { name: string; age: string }[];
+  /** True when a kid's name looked made up and the parent confirmed it anyway. */
+  nameFlagged: boolean;
+  goals: string[];
+  afterSchool: string[];
+  sourceType: string;
+  source: string;
+  campaign?: string;
+  refCode: string;
+  /** e.g. "Nov 27, 9:14 AM", in Pacific time. */
+  submittedLabel: string;
 };
 
-export type DigestEmailData = DigestCounts & {
-  /** The Los Angeles day counted, YYYY-MM-DD. */
-  date: string;
-};
+const goalLabels = new Map<string, string>(
+  [...goalOptions, ...retiredGoalOptions].map((o) => [o.slug, o.label]),
+);
+const afterSchoolLabels = new Map<string, string>(
+  [...afterSchoolOptions, ...retiredAfterSchoolOptions].map((o) => [o.slug, o.label]),
+);
+const labelled = (slugs: string[], labels: Map<string, string>) =>
+  slugs.length === 0 ? "(none)" : slugs.map((s) => labels.get(s) ?? s).join(", ");
 
-/** Sources come from UTMs, so anything can turn up; long ones are cut. */
-const SOURCE_LABEL_MAX = 40;
-
-const applications = (n: number) => `${n} new application${n === 1 ? "" : "s"}`;
-const dayLabel = (date: string) => parseIsoDate(date)?.short ?? date;
-
-function table(rows: [string, number][]): string[] {
-  if (rows.length === 0) return ["  (none)"];
-  const labels = rows.map(([label]) =>
-    label.length > SOURCE_LABEL_MAX ? `${label.slice(0, SOURCE_LABEL_MAX - 1)}…` : label,
-  );
-  const width = Math.max(...labels.map((l) => l.length));
-  return rows.map(([, count], i) => `  ${labels[i].padEnd(width)}  ${count}`);
-}
-
-/** Counts only: no kids' names or parent emails. */
-export const digestEmail = {
-  subject: ({ date, total }: DigestEmailData) =>
-    `Founding Families: ${applications(total)} on ${dayLabel(date)}`,
-  text: ({ date, total, bySourceType, bySource }: DigestEmailData) =>
+/** One email per application, to the team. */
+export const applicationAlertEmail = {
+  subject: ({ isNew, family }: ApplicationAlertData) =>
+    `${isNew ? "New" : "Updated"} waitlist application: ${family.names}`,
+  text: (d: ApplicationAlertData) =>
     [
-      `${applications(total)} on ${dayLabel(date)} (Pacific time).`,
+      d.isNew
+        ? `New waitlist application, ${d.submittedLabel} (Pacific time).`
+        : `${d.email} applied before and just submitted again, ${d.submittedLabel} (Pacific time). These are their new answers.`,
       "",
-      "By source type",
-      ...table([
-        ["paid", bySourceType.paid],
-        ["organic", bySourceType.organic],
-        ["ai", bySourceType.ai],
-        ["direct", bySourceType.direct],
-      ]),
+      `Parent email: ${d.email}`,
+      "Kids:",
+      ...d.kids.map((kid) => `  • ${kid.name}, ${ageLabel(kid.age)}`),
+      ...(d.nameFlagged ? ["  (A name looked made up; the parent confirmed it.)"] : []),
+      `Wants them to love: ${labelled(d.goals, goalLabels)}`,
+      `After school: ${labelled(d.afterSchool, afterSchoolLabels)}`,
       "",
-      "By source",
-      ...table(bySource.map(({ source, count }) => [source, count])),
-      "",
-      "Repeat submits from an existing email aren’t counted again.",
+      `Source: ${d.sourceType} · ${d.source}${d.campaign ? ` · ${d.campaign}` : ""}`,
+      `Application code: ${d.refCode}`,
     ].join("\n"),
 } as const;

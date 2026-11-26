@@ -67,7 +67,7 @@ test('reload resumes mid-flow; after submit the form stays closed', async ({
   await screen.getByRole('button', 'Submit application').tap();
   await expectReceived(screen, browser, { names: KID_A, kidNames: [KID_A], email });
 
-  const received = screen.getByRole('heading', `You’re in the running, ${KID_A}!`);
+  const received = screen.getByRole('heading', `You’re on the waitlist, ${KID_A}!`);
 
   // Back right after submitting doesn't reopen the form.
   await browser.back();

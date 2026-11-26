@@ -74,7 +74,7 @@ test('two kids apply and reach the received screen', async ({ app, browser, scre
 
   // 8 Email
   await expect(
-    screen.getByRole('heading', 'Where should we send your Founding Family letter?'),
+    screen.getByRole('heading', 'Where can we reach you?'),
   ).toBeVisible();
   await agent.act('type the email address {email}', { params: { email: unique(email) } });
   await expect(screen.getByLabel('Email')).toHaveValue(email);

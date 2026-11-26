@@ -153,35 +153,33 @@ export const errors = {
   /** Same, when there's nothing to suggest. */
   emailInvalidPlain: "Hmm, that doesn’t look right.",
   /** A throwaway-inbox domain (lib/disposable-email.ts). */
-  emailDisposable: "That looks like a temporary inbox. Use one you’ll check, so your letter finds you.",
+  emailDisposable: "That looks like a temporary inbox. Use one you’ll check, so our emails find you.",
   /** The address looks fine, but its domain can't receive mail (no MX). */
   emailUndeliverable: "We can’t send to that address. Check the spelling?",
   network: "Couldn’t send that. Check your connection and try again.",
 } as const;
 
 export const meta = {
-  title: "Pesto Founding Families",
+  title: "Join the Pesto waitlist",
   description:
-    "Early access to Pesto, the playful learning app for kids 3–8. 100 families. Apply in 3 minutes.",
+    "Join the waitlist for Pesto, the playful learning app for kids 3–8. Founding Families is closed. Apply in 3 minutes.",
   url: "https://pestokids.com/apply",
   siteName: "Pesto",
 } as const;
 
-/** Founding Family spots still open, shown on the welcome screen. */
-export const FOUNDING_SPOTS_LEFT = 25;
-
 export const welcome = {
   /** The wordmark above Pesto. */
   brand: "pesto",
-  pill: "Founding Families · Class of 2026",
+  /** The close date comes from config (NEXT_PUBLIC_ADMISSIONS_CLOSE_DATE). */
+  pill: (admissionsCloseShort: string) => `Founding Families closed ${admissionsCloseShort}`,
   /** Two lines; `highlight` gets the lime marker that sweeps in. */
   tagline: { lines: ["Interactive storybook", "for young kids"], highlight: "storybook" },
-  sub: `Stories your kids talk back to. Only ${FOUNDING_SPOTS_LEFT} Founding Family spots left.`,
-  /** The three fact tiles. The close date comes from config. */
-  facts: (admissionsCloseShort: string) => [
+  sub: "Stories your kids talk back to. Founding Families is closed, but the waitlist is open.",
+  /** The three fact tiles. */
+  facts: [
     { value: "3 min", label: "to apply" },
-    { value: String(FOUNDING_SPOTS_LEFT), label: "spots left", hot: true },
-    { value: admissionsCloseShort, label: "closes" },
+    { value: "Open", label: "waitlist", hot: true },
+    { value: "3–8", label: "ages" },
   ],
   cta: "Count us in",
   /** Fine print right above the button: "By continuing, you agree to our Terms and Privacy Policy." Links open in a new tab. */
@@ -213,7 +211,7 @@ export const names = {
   /** Gentle check on a name that looks made up. Never blocks: Next or the button carries on. */
   nudge: (name: string) => `Is that ${name}’s real name?`,
   nudgeConfirm: "Yes, that’s right",
-  capNote: `Founding Families is for up to ${MAX_KIDS} kids per family.`,
+  capNote: `Up to ${MAX_KIDS} kids per family.`,
 } as const;
 
 export const ages = {
@@ -283,7 +281,7 @@ export const why = {
 } as const;
 
 export const email = {
-  headline: ["Where should we send your", "Founding Family letter?"],
+  headline: ["Where can we", "reach you?"],
   label: "Email",
   placeholder: "you@email.com",
   lastStep: "Last step!",
@@ -306,7 +304,7 @@ export const email = {
 } as const;
 
 export const received = {
-  title: (family: Family) => `You’re in the running, ${family.names}!`,
+  title: (family: Family) => `You’re on the waitlist, ${family.names}!`,
   meta: (todayShort: string) => `Application received · ${todayShort}`,
   nextTitle: "What happens next",
   /** "1 of 4 done"; 3 steps while the beta day isn't set. */
@@ -315,13 +313,14 @@ export const received = {
   sayHi: {
     eyebrow: "NOW",
     title: "Say hi to Pesto",
-    sub: (family: Family) => `He’ll send a 2-minute story for ${family.names} to try tonight.`,
+    sub: (family: Family) => `Meet him on WhatsApp while ${family.names} ${family.plural ? "wait" : "waits"}.`,
     chatName: "Pesto",
     chatMessage: (family: Family) => `Hi ${family.names}! Story time tonight?`,
     chatTime: "8:02 PM",
     cta: "Open WhatsApp",
   },
-  letter: { title: "Your Founding Family letter", sub: "In your inbox within 48 hours" },
+  /** No promises: Founding Families is closed, so there's no date or guaranteed spot. */
+  letter: { title: "On the waitlist", sub: "We’ll email you if a spot opens up" },
   betaDay: {
     title: "Beta day",
     cta: "+ Calendar",
@@ -333,7 +332,7 @@ export const received = {
 export const desktop = {
   /** The lime pill. The close date comes from config. */
   pill: (admissionsCloseShort: string) =>
-    `Only ${FOUNDING_SPOTS_LEFT} spots left · Closes ${admissionsCloseShort}`,
+    `Founding Families closed ${admissionsCloseShort} · Waitlist open`,
   /** Two lines; the second line's `highlight` is lime. */
   headline: { lines: ["Let’s continue", "on your phone."], highlight: "your phone." },
   sub: "Scan the code. You’ll be done in 3 minutes.",
@@ -371,7 +370,7 @@ export const pesto = {
       "I love a good story!",
       "Squawk! I mean… hello!",
       "Ready for an adventure?",
-      `Pssst. Only ${FOUNDING_SPOTS_LEFT} spots left!`,
+      "Pssst. The waitlist is open!",
       "Tap “Count us in”, I’ll wait.",
     ],
   },
@@ -425,18 +424,18 @@ export const pesto = {
     fallback: "Love it!",
   },
   email: {
-    intro: "Last one, then you’re in!",
+    intro: "Last one, then you’re on the list!",
     /** The existing typo check found one: "gmial.com" → "gmail.com". */
     typo: (typed: string, suggested: string) => `Hmm, ${typed}? Did you mean ${suggested}?`,
     good: "Looks perfect!",
   },
   received: {
-    yay: "Yay! You’re in!",
+    yay: "Yay! You’re on the list!",
     /** One per tap on Pesto, in order, then round again. */
     cheers: (family: Family) => [
       "Woohoo! See you on WhatsApp!",
       "Best. Day. Ever.",
-      `${family.names} ${family.plural ? "are" : "is"} in!`,
+      `${family.names} ${family.plural ? "are" : "is"} on the list!`,
     ],
     /** The second WhatsApp nudge, at about 12 s. */
     nudge: "Psst! Say hi down there.",

@@ -48,7 +48,7 @@ test('desktop: continue on your phone', { tags: ['smoke'] }, async ({ app, brows
   await openApply(app, browser, visitPath);
 
   await expect(screen.getByRole('heading', 'Let’s continue on your phone.')).toBeVisible();
-  await expect(screen.getByText(/^Only 25 spots left · Closes /)).toBeVisible();
+  await expect(screen.getByText(/^Founding Families closed .+ · Waitlist open$/)).toBeVisible();
   await expect(screen.getByText('Scan the code. You’ll be done in 3 minutes.')).toBeVisible();
   await expect(screen.getByText('pestokids.com/apply')).toBeVisible();
   await expect(screen.getByText('Point your camera here')).toBeVisible();

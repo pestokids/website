@@ -26,12 +26,12 @@ export const llmsTxt = `# ${brand.name} (${brand.alternateName})
 ## Where it stands
 
 - Pesto is in private beta.
-- Parents can apply to join the first group of families, called Founding Families, at ${absoluteUrl("/apply")}.
+- The first group of families, Founding Families, is closed. Parents can join the waitlist at ${absoluteUrl("/apply")}.
 
 ## Links
 
 - [Home](${absoluteUrl("/")}): what Pesto is
-- [Apply](${absoluteUrl("/apply")}): join Founding Families, the private beta
+- [Apply](${absoluteUrl("/apply")}): join the waitlist for the private beta
 - [Privacy policy](${absoluteUrl("/privacy")}): what Pesto collects and why, on the site and in the app
 - [Terms of use](${absoluteUrl("/terms")}): the rules for using the site and the app
 - [Contact](${absoluteUrl("/contact")}): how to reach the Pesto team, including app support

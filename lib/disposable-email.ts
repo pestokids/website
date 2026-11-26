@@ -1,6 +1,6 @@
 /**
- * Throwaway-inbox domains that applications can't use: the Founding Family
- * letter has to reach a parent who'll read it.
+ * Throwaway-inbox domains that applications can't use: our emails have to
+ * reach a parent who'll read them.
  *
  * Kept short on purpose: well-known temporary-mail services only. Privacy
  * relays that forward to a real inbox (Apple Hide My Email, Firefox Relay,

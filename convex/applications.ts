@@ -157,6 +157,12 @@ export const submit = mutation({
       applicationId,
       submittedAt: now,
     });
+    // The team's email about this application (off unless APPLICATION_ALERT_EMAIL is set).
+    await ctx.scheduler.runAfter(0, internal.alerts.sendApplicationAlert, {
+      applicationId,
+      submittedAt: now,
+      isNew: !existing,
+    });
     return { applicationId, refCode };
   },
 });

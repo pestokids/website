@@ -28,11 +28,11 @@ To start the flow over locally, open `/apply?reset=1`. It clears the saved draft
 - `applications.submit`: validates with the same rules as the flow (`lib/application.ts`), re-checks the kids' names for likely-fake ones (`lib/name-check.ts`, stored as `nameCheck`; never a rejection), upserts by email (a repeat keeps its ref code and first-touch source), rate-limits per email and globally, and schedules the confirmation email.
 - `email.sendConfirmation`: sends the confirmation through Resend and sets `emailStatus`. It only sends when `EMAIL_SEND_ENABLED=true`; otherwise the status is `skipped`. Network errors and Resend 429/5xx are retried twice (after ~1 and ~10 minutes) with the same idempotency key, then the status is `failed`.
 
-- `digest.sendDaily` (cron, `crons.ts`): at 9am Los Angeles time, emails yesterday's new-application counts (total, by `sourceType` and by `source`; no names or emails) to `DIGEST_EMAIL` through Resend. Does nothing when `DIGEST_EMAIL` is unset. Send one now with `npx convex run digest:sendDaily '{"force": true}'`.
+- `alerts.sendApplicationAlert`: scheduled by every real submit (not spam-trap ones). Emails the team one alert per application through Resend, with the parent's email, the kids, their answers and the source. A repeat submit from the same parent sends an "Updated" alert. Does nothing when `APPLICATION_ALERT_EMAIL` is unset. There's no daily digest any more.
 
 Spam: the email step has an off-screen trap field. A submit with it filled gets a normal-looking response, but nothing is saved or sent. Throwaway-inbox domains (`lib/disposable-email.ts`) are rejected by the shared validation. On submit the flow checks, in order: spam trap (a filled one goes straight to the server's decoy), throwaway inbox, MX lookup, then Convex.
 
-Convex env vars (set per deployment with `npx convex env set KEY value`, or in the dashboard): `EMAIL_SEND_ENABLED`, `RESEND_API_KEY`, `EMAIL_FROM`, `NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_BETA_DATE`, `DIGEST_EMAIL`.
+Convex env vars (set per deployment with `npx convex env set KEY value`, or in the dashboard): `EMAIL_SEND_ENABLED`, `RESEND_API_KEY`, `EMAIL_FROM`, `NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_BETA_DATE`, `APPLICATION_ALERT_EMAIL`.
 
 Uncaught browser errors go to PostHog error tracking (`capture_exceptions`), only when analytics is on.
 

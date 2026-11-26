@@ -77,8 +77,8 @@ describe("Pesto's lines", () => {
       possessive: "their",
       plural: true,
     };
-    expect(pesto.received.cheers(one)[2]).toBe("Test Kid A is in!");
-    expect(pesto.received.cheers(two)[2]).toBe("Test Kid A & Test Kid B are in!");
+    expect(pesto.received.cheers(one)[2]).toBe("Test Kid A is on the list!");
+    expect(pesto.received.cheers(two)[2]).toBe("Test Kid A & Test Kid B are on the list!");
   });
 
   it("types out names and typos as said", () => {
@@ -88,12 +88,15 @@ describe("Pesto's lines", () => {
 });
 
 describe("welcome copy", () => {
-  it("shows 25 spots in the sub line and the facts, and the close date from config", () => {
-    expect(welcome.sub).toBe("Stories your kids talk back to. Only 25 Founding Family spots left.");
-    expect(welcome.facts("Nov 8")).toEqual([
+  it("says Founding Families closed on the date from config, and that the waitlist is open", () => {
+    expect(welcome.pill("Nov 8")).toBe("Founding Families closed Nov 8");
+    expect(welcome.sub).toBe(
+      "Stories your kids talk back to. Founding Families is closed, but the waitlist is open.",
+    );
+    expect(welcome.facts).toEqual([
       { value: "3 min", label: "to apply" },
-      { value: "25", label: "spots left", hot: true },
-      { value: "Nov 8", label: "closes" },
+      { value: "Open", label: "waitlist", hot: true },
+      { value: "3–8", label: "ages" },
     ]);
     expect(welcome.tagline.lines.join(" ")).toBe("Interactive storybook for young kids");
   });

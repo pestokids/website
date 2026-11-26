@@ -49,7 +49,7 @@ const HI_AT_MS = 700;
 export function WelcomeStep() {
   const { advance } = useFlow();
   const entrance = useEntrance();
-  const facts = welcome.facts(config.admissionsCloseDate.short);
+  const facts = welcome.facts;
   const [line1, line2] = welcome.tagline.lines;
   const [beforeHighlight, afterHighlight] = line1.split(welcome.tagline.highlight);
 
@@ -122,7 +122,7 @@ export function WelcomeStep() {
       </div>
 
       <p className="mt-1.5 rounded-full bg-day-peach px-3 py-1.5 text-xs leading-4 font-extrabold text-day-orange-text">
-        {welcome.pill}
+        {welcome.pill(config.admissionsCloseDate.short)}
       </p>
       <h1 className="mt-3 text-center font-display text-[clamp(27px,8.4vw,31px)] leading-[1.12] font-extrabold tracking-[-0.4px]">
         <span className="block">
